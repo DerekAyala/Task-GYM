@@ -2,6 +2,7 @@ package com.epam.taskgym.storage;
 
 import com.epam.taskgym.entity.BaseIdEntity;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -13,6 +14,10 @@ public abstract class InMemoryDb<T extends BaseIdEntity> {
 
     public Map<Long, T> getStorage() {
         return new HashMap<>(storage);
+    }
+
+    public Collection<T> findAll() {
+        return storage.values();
     }
 
     public Optional<T> findById(Long id) {
