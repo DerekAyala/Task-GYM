@@ -7,9 +7,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class Training {
+public class Training extends BaseIdEntity {
 
-    private Long id;
     private Long traineeId;
     private Long trainerId;
     private String name;
