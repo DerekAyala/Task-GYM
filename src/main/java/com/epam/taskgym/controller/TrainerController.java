@@ -1,52 +1,55 @@
 package com.epam.taskgym.controller;
 
+import com.epam.taskgym.dto.TrainerDTO;
+import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.service.TrainerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@Controller
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/trainers")
 public class TrainerController {
 
     @Autowired
     private TrainerService trainerService;
 
-    @GetMapping("/trainerLogin")
-    public String showTrainerLoginForm() {
-        return "trainerLogin";
-    }
-
-    @PostMapping("/trainerLogin")
-    public String handleTrainerLogin(@RequestParam String username,
-                                     @RequestParam String password,
-                                     Model model) {
-        boolean loginSuccessful = trainerService.authenticateTrainer(username, password);
+    @PostMapping("/login")
+    public String handleTrainerLogin(@RequestBody Map<String, String> body) {
+        boolean loginSuccessful = trainerService.authenticateTrainer(body.get("username"), body.get("password"));
         if (loginSuccessful) {
-            return "redirect:/trainerDashboard";
+            return "Login Successful";
         } else {
-            model.addAttribute("errorMessage", "Invalid username or password. Please try again.");
-            return "trainerLogin";
+            return "Invalid username or password";
         }
     }
 
-    @GetMapping("/trainerRegister")
-    public String showTrainerRegistrationForm() {
-        return "trainerRegister";
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public TrainerDTO handleTrainerRegistration(@RequestBody Map<String, String> map) {
+        return trainerService.registerTrainer(map.get("firstName"), map.get("lastName"), map.get("specialization"));
     }
 
-    @PostMapping("/trainerRegister")
-    public String handleTrainerRegistration(@RequestParam String firstName,
-                                            @RequestParam String lastName,
-                                            @RequestParam String specialization,
-                                            RedirectAttributes redirectAttributes) {
-        User user = trainerService.registerTrainer(firstName, lastName, specialization);
-        redirectAttributes.addFlashAttribute("username", user.getUsername());
-        redirectAttributes.addFlashAttribute("password", user.getPassword());
-        return "redirect:/registrationSuccess";
+    @GetMapping("/{username}")
+    public TrainerDTO getTrainer(@PathVariable String username) {
+        return trainerService.getTrainer(username);
+    }
+
+    @PutMapping("/{username}")
+    public TrainerDTO updateTrainer(@PathVariable String username, @RequestBody Map<String, String> updates) {
+        return trainerService.updateTrainer(username, updates);
+    }
+
+    @DeleteMapping("/{username}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTrainer(@PathVariable String username) {
+        trainerService.deleteTrainer(username);
     }
 }

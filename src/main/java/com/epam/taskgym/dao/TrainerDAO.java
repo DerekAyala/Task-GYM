@@ -55,6 +55,25 @@ public class TrainerDAO {
         return trainer;
     }
 
+    public Trainer findByUserId(Long userId) {
+        for (Trainer trainer : db.findAll()) {
+            if (trainer.getUserId().equals(userId)) {
+                return trainer;
+            }
+        }
+        return null;
+    }
+
+    public Trainer findByUsername(String username) {
+        for (Trainer trainer : db.findAll()) {
+            Optional<User> userOptional = userDb.findById(trainer.getUserId());
+            if (userOptional.isPresent() && userOptional.get().getUsername().equals(username)) {
+                return trainer;
+            }
+        }
+        return null;
+    }
+
     public Trainer findByUsernameAndPassword(String username, String password) {
         for (Trainer trainer : db.findAll()) {
             User user = userDb.findById(trainer.getUserId())
