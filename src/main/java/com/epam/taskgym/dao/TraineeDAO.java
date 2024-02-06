@@ -1,6 +1,7 @@
 package com.epam.taskgym.dao;
 
 import com.epam.taskgym.entity.Trainee;
+import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.service.CurrentUserContext;
 import com.epam.taskgym.storage.TraineeInMemoryDb;
@@ -55,6 +56,26 @@ public class TraineeDAO {
         currentUserContext.setUserType("Trainee");
         return trainee;
     }
+
+    public Trainee findByUserId(Long userId) {
+        for (Trainee trainee : db.findAll()) {
+            if (trainee.getUserId().equals(userId)) {
+                return trainee;
+            }
+        }
+        return null;
+    }
+
+    public Trainee findByUsername(String username) {
+        for (Trainee trainee : db.findAll()) {
+            Optional<User> userOptional = userDb.findById(trainee.getUserId());
+            if (userOptional.isPresent() && userOptional.get().getUsername().equals(username)) {
+                return trainee;
+            }
+        }
+        return null;
+    }
+
 
     public Trainee findByUsernameAndPassword(String username, String password) {
         for (Trainee trainee : db.findAll()) {
