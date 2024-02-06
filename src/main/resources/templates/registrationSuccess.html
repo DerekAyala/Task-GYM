@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h2>Registration Successful!</h2>
+    <p>Your username: <span th:text="${username}"></span></p>
+    <p>Your password: <span th:text="${password}"></span></p>
+    <a href="#" th:href="@{/}" class="btn btn-primary">Home</a> <!-- Home button -->
+</div>
+</body>
+</html>

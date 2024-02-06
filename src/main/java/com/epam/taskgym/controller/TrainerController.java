@@ -1,5 +1,6 @@
 package com.epam.taskgym.controller;
 
+import com.epam.taskgym.entity.User;
 import com.epam.taskgym.service.TrainerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -7,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class TrainerController {
@@ -40,8 +42,11 @@ public class TrainerController {
     @PostMapping("/trainerRegister")
     public String handleTrainerRegistration(@RequestParam String firstName,
                                             @RequestParam String lastName,
-                                            @RequestParam String specialization) {
-        trainerService.registerTrainer(firstName, lastName, specialization);
-        return "redirect:/trainerLogin";
+                                            @RequestParam String specialization,
+                                            RedirectAttributes redirectAttributes) {
+        User user = trainerService.registerTrainer(firstName, lastName, specialization);
+        redirectAttributes.addFlashAttribute("username", user.getUsername());
+        redirectAttributes.addFlashAttribute("password", user.getPassword());
+        return "redirect:/registrationSuccess";
     }
 }

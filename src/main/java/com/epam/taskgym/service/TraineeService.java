@@ -23,7 +23,7 @@ public class TraineeService {
         return trainee != null;
     }
 
-    public void registerTrainee(String firstName, String lastName, String dateOfBirth, String address) {
+    public User registerTrainee(String firstName, String lastName, String dateOfBirth, String address) {
         String username = generateUniqueUsername(firstName, lastName);
         String password = generateRandomPassword();
 
@@ -41,6 +41,7 @@ public class TraineeService {
         trainee.setAddress(address);
 
         traineeDAO.save(trainee);
+        return user;
     }
 
     private String generateUniqueUsername(String firstName, String lastName) {

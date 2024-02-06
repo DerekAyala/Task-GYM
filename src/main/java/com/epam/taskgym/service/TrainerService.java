@@ -23,7 +23,7 @@ public class TrainerService {
         return trainer != null;
     }
 
-    public void registerTrainer(String firstName, String lastName, String specialization) {
+    public User registerTrainer(String firstName, String lastName, String specialization) {
         String username = generateUniqueUsername(firstName, lastName);
         String password = generateRandomPassword();
 
@@ -40,6 +40,7 @@ public class TrainerService {
         trainer.setSpecialization(specialization);
 
         trainerDAO.save(trainer);
+        return user;
     }
 
     private String generateUniqueUsername(String firstName, String lastName) {
