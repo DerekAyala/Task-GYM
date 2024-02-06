@@ -65,5 +65,4 @@ public class TrainerDAO {
         }
         return null;
     }
-
 }
