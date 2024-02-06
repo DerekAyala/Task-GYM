@@ -31,4 +31,10 @@ public class UserDAO {
     public User update(User user) {
         return db.update(user);
     }
+
+    public Optional<User> findByUsername(String username) {
+        return db.findAll().stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst();
+    }
 }
