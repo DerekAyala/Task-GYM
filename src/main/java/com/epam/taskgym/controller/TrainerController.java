@@ -22,34 +22,48 @@ public class TrainerController {
     private TrainerService trainerService;
 
     @PostMapping("/login")
-    public String handleTrainerLogin(@RequestBody Map<String, String> body) {
+    public ResponseEntity<String> handleTrainerLogin(@RequestBody Map<String, String> body) {
         boolean loginSuccessful = trainerService.authenticateTrainer(body.get("username"), body.get("password"));
         if (loginSuccessful) {
-            return "Login Successful";
+            return ResponseEntity.ok("Login Successful");
         } else {
-            return "Invalid username or password";
+            return ResponseEntity.badRequest().body("Invalid username or password");
         }
     }
 
     @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public TrainerDTO handleTrainerRegistration(@RequestBody Map<String, String> map) {
-        return trainerService.registerTrainer(map.get("firstName"), map.get("lastName"), map.get("specialization"));
+    public ResponseEntity<TrainerDTO> handleTrainerRegistration(@RequestBody Map<String, String> map) {
+        TrainerDTO result = trainerService.registerTrainer(map.get("firstName"), map.get("lastName"), map.get("specialization"));
+        return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
     @GetMapping("/{username}")
-    public TrainerDTO getTrainer(@PathVariable String username) {
-        return trainerService.getTrainer(username);
+    public ResponseEntity<TrainerDTO> getTrainer(@PathVariable String username) {
+        TrainerDTO result = trainerService.getTrainer(username);
+        if(result != null) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PutMapping("/{username}")
-    public TrainerDTO updateTrainer(@PathVariable String username, @RequestBody Map<String, String> updates) {
-        return trainerService.updateTrainer(username, updates);
+    public ResponseEntity<TrainerDTO> updateTrainer(@PathVariable String username, @RequestBody Map<String, String> updates) {
+        try {
+            TrainerDTO updatedTrainer = trainerService.updateTrainer(username, updates);
+            return ResponseEntity.ok(updatedTrainer);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/{username}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteTrainer(@PathVariable String username) {
-        trainerService.deleteTrainer(username);
+    public ResponseEntity<Void> deleteTrainer(@PathVariable String username) {
+        try {
+            trainerService.deleteTrainer(username);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
