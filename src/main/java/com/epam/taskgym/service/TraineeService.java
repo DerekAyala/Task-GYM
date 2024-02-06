@@ -130,7 +130,7 @@ public class TraineeService {
         traineeDTO.setAddress(trainee.getAddress());
     }
 
-    private String generateUniqueUsername(String firstName, String lastName) {
+    public String generateUniqueUsername(String firstName, String lastName) {
         String baseUsername = firstName + "." + lastName;
         String username = baseUsername;
         int suffix = 1;
@@ -143,7 +143,7 @@ public class TraineeService {
         return username;
     }
 
-    private String generateRandomPassword() {
+    public String generateRandomPassword() {
         return new Random().ints(48, 122)
                 .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
                 .mapToObj(i -> (char) i)
