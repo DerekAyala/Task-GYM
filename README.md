@@ -34,3 +34,13 @@ mvn spring-boot:run
 ```
 
 The application will start running at `http://localhost:8080`.
+
+## Controller Testing
+![image](https://github.com/DerekAyala/Task-GYM/assets/89038565/6687a02c-d445-4948-a48b-02a0a65b5768)
+![image](https://github.com/DerekAyala/Task-GYM/assets/89038565/7148aade-8ba0-40eb-b77c-d60db973fcba)
+![image](https://github.com/DerekAyala/Task-GYM/assets/89038565/852a627f-fb1a-462c-a237-cff19443544d)
+![image](https://github.com/DerekAyala/Task-GYM/assets/89038565/78b8b105-6f12-4f91-96fb-ee0cb4903eb3)
+
+
+
+
