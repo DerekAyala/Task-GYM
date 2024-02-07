@@ -16,11 +16,15 @@ import java.util.Random;
 @Service
 public class TrainerService {
 
-    @Autowired
+
     private UserDAO userDAO;
+    private TrainerDAO trainerDAO;
 
     @Autowired
-    private TrainerDAO trainerDAO;
+    public TrainerService(UserDAO userDAO, TrainerDAO trainerDAO) {
+        this.userDAO = userDAO;
+        this.trainerDAO = trainerDAO;
+    }
 
     public boolean authenticateTrainer(String username, String password) {
         Trainer trainer = trainerDAO.findByUsernameAndPassword(username, password);
@@ -28,7 +32,7 @@ public class TrainerService {
     }
 
     public TrainerDTO registerTrainer(String firstName, String lastName, String specialization) {
-        String username = generateUniqueUsername(firstName, lastName);
+        String username = generateUniqueUsername(firstName.toLowerCase(), lastName.toLowerCase());
         String password = generateRandomPassword();
 
         User user = new User();
