@@ -15,11 +15,14 @@ import java.util.Random;
 @Service
 public class TraineeService {
 
-    @Autowired
-    private UserDAO userDAO;
+    private final UserDAO userDAO;
+    private final TraineeDAO traineeDAO;
 
     @Autowired
-    private TraineeDAO traineeDAO;
+    public TraineeService(UserDAO userDAO, TraineeDAO traineeDAO) {
+        this.userDAO = userDAO;
+        this.traineeDAO = traineeDAO;
+    }
 
     public boolean authenticateTrainee(String username, String password) {
         Trainee trainee = traineeDAO.findByUsernameAndPassword(username, password);
@@ -27,7 +30,7 @@ public class TraineeService {
     }
 
     public TraineeDTO registerTrainee(String firstName, String lastName, String dateOfBirth, String address) {
-        String username = generateUniqueUsername(firstName, lastName);
+        String username = generateUniqueUsername(firstName.toLowerCase(), lastName.toLowerCase());
         String password = generateRandomPassword();
 
         User user = new User();
@@ -35,13 +38,13 @@ public class TraineeService {
         user.setLastName(lastName);
         user.setUsername(username);
         user.setPassword(password);
-        userDAO.save(user);
+        user = userDAO.save(user);
 
         Trainee trainee = new Trainee();
         trainee.setUserId(user.getId());
         trainee.setDateOfBirth(dateOfBirth);
         trainee.setAddress(address);
-        traineeDAO.save(trainee);
+        trainee = traineeDAO.save(trainee);
 
         TraineeDTO traineeDTO = new TraineeDTO();
         fillTraineeDTO(traineeDTO, user, trainee);
@@ -130,7 +133,7 @@ public class TraineeService {
         traineeDTO.setAddress(trainee.getAddress());
     }
 
-    public String generateUniqueUsername(String firstName, String lastName) {
+    private String generateUniqueUsername(String firstName, String lastName) {
         String baseUsername = firstName + "." + lastName;
         String username = baseUsername;
         int suffix = 1;
@@ -143,7 +146,7 @@ public class TraineeService {
         return username;
     }
 
-    public String generateRandomPassword() {
+    private String generateRandomPassword() {
         return new Random().ints(48, 122)
                 .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
                 .mapToObj(i -> (char) i)

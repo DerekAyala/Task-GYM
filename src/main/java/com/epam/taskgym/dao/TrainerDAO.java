@@ -1,9 +1,7 @@
 package com.epam.taskgym.dao;
 
-import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
-import com.epam.taskgym.service.CurrentUserContext;
 import com.epam.taskgym.storage.TrainerInMemoryDb;
 import com.epam.taskgym.storage.UserInMemoryDb;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +16,10 @@ import java.util.Optional;
 public class TrainerDAO {
     private final TrainerInMemoryDb db;
     private final UserInMemoryDb userDb;
-    private CurrentUserContext currentUserContext;
 
     @Autowired
-    public TrainerDAO(TrainerInMemoryDb db, CurrentUserContext currentUserContext, UserInMemoryDb userDb) {
+    public TrainerDAO(TrainerInMemoryDb db, UserInMemoryDb userDb) {
         this.db = db;
-        this.currentUserContext = currentUserContext;
         this.userDb = userDb;
     }
 
@@ -50,8 +46,6 @@ public class TrainerDAO {
     public Trainer login(Trainer trainer) {
         User user = userDb.findById(trainer.getUserId())
                 .orElseThrow(() -> new NoSuchElementException("User not found with ID: " + trainer.getUserId()));
-        currentUserContext.setCurrentUser(user);
-        currentUserContext.setUserType("Trainee");
         return trainer;
     }
 
