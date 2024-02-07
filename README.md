@@ -42,6 +42,7 @@ The application will start running at `http://localhost:8080`.
 ![image](https://github.com/DerekAyala/Task-GYM/assets/89038565/78b8b105-6f12-4f91-96fb-ee0cb4903eb3)
 
 ## SonarQube
-![image](https://github.com/DerekAyala/Task-GYM/assets/89038565/9e0c291b-e553-448b-8e14-dbac3203da43)
+![image](https://github.com/DerekAyala/Task-GYM/assets/89038565/78854024-7e7b-4cd7-8a08-c25e1eab21b1)
+
 
 
