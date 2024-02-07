@@ -22,19 +22,7 @@ public class TrainingDAO {
         return db.findById(id);
     }
 
-    public List<Training> findAll() {
-        return new ArrayList<>(db.findAll());
-    }
-
     public Training save(Training training) {
         return db.save(training);
-    }
-
-    public void deleteById(Long id) {
-        db.deleteById(id);
-    }
-
-    public Training update(Training training) {
-        return db.update(training);
     }
 }

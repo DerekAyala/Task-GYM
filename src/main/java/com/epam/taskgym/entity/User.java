@@ -6,7 +6,6 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
 public class User extends BaseIdEntity {
 
     private String firstName;

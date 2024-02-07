@@ -6,7 +6,6 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
 public class Trainer extends BaseIdEntity {
 
     private String specialization;

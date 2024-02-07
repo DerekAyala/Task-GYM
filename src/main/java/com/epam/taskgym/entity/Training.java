@@ -6,7 +6,6 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
 public class Training extends BaseIdEntity {
 
     private Long traineeId;
