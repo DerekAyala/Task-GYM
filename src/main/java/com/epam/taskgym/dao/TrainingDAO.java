@@ -18,7 +18,6 @@ public class TrainingDAO {
         this.db = db;
     }
 
-
     public Optional<Training> findById(Long id) {
         return db.findById(id);
     }
