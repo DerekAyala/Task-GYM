@@ -1,9 +1,7 @@
 package com.epam.taskgym.controller;
 
-import com.epam.taskgym.dao.TrainingTypeDAO;
 import com.epam.taskgym.entity.Training;
 import com.epam.taskgym.service.TrainingService;
-import com.epam.taskgym.storage.TrainingTypeInMemoryDb;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

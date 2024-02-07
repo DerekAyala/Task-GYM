@@ -1,6 +1,5 @@
 package com.epam.taskgym.dao;
 
-import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.storage.TrainingTypeInMemoryDb;
 import org.springframework.beans.factory.annotation.Autowired;

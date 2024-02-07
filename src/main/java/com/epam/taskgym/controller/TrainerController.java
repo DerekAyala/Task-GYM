@@ -1,16 +1,11 @@
 package com.epam.taskgym.controller;
 
 import com.epam.taskgym.dto.TrainerDTO;
-import com.epam.taskgym.entity.Trainer;
-import com.epam.taskgym.entity.User;
 import com.epam.taskgym.service.TrainerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Map;
 
