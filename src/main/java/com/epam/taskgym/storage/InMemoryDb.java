@@ -12,10 +12,6 @@ public abstract class InMemoryDb<T extends BaseIdEntity> {
     private final Map<Long, T> storage = new ConcurrentHashMap<>();
     private static Long count = 1L;
 
-    public Map<Long, T> getStorage() {
-        return new HashMap<>(storage);
-    }
-
     public Collection<T> findAll() {
         return storage.values();
     }
