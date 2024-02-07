@@ -27,10 +27,6 @@ public class TrainerDAO {
         return db.findById(id);
     }
 
-    public List<Trainer> findAll() {
-        return new ArrayList<>(db.findAll());
-    }
-
     public Trainer save(Trainer trainer) {
         return db.save(trainer);
     }
@@ -41,12 +37,6 @@ public class TrainerDAO {
 
     public Trainer update(Trainer trainer) {
         return db.update(trainer);
-    }
-
-    public Trainer login(Trainer trainer) {
-        User user = userDb.findById(trainer.getUserId())
-                .orElseThrow(() -> new NoSuchElementException("User not found with ID: " + trainer.getUserId()));
-        return trainer;
     }
 
     public Trainer findByUserId(Long userId) {

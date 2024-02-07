@@ -37,6 +37,17 @@ public class TrainerServiceTest {
     }
 
     @Test
+    public void testAuthenticateTrainer() {
+        // It should return true if the username and password are correct
+        boolean loginSuccessful = trainerService.authenticateTrainer(trainerDTOTest.getUsername(), trainerDTOTest.getPassword());
+        assertTrue(loginSuccessful);
+
+        // It should return false if the username and password are incorrect
+        boolean loginUnsuccessful = trainerService.authenticateTrainer("NonExistentUsername", "NonExistentPassword");
+        assertFalse(loginUnsuccessful);
+    }
+
+    @Test
     public void testRegisterTrainer() {
         // Register a new trainer
         String firstName = "First";
