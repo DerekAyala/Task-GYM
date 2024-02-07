@@ -7,6 +7,8 @@ import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Optional;
@@ -17,7 +19,7 @@ public class TraineeService {
 
     private final UserDAO userDAO;
     private final TraineeDAO traineeDAO;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(TraineeService.class);
     @Autowired
     public TraineeService(UserDAO userDAO, TraineeDAO traineeDAO) {
         this.userDAO = userDAO;
@@ -39,12 +41,14 @@ public class TraineeService {
         user.setUsername(username);
         user.setPassword(password);
         user = userDAO.save(user);
+        LOGGER.info("User saved with ID: {}", user.getId());
 
         Trainee trainee = new Trainee();
         trainee.setUserId(user.getId());
         trainee.setDateOfBirth(dateOfBirth);
         trainee.setAddress(address);
         trainee = traineeDAO.save(trainee);
+        LOGGER.info("Trainee saved with ID: {}", trainee.getId());
 
         TraineeDTO traineeDTO = new TraineeDTO();
         fillTraineeDTO(traineeDTO, user, trainee);
@@ -57,11 +61,11 @@ public class TraineeService {
         if (trainee != null) {
             Optional<User> userOptional = userDAO.findById(trainee.getUserId());
             if (userOptional.isPresent()) {
+                LOGGER.info("Trainee was found");
                 User user = userOptional.get();
 
                 TraineeDTO traineeDTO = new TraineeDTO();
                 fillTraineeDTO(traineeDTO, user, trainee);
-
                 return traineeDTO;
             }
         }
@@ -71,18 +75,21 @@ public class TraineeService {
     public TraineeDTO updateTrainee(String username, Map<String, String> updates) {
         User user = userDAO.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
+        LOGGER.info("User was found");
         Trainee trainee = traineeDAO.findByUserId(user.getId());
         if (trainee == null) {
             throw new RuntimeException("Trainee not found");
         }
+        LOGGER.info("Trainee was found");
 
         if (updates.containsKey("firstName")) {
+            LOGGER.info("updates contains firstName");
             String firstName = updates.get("firstName");
             user.setFirstName(firstName);
         }
 
         if (updates.containsKey("lastName")) {
+            LOGGER.info("updates contains lastName");
             String lastName = updates.get("lastName");
             user.setLastName(lastName);
         }
@@ -90,11 +97,13 @@ public class TraineeService {
         userDAO.update(user);
 
         if (updates.containsKey("dateOfBirth")) {
+            LOGGER.info("updates contains dateOfBirth");
             String dob = updates.get("dateOfBirth");
             trainee.setDateOfBirth(dob);
         }
 
         if (updates.containsKey("address")) {
+            LOGGER.info("updates contains address");
             String addr = updates.get("address");
             trainee.setAddress(addr);
         }
@@ -110,10 +119,14 @@ public class TraineeService {
     public void deleteTrainee(String username) {
         Optional<User> user = userDAO.findByUsername(username);
         if (user.isPresent()) {
+            LOGGER.info("User was found");
             Trainee trainee = traineeDAO.findByUserId(user.get().getId());
             if (trainee != null) {
+                LOGGER.info("Trainee was found");
                 traineeDAO.deleteById(trainee.getId());
+                LOGGER.info("Trainee was deleted");
                 userDAO.deleteById(user.get().getId());
+                LOGGER.info("User was deleted");
             } else {
                 throw new RuntimeException("Trainee not found");
             }

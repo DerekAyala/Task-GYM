@@ -6,8 +6,9 @@ import com.epam.taskgym.storage.TraineeInMemoryDb;
 import com.epam.taskgym.storage.UserInMemoryDb;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Repository
@@ -15,6 +16,8 @@ public class TraineeDAO {
 
     private final TraineeInMemoryDb db;
     private final UserInMemoryDb userDb;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TraineeDAO.class);
 
     @Autowired
     public TraineeDAO(TraineeInMemoryDb db, UserInMemoryDb userDb) {
@@ -39,18 +42,14 @@ public class TraineeDAO {
         return db.update(trainee);
     }
 
-    public Trainee login(Trainee trainee) {
-        User user = userDb.findById(trainee.getUserId())
-                .orElseThrow(() -> new NoSuchElementException("User not found with ID: " + trainee.getUserId()));
-        return trainee;
-    }
-
     public Trainee findByUserId(Long userId) {
         for (Trainee trainee : db.findAll()) {
             if (trainee.getUserId().equals(userId)) {
+                LOGGER.info("Trainee was found");
                 return trainee;
             }
         }
+        LOGGER.info("Trainee not was found");
         return null;
     }
 
@@ -58,9 +57,11 @@ public class TraineeDAO {
         for (Trainee trainee : db.findAll()) {
             Optional<User> userOptional = userDb.findById(trainee.getUserId());
             if (userOptional.isPresent() && userOptional.get().getUsername().equals(username)) {
+                LOGGER.info("Trainee was found");
                 return trainee;
             }
         }
+        LOGGER.info("Trainee not was found");
         return null;
     }
 
@@ -70,9 +71,11 @@ public class TraineeDAO {
             User user = userDb.findById(trainee.getUserId())
                     .orElse(null);
             if (user != null && user.getUsername().equals(username) && user.getPassword().equals(password)) {
+                LOGGER.info("Trainee was found");
                 return trainee;
             }
         }
+        LOGGER.info("Trainee not was found");
         return null;
     }
 }

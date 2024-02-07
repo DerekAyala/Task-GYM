@@ -6,6 +6,8 @@ import com.epam.taskgym.storage.TrainerInMemoryDb;
 import com.epam.taskgym.storage.UserInMemoryDb;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
@@ -13,6 +15,8 @@ import java.util.Optional;
 public class TrainerDAO {
     private final TrainerInMemoryDb db;
     private final UserInMemoryDb userDb;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TrainerDAO.class);
 
     @Autowired
     public TrainerDAO(TrainerInMemoryDb db, UserInMemoryDb userDb) {
@@ -39,9 +43,11 @@ public class TrainerDAO {
     public Trainer findByUserId(Long userId) {
         for (Trainer trainer : db.findAll()) {
             if (trainer.getUserId().equals(userId)) {
+                LOGGER.info("Trainer was found");
                 return trainer;
             }
         }
+        LOGGER.info("Trainer not was found");
         return null;
     }
 
@@ -49,9 +55,11 @@ public class TrainerDAO {
         for (Trainer trainer : db.findAll()) {
             Optional<User> userOptional = userDb.findById(trainer.getUserId());
             if (userOptional.isPresent() && userOptional.get().getUsername().equals(username)) {
+                LOGGER.info("Trainer was found");
                 return trainer;
             }
         }
+        LOGGER.info("Trainer not was found");
         return null;
     }
 
@@ -60,9 +68,11 @@ public class TrainerDAO {
             User user = userDb.findById(trainer.getUserId())
                     .orElse(null);
             if (user != null && user.getUsername().equals(username) && user.getPassword().equals(password)) {
+                LOGGER.info("Trainer was found");
                 return trainer;
             }
         }
+        LOGGER.info("Trainer not was found");
         return null;
     }
 }

@@ -10,6 +10,8 @@ import com.epam.taskgym.entity.Training;
 import com.epam.taskgym.entity.TrainingType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
@@ -20,6 +22,8 @@ public class TrainingService {
     private final TrainerDAO trainerDAO;
     private final TraineeDAO traineeDAO;
     private final TrainingTypeDAO trainingTypeDAO;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TrainingService.class);
 
     @Autowired
     public TrainingService(TrainingDAO trainingDAO, TrainerDAO trainerDAO, TraineeDAO traineeDAO, TrainingTypeDAO trainingTypeDAO) {
@@ -43,8 +47,9 @@ public class TrainingService {
         training.setTrainerId(trainerId);
         training.setName(name);
         training.setTrainingTypeId(trainingTypeId);
-
-        return trainingDAO.save(training);
+        training = trainingDAO.save(training);
+        LOGGER.info("User saved with ID: {}", training.getId());
+        return training;
     }
 
     public Training getTraining(Long id) {
