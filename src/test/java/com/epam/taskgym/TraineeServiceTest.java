@@ -83,6 +83,8 @@ public class TraineeServiceTest {
         // Update firstName and address
         Map<String, String> updates = new HashMap<>();
         updates.put("firstName", "UpdatedFirstName");
+        updates.put("lastName", "UpdatedLastName");
+        updates.put("dateOfBirth", "2000-07-11");
         updates.put("address", "Updated address 123");
 
         TraineeDTO updatedTraineeDTO = traineeService.updateTrainee(traineeDTOTest.getUsername(), updates);
