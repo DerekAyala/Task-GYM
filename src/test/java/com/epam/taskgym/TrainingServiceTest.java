@@ -39,7 +39,7 @@ public class TrainingServiceTest {
         traineeDAO = new TraineeDAO(new TraineeInMemoryDb(), userInMemoryDb);
         trainingDAO = new TrainingDAO(new TrainingInMemoryDb());
         traineeService = new TraineeService(userDAO, traineeDAO);
-        trainerService = new TrainerService(userDAO, trainerDAO);
+        trainerService = new TrainerService(userDAO, trainerDAO, traineeDAO);
         trainingService = new TrainingService(trainingDAO, trainerDAO, traineeDAO, trainingTypeDAO);
         traineeDTOTest = traineeService.registerTrainee("First", "Last", "2000-07-10", "123 Trainee Street");
         trainerDTOTest = trainerService.registerTrainer("First", "Last", "Cardio");

@@ -1,9 +1,11 @@
 package com.epam.taskgym;
 
+import com.epam.taskgym.dao.TraineeDAO;
 import com.epam.taskgym.dao.TrainerDAO;
 import com.epam.taskgym.dao.UserDAO;
 import com.epam.taskgym.dto.TrainerDTO;
 import com.epam.taskgym.service.TrainerService;
+import com.epam.taskgym.storage.TraineeInMemoryDb;
 import com.epam.taskgym.storage.TrainerInMemoryDb;
 import com.epam.taskgym.storage.UserInMemoryDb;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,8 +30,9 @@ public class TrainerServiceTest {
         UserInMemoryDb userInMemoryDb = new UserInMemoryDb();
         userDAO = new UserDAO(userInMemoryDb);
         trainerDAO = new TrainerDAO(new TrainerInMemoryDb(), userInMemoryDb);
+        TraineeDAO traineeDAO = new TraineeDAO(new TraineeInMemoryDb(), userInMemoryDb);
 
-        trainerService = new TrainerService(userDAO, trainerDAO);
+        trainerService = new TrainerService(userDAO, trainerDAO, traineeDAO);
         trainerDTOTest = trainerService.registerTrainer("First", "Last", "Specialization");
     }
 

@@ -1,5 +1,6 @@
 package com.epam.taskgym.service;
 
+import com.epam.taskgym.dao.TraineeDAO;
 import com.epam.taskgym.dao.TrainerDAO;
 import com.epam.taskgym.dao.UserDAO;
 import com.epam.taskgym.dto.TrainerDTO;
@@ -20,10 +21,13 @@ public class TrainerService {
     private UserDAO userDAO;
     private TrainerDAO trainerDAO;
 
+    private TraineeDAO traineeDAO;
+
     @Autowired
-    public TrainerService(UserDAO userDAO, TrainerDAO trainerDAO) {
+    public TrainerService(UserDAO userDAO, TrainerDAO trainerDAO, TraineeDAO traineeDAO) {
         this.userDAO = userDAO;
         this.trainerDAO = trainerDAO;
+        this.traineeDAO = traineeDAO;
     }
 
     public boolean authenticateTrainer(String username, String password) {
@@ -32,8 +36,9 @@ public class TrainerService {
     }
 
     public TrainerDTO registerTrainer(String firstName, String lastName, String specialization) {
-        String username = generateUniqueUsername(firstName.toLowerCase(), lastName.toLowerCase());
-        String password = generateRandomPassword();
+        TraineeService traineeService = new TraineeService(userDAO, traineeDAO);
+        String username = traineeService.generateUniqueUsername(firstName.toLowerCase(), lastName.toLowerCase());
+        String password = traineeService.generateRandomPassword();
 
         User user = new User();
         user.setFirstName(firstName);
@@ -127,28 +132,5 @@ public class TrainerService {
         trainerDTO.setLastName(user.getLastName());
         trainerDTO.setTrainerId(trainer.getId());
         trainerDTO.setSpecialization(trainer.getSpecialization());
-    }
-
-
-    private String generateUniqueUsername(String firstName, String lastName) {
-        String baseUsername = firstName + "." + lastName;
-        String username = baseUsername;
-        int suffix = 1;
-
-        while (userDAO.findByUsername(username).isPresent()) {
-            username = baseUsername + suffix;
-            suffix++;
-        }
-
-        return username;
-    }
-
-    private String generateRandomPassword() {
-        return new Random().ints(48, 122)
-                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-                .mapToObj(i -> (char) i)
-                .limit(10)
-                .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
-                .toString();
     }
 }
