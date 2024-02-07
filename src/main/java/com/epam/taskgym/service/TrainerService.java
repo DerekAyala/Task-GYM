@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 public class TrainerService {
