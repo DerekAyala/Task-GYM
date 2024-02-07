@@ -49,7 +49,7 @@ public class TrainerService {
         user.setUsername(username);
         user.setPassword(password);
         userDAO.save(user);
-        LOGGER.info("User saved with ID: {}", user.getId());
+        LOGGER.info("User Trainer saved with ID: {}", user.getId());
 
         Trainer trainer = new Trainer();
         trainer.setUserId(user.getId());
@@ -66,7 +66,7 @@ public class TrainerService {
     public Trainer findByUsername(String username) {
         Optional<User> user = userDAO.findByUsername(username);
         if (user.isPresent()) {
-            LOGGER.info("Trainer was found");
+            LOGGER.info("Trainer was found by username");
             return trainerDAO.findByUserId(user.get().getId());
         }
         return null;
@@ -75,10 +75,10 @@ public class TrainerService {
     public TrainerDTO getTrainer(String username) {
         Trainer trainer = trainerDAO.findByUsername(username);
         if (trainer != null) {
-            LOGGER.info("Trainer was found");
+            LOGGER.info("Trainer was found by username");
             Optional<User> userOptional = userDAO.findById(trainer.getUserId());
             if (userOptional.isPresent()) {
-                LOGGER.info("User was found");
+                LOGGER.info("User is present");
                 User user = userOptional.get();
 
                 TrainerDTO trainerDTO = new TrainerDTO();
@@ -96,17 +96,17 @@ public class TrainerService {
 
         Trainer trainer = trainerDAO.findByUserId(user.getId());
         if (trainer == null) {
-            throw new RuntimeException("Trainer not found");
+            throw new RuntimeException("Trainer not found by user id");
         }
 
         if (updates.containsKey("firstName")) {
-            LOGGER.info("updates contains firstName");
+            LOGGER.info("Trainer updates contains firstName");
             String firstName = updates.get("firstName");
             user.setFirstName(firstName);
         }
 
         if (updates.containsKey("lastName")) {
-            LOGGER.info("updates contains lastName");
+            LOGGER.info("Trainer updates contains lastName");
             String lastName = updates.get("lastName");
             user.setLastName(lastName);
         }
@@ -114,7 +114,7 @@ public class TrainerService {
         userDAO.update(user);
 
         if (updates.containsKey("specialization")) {
-            LOGGER.info("updates contains specialization");
+            LOGGER.info("Trainer updates contains specialization");
             String specialization = updates.get("specialization");
             trainer.setSpecialization(specialization);
         }
@@ -131,11 +131,9 @@ public class TrainerService {
     public void deleteTrainer(String username) {
         Trainer trainerToDelete = findByUsername(username);
         if (trainerToDelete != null) {
-            LOGGER.info("Trainer was found");
             trainerDAO.deleteById(trainerToDelete.getId());
-            LOGGER.info("Trainer was deleted");
             userDAO.deleteById(trainerToDelete.getUserId());
-            LOGGER.info("User was deleted");
+            LOGGER.info("User and Trainer were deleted");
         }
     }
 

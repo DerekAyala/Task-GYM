@@ -48,7 +48,7 @@ public class TrainingService {
         training.setName(name);
         training.setTrainingTypeId(trainingTypeId);
         training = trainingDAO.save(training);
-        LOGGER.info("User saved with ID: {}", training.getId());
+        LOGGER.info("Training saved with ID: {}", training.getId());
         return training;
     }
 

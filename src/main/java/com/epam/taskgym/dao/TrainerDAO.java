@@ -43,11 +43,11 @@ public class TrainerDAO {
     public Trainer findByUserId(Long userId) {
         for (Trainer trainer : db.findAll()) {
             if (trainer.getUserId().equals(userId)) {
-                LOGGER.info("Trainer was found");
+                LOGGER.info("Trainer was found by user id");
                 return trainer;
             }
         }
-        LOGGER.info("Trainer not was found");
+        LOGGER.info("Trainer not was found by user id");
         return null;
     }
 
@@ -55,11 +55,11 @@ public class TrainerDAO {
         for (Trainer trainer : db.findAll()) {
             Optional<User> userOptional = userDb.findById(trainer.getUserId());
             if (userOptional.isPresent() && userOptional.get().getUsername().equals(username)) {
-                LOGGER.info("Trainer was found");
+                LOGGER.info("Trainer was found by username");
                 return trainer;
             }
         }
-        LOGGER.info("Trainer not was found");
+        LOGGER.info("Trainer not was found by username");
         return null;
     }
 
@@ -68,11 +68,11 @@ public class TrainerDAO {
             User user = userDb.findById(trainer.getUserId())
                     .orElse(null);
             if (user != null && user.getUsername().equals(username) && user.getPassword().equals(password)) {
-                LOGGER.info("Trainer was found");
+                LOGGER.info("Trainer was found by username and password");
                 return trainer;
             }
         }
-        LOGGER.info("Trainer not was found");
+        LOGGER.info("Trainer not was found by username and password");
         return null;
     }
 }

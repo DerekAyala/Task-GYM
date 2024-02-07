@@ -41,7 +41,7 @@ public class TraineeService {
         user.setUsername(username);
         user.setPassword(password);
         user = userDAO.save(user);
-        LOGGER.info("User saved with ID: {}", user.getId());
+        LOGGER.info("User Trainee saved with ID: {}", user.getId());
 
         Trainee trainee = new Trainee();
         trainee.setUserId(user.getId());
@@ -61,7 +61,7 @@ public class TraineeService {
         if (trainee != null) {
             Optional<User> userOptional = userDAO.findById(trainee.getUserId());
             if (userOptional.isPresent()) {
-                LOGGER.info("Trainee was found");
+                LOGGER.info("Trainee is present");
                 User user = userOptional.get();
 
                 TraineeDTO traineeDTO = new TraineeDTO();
@@ -75,21 +75,21 @@ public class TraineeService {
     public TraineeDTO updateTrainee(String username, Map<String, String> updates) {
         User user = userDAO.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        LOGGER.info("User was found");
+        LOGGER.info("User was found by username");
         Trainee trainee = traineeDAO.findByUserId(user.getId());
         if (trainee == null) {
             throw new RuntimeException("Trainee not found");
         }
-        LOGGER.info("Trainee was found");
+        LOGGER.info("Trainee was found by user id");
 
         if (updates.containsKey("firstName")) {
-            LOGGER.info("updates contains firstName");
+            LOGGER.info("Trainee updates contains firstName");
             String firstName = updates.get("firstName");
             user.setFirstName(firstName);
         }
 
         if (updates.containsKey("lastName")) {
-            LOGGER.info("updates contains lastName");
+            LOGGER.info("Trainee updates contains lastName");
             String lastName = updates.get("lastName");
             user.setLastName(lastName);
         }
@@ -97,13 +97,13 @@ public class TraineeService {
         userDAO.update(user);
 
         if (updates.containsKey("dateOfBirth")) {
-            LOGGER.info("updates contains dateOfBirth");
+            LOGGER.info("Trainee updates contains dateOfBirth");
             String dob = updates.get("dateOfBirth");
             trainee.setDateOfBirth(dob);
         }
 
         if (updates.containsKey("address")) {
-            LOGGER.info("updates contains address");
+            LOGGER.info("Trainee updates contains address");
             String addr = updates.get("address");
             trainee.setAddress(addr);
         }
@@ -119,14 +119,12 @@ public class TraineeService {
     public void deleteTrainee(String username) {
         Optional<User> user = userDAO.findByUsername(username);
         if (user.isPresent()) {
-            LOGGER.info("User was found");
+            LOGGER.info("User was found by username");
             Trainee trainee = traineeDAO.findByUserId(user.get().getId());
             if (trainee != null) {
-                LOGGER.info("Trainee was found");
                 traineeDAO.deleteById(trainee.getId());
-                LOGGER.info("Trainee was deleted");
                 userDAO.deleteById(user.get().getId());
-                LOGGER.info("User was deleted");
+                LOGGER.info("User and Trainee were deleted");
             } else {
                 throw new RuntimeException("Trainee not found");
             }

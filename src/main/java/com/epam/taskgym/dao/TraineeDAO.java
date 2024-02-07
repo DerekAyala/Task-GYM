@@ -45,11 +45,11 @@ public class TraineeDAO {
     public Trainee findByUserId(Long userId) {
         for (Trainee trainee : db.findAll()) {
             if (trainee.getUserId().equals(userId)) {
-                LOGGER.info("Trainee was found");
+                LOGGER.info("Trainee was found by user id");
                 return trainee;
             }
         }
-        LOGGER.info("Trainee not was found");
+        LOGGER.info("Trainee not was found by user id");
         return null;
     }
 
@@ -57,11 +57,11 @@ public class TraineeDAO {
         for (Trainee trainee : db.findAll()) {
             Optional<User> userOptional = userDb.findById(trainee.getUserId());
             if (userOptional.isPresent() && userOptional.get().getUsername().equals(username)) {
-                LOGGER.info("Trainee was found");
+                LOGGER.info("Trainee was found by username");
                 return trainee;
             }
         }
-        LOGGER.info("Trainee not was found");
+        LOGGER.info("Trainee not was found by username");
         return null;
     }
 
@@ -71,11 +71,11 @@ public class TraineeDAO {
             User user = userDb.findById(trainee.getUserId())
                     .orElse(null);
             if (user != null && user.getUsername().equals(username) && user.getPassword().equals(password)) {
-                LOGGER.info("Trainee was found");
+                LOGGER.info("Trainee was found by username and password");
                 return trainee;
             }
         }
-        LOGGER.info("Trainee not was found");
+        LOGGER.info("Trainee not was found by username and password");
         return null;
     }
 }
