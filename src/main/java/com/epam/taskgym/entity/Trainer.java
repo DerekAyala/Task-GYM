@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Trainer extends BaseIdEntity {
+public class Trainer {
 
     private String specialization;
     private Long userId;

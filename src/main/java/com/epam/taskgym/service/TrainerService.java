@@ -1,44 +1,31 @@
 package com.epam.taskgym.service;
 
-import com.epam.taskgym.dao.TraineeDAO;
-import com.epam.taskgym.dao.TrainerDAO;
-import com.epam.taskgym.dao.UserDAO;
 import com.epam.taskgym.dto.TrainerDTO;
 import com.epam.taskgym.entity.Trainer;
-import com.epam.taskgym.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-import java.util.Optional;
-
 @Service
 public class TrainerService {
 
 
-    private UserDAO userDAO;
-    private TrainerDAO trainerDAO;
-
-    private TraineeDAO traineeDAO;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainerService.class);
 
-    @Autowired
-    public TrainerService(UserDAO userDAO, TrainerDAO trainerDAO, TraineeDAO traineeDAO) {
-        this.userDAO = userDAO;
-        this.trainerDAO = trainerDAO;
-        this.traineeDAO = traineeDAO;
-    }
 
     public boolean authenticateTrainer(String username, String password) {
+        /*
         Trainer trainer = trainerDAO.findByUsernameAndPassword(username, password);
         return trainer != null;
+        */
+        return true;
     }
 
     public TrainerDTO registerTrainer(String firstName, String lastName, String specialization) {
+        /*
         TraineeService traineeService = new TraineeService(userDAO, traineeDAO);
         String username = traineeService.generateUniqueUsername(firstName.toLowerCase(), lastName.toLowerCase());
         String password = traineeService.generateRandomPassword();
@@ -61,18 +48,23 @@ public class TrainerService {
         fillTrainerDTO(trainerDTO, user, trainer);
 
         return trainerDTO;
+        */
+        return new TrainerDTO();
     }
 
     public Trainer findByUsername(String username) {
+        /*
         Optional<User> user = userDAO.findByUsername(username);
         if (user.isPresent()) {
             LOGGER.info("Trainer was found by username");
             return trainerDAO.findByUserId(user.get().getId());
         }
+        */
         return null;
     }
 
     public TrainerDTO getTrainer(String username) {
+        /*
         Trainer trainer = trainerDAO.findByUsername(username);
         if (trainer != null) {
             LOGGER.info("Trainer was found by username");
@@ -87,10 +79,12 @@ public class TrainerService {
                 return trainerDTO;
             }
         }
+        */
         return null;
     }
 
     public TrainerDTO updateTrainer(String username, Map<String, String> updates) {
+        /*
         User user = userDAO.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -124,18 +118,22 @@ public class TrainerService {
 
         TrainerDTO trainerDTO = new TrainerDTO();
         fillTrainerDTO(trainerDTO, user, trainer);
+         */
+        return new TrainerDTO();
 
-        return trainerDTO;
     }
 
     public void deleteTrainer(String username) {
+        /*
         Trainer trainerToDelete = findByUsername(username);
         if (trainerToDelete != null) {
             trainerDAO.deleteById(trainerToDelete.getId());
             userDAO.deleteById(trainerToDelete.getUserId());
             LOGGER.info("User and Trainer were deleted");
         }
+        */
     }
+    /*
 
     private void fillTrainerDTO(TrainerDTO trainerDTO, User user, Trainer trainer) {
         trainerDTO.setUserId(user.getId());
@@ -146,4 +144,5 @@ public class TrainerService {
         trainerDTO.setTrainerId(trainer.getId());
         trainerDTO.setSpecialization(trainer.getSpecialization());
     }
+    */
 }

@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class User extends BaseIdEntity {
+public class User {
 
     private String firstName;
     private String lastName;

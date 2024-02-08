@@ -22,6 +22,7 @@ public class TrainingController {
 
     @PostMapping
     public ResponseEntity<Training> createTraining(@RequestBody Map<String, String> trainingInfo) {
+        /*
         Long traineeId = Long.parseLong(trainingInfo.get("traineeId"));
         Long trainerId = Long.parseLong(trainingInfo.get("trainerId"));
         String name = trainingInfo.get("name");
@@ -33,11 +34,14 @@ public class TrainingController {
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+
+         */
+        return ResponseEntity.ok(new Training());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Training> getTraining(@PathVariable Long id) {
-
+        /*
         Training training = trainingService.getTraining(id);
 
         if (training != null) {
@@ -45,5 +49,8 @@ public class TrainingController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
+        */
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

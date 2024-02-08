@@ -1,37 +1,31 @@
 package com.epam.taskgym.service;
 
-import com.epam.taskgym.dao.TraineeDAO;
-import com.epam.taskgym.dao.UserDAO;
 import com.epam.taskgym.dto.TraineeDTO;
-import com.epam.taskgym.entity.Trainee;
-import com.epam.taskgym.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.Random;
 
 @Service
 public class TraineeService {
 
-    private final UserDAO userDAO;
-    private final TraineeDAO traineeDAO;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TraineeService.class);
-    @Autowired
-    public TraineeService(UserDAO userDAO, TraineeDAO traineeDAO) {
-        this.userDAO = userDAO;
-        this.traineeDAO = traineeDAO;
-    }
+
 
     public boolean authenticateTrainee(String username, String password) {
+        /*
         Trainee trainee = traineeDAO.findByUsernameAndPassword(username, password);
         return trainee != null;
+
+         */
+        return true;
     }
 
     public TraineeDTO registerTrainee(String firstName, String lastName, String dateOfBirth, String address) {
+        /*
         String username = generateUniqueUsername(firstName.toLowerCase(), lastName.toLowerCase());
         String password = generateRandomPassword();
 
@@ -52,11 +46,12 @@ public class TraineeService {
 
         TraineeDTO traineeDTO = new TraineeDTO();
         fillTraineeDTO(traineeDTO, user, trainee);
-
-        return traineeDTO;
+*/
+        return new TraineeDTO();
     }
 
     public TraineeDTO getTrainee(String username) {
+        /*
         Trainee trainee = traineeDAO.findByUsername(username);
         if (trainee != null) {
             Optional<User> userOptional = userDAO.findById(trainee.getUserId());
@@ -69,10 +64,12 @@ public class TraineeService {
                 return traineeDTO;
             }
         }
+        */
         return null;
     }
 
     public TraineeDTO updateTrainee(String username, Map<String, String> updates) {
+        /*
         User user = userDAO.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         LOGGER.info("User was found by username");
@@ -112,11 +109,12 @@ public class TraineeService {
 
         TraineeDTO traineeDTO = new TraineeDTO();
         fillTraineeDTO(traineeDTO, user, trainee);
-
-        return traineeDTO;
+        */
+        return new TraineeDTO();
     }
 
     public void deleteTrainee(String username) {
+        /*
         Optional<User> user = userDAO.findByUsername(username);
         if (user.isPresent()) {
             LOGGER.info("User was found by username");
@@ -131,7 +129,9 @@ public class TraineeService {
         } else {
             throw new RuntimeException("User not found");
         }
+        */
     }
+    /*
 
     private void fillTraineeDTO(TraineeDTO traineeDTO, User user, Trainee trainee) {
         traineeDTO.setUserId(user.getId());
@@ -143,16 +143,20 @@ public class TraineeService {
         traineeDTO.setDateOfBirth(trainee.getDateOfBirth());
         traineeDTO.setAddress(trainee.getAddress());
     }
+    */
 
     public String generateUniqueUsername(String firstName, String lastName) {
+
         String baseUsername = firstName + "." + lastName;
         String username = baseUsername;
+        /*
         int suffix = 1;
 
         while (userDAO.findByUsername(username).isPresent()) {
             username = baseUsername + suffix;
             suffix++;
         }
+         */
 
         return username;
     }

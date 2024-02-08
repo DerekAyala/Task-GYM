@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Training extends BaseIdEntity {
+public class Training {
 
     private Long traineeId;
     private Long trainerId;
