@@ -15,13 +15,11 @@ public class Training {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @ManyToOne
-    @Column(name = "traineeId")
     @NonNull
-    private Trainee traineeId;
+    private Trainee trainee;
     @ManyToOne
-    @Column(name = "trainerId")
     @NonNull
-    private Trainer trainerId;
+    private Trainer trainer;
     @Column(name = "name", nullable=false)
     @NonNull
     private String name;
@@ -29,7 +27,6 @@ public class Training {
     @NonNull
     private String date;
     @ManyToOne
-    @Column(name = "trainingTypeId", nullable=false)
     @NonNull
-    private TrainingType trainingTypeId;
+    private TrainingType trainingType;
 }

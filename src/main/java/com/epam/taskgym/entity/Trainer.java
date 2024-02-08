@@ -14,12 +14,10 @@ public class Trainer {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(name = "specialization")
     @ManyToOne
     @NonNull
     private TrainingType specialization;
     @OneToOne
-    @Column(name = "userId")
     @NonNull
-    private User userId;
+    private User user;
 }

@@ -7,7 +7,6 @@ import lombok.NonNull;
 
 @Data
 @Entity
-@Table(name = "trainee")
 @NoArgsConstructor
 public class Trainee {
 
@@ -17,9 +16,8 @@ public class Trainee {
     @Column(name = "dateOfBirth")
     private String dateOfBirth;
     @OneToOne
-    @Column(name = "userId")
     @NonNull
-    private User userId;
+    private User user;
     @Column(name = "address")
     private String address;
 }
