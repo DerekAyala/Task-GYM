@@ -1,11 +1,20 @@
 package com.epam.taskgym.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
-@Getter
-@Setter
+@Data
+@Entity
+@Table(name = "trainingType")
+@NoArgsConstructor
 public class TrainingType {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    @Column(name = "name", nullable=false)
+    @NonNull
     private String name;
 }
