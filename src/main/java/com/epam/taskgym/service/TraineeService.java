@@ -1,10 +1,13 @@
 package com.epam.taskgym.service;
 
 import com.epam.taskgym.dto.TraineeDTO;
+import com.epam.taskgym.dto.TrainerDTO;
 import com.epam.taskgym.entity.Trainee;
+import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.repository.TraineeRepository;
 import com.epam.taskgym.repository.UserRepository;
+import com.epam.taskgym.service.exception.MissingAttributes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -30,8 +33,7 @@ public class TraineeService {
 
 
     public boolean authenticateTrainee(String username, String password) {
-        Optional<Trainee> trainee = traineeRepository.findByUserUsernameAndUserPassword(username, password);
-        return trainee.isPresent();
+        return traineeRepository.findByUserUsernameAndUserPassword(username, password).isPresent();
     }
 
     public Optional<Trainee> getTraineeByUsername(String username) {
@@ -43,30 +45,14 @@ public class TraineeService {
     }
 
     public TraineeDTO registerTrainee(Map<String, String> traineeDetails) {
-
-        /*
-        String username = generateUniqueUsername(firstName.toLowerCase(), lastName.toLowerCase());
-        String password = generateRandomPassword();
-
-        User user = new User();
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setUsername(username);
-        user.setPassword(password);
-        user = userDAO.save(user);
-        LOGGER.info("User Trainee saved with ID: {}", user.getId());
+        User user = userService.createUser(traineeDetails);
 
         Trainee trainee = new Trainee();
-        trainee.setUserId(user.getId());
-        trainee.setDateOfBirth(dateOfBirth);
-        trainee.setAddress(address);
-        trainee = traineeDAO.save(trainee);
-        LOGGER.info("Trainee saved with ID: {}", trainee.getId());
-
-        TraineeDTO traineeDTO = new TraineeDTO();
-        fillTraineeDTO(traineeDTO, user, trainee);
-*/
-        return new TraineeDTO();
+        trainee.setUser(user);
+        trainee.setDateOfBirth(traineeDetails.getOrDefault("dateOfBirth", null));
+        trainee.setAddress(traineeDetails.getOrDefault("address", null));
+        trainee = traineeRepository.save(trainee);
+        return fillTrainerDTO(user, trainee);
     }
 
     public boolean updatePasssword(String username, String password, String newPassword) {
@@ -83,5 +69,9 @@ public class TraineeService {
             }
         }
         return false;
+    }
+
+    private TraineeDTO fillTrainerDTO(User user,Trainee trainee) {
+        return new TraineeDTO(user, user.getUsername(), user.getPassword(), user.getFirstName(), user.getLastName(), trainee, trainee.getDateOfBirth(), trainee.getAddress());
     }
 }
