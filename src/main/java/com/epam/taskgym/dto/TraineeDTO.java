@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -19,6 +21,6 @@ public class TraineeDTO {
     private String lastName;
 
     private Trainee trainee;
-    private String dateOfBirth;
+    private Date dateOfBirth;
     private String address;
 }

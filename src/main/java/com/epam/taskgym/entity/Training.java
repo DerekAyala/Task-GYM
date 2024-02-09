@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+import java.util.Date;
+
 @Data
 @Entity
 @Table(name = "training")
@@ -25,7 +27,8 @@ public class Training {
     private String name;
     @Column(name = "Date", nullable=false)
     @NonNull
-    private String date;
+    @Temporal(TemporalType.DATE)
+    private Date date;
     @ManyToOne
     @NonNull
     private TrainingType trainingType;

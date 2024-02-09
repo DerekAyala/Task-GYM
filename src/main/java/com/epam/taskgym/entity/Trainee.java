@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+import java.util.Date;
+
 @Data
 @Entity
 @NoArgsConstructor
@@ -14,7 +16,8 @@ public class Trainee {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column(name = "dateOfBirth")
-    private String dateOfBirth;
+    @Temporal(TemporalType.DATE)
+    private Date dateOfBirth;
     @OneToOne
     @NonNull
     private User user;
