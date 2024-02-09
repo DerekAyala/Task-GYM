@@ -1,148 +1,100 @@
 package com.epam.taskgym.service;
 
+import com.epam.taskgym.dto.TraineeDTO;
 import com.epam.taskgym.dto.TrainerDTO;
 import com.epam.taskgym.entity.Trainer;
+import com.epam.taskgym.entity.TrainingType;
+import com.epam.taskgym.entity.User;
+import com.epam.taskgym.repository.TrainerRepository;
+import com.epam.taskgym.repository.UserRepository;
+import com.epam.taskgym.service.exception.MissingAttributes;
+import com.epam.taskgym.service.exception.NotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Optional;
+
 
 @Service
 public class TrainerService {
 
+    @Autowired
+    private TrainerRepository trainerRepository;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private TrainingTypeService trainingTypeService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainerService.class);
 
 
     public boolean authenticateTrainer(String username, String password) {
-        /*
-        Trainer trainer = trainerDAO.findByUsernameAndPassword(username, password);
-        return trainer != null;
-        */
-        return true;
+        Optional<Trainer> trainer = trainerRepository.findByUserUsernameAndUserPassword(username, password);
+        return trainer.isPresent();
     }
 
-    public TrainerDTO registerTrainer(String firstName, String lastName, String specialization) {
-        /*
-        TraineeService traineeService = new TraineeService(userDAO, traineeDAO);
-        String username = traineeService.generateUniqueUsername(firstName.toLowerCase(), lastName.toLowerCase());
-        String password = traineeService.generateRandomPassword();
+    public Optional<Trainer> getTrainerByUsername(String username) {
+        return trainerRepository.findByUserUsername(username);
+    }
 
-        User user = new User();
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setUsername(username);
-        user.setPassword(password);
-        userDAO.save(user);
-        LOGGER.info("User Trainer saved with ID: {}", user.getId());
+    public Optional<Trainer> getTrainerById(Long id) {
+        return trainerRepository.findById(id);
+    }
+
+    public TrainerDTO registerTrainer(Map<String, String> trainerDetails) {
+        User user = userService.createUser(trainerDetails);
 
         Trainer trainer = new Trainer();
-        trainer.setUserId(user.getId());
-        trainer.setSpecialization(specialization);
-        trainerDAO.save(trainer);
+        trainer.setUser(user);
+        if ((!trainerDetails.containsKey("specialization") || trainerDetails.get("specialization").isEmpty())) {
+            throw new MissingAttributes("specialization is required");
+        }
+
+        Optional<TrainingType> specialization = trainingTypeService.getTrainingTypeById(Long.parseLong(trainerDetails.get("specialization")));
+
+        if (specialization.isEmpty()) {
+            throw new NotFoundException("Specialization with id {" + Long.parseLong(trainerDetails.get("specialization")) + "}found");
+        }
+
+        trainer.setSpecialization(specialization.get());
+        trainer = trainerRepository.save(trainer);
         LOGGER.info("Trainer saved with ID: {}", trainer.getId());
 
-        TrainerDTO trainerDTO = new TrainerDTO();
-        fillTrainerDTO(trainerDTO, user, trainer);
-
-        return trainerDTO;
-        */
-        return new TrainerDTO();
+        return fillTrainerDTO(user, trainer);
     }
 
-    public Trainer findByUsername(String username) {
-        /*
-        Optional<User> user = userDAO.findByUsername(username);
-        if (user.isPresent()) {
-            LOGGER.info("Trainer was found by username");
-            return trainerDAO.findByUserId(user.get().getId());
-        }
-        */
-        return null;
-    }
-
-    public TrainerDTO getTrainer(String username) {
-        /*
-        Trainer trainer = trainerDAO.findByUsername(username);
-        if (trainer != null) {
-            LOGGER.info("Trainer was found by username");
-            Optional<User> userOptional = userDAO.findById(trainer.getUserId());
-            if (userOptional.isPresent()) {
-                LOGGER.info("User is present");
-                User user = userOptional.get();
-
-                TrainerDTO trainerDTO = new TrainerDTO();
-                fillTrainerDTO(trainerDTO, user, trainer);
-
-                return trainerDTO;
+    public boolean updatePasssword(String username, String password, String newPassword) {
+        if (authenticateTrainer(username, password)) {
+            Optional<Trainer> trainerOptional = getTrainerByUsername(username);
+            if (trainerOptional.isPresent()) {
+                Trainer trainer = trainerOptional.get();
+                User user = trainer.getUser();
+                user.setPassword(newPassword);
+                userRepository.save(user);
+                trainer.setUser(user);
+                trainerRepository.save(trainer);
+                return true;
             }
         }
-        */
-        return null;
+        return false;
     }
 
-    public TrainerDTO updateTrainer(String username, Map<String, String> updates) {
-        /*
-        User user = userDAO.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Trainer trainer = trainerDAO.findByUserId(user.getId());
-        if (trainer == null) {
-            throw new RuntimeException("Trainer not found by user id");
-        }
-
-        if (updates.containsKey("firstName")) {
-            LOGGER.info("Trainer updates contains firstName");
-            String firstName = updates.get("firstName");
-            user.setFirstName(firstName);
-        }
-
-        if (updates.containsKey("lastName")) {
-            LOGGER.info("Trainer updates contains lastName");
-            String lastName = updates.get("lastName");
-            user.setLastName(lastName);
-        }
-
-        userDAO.update(user);
-
-        if (updates.containsKey("specialization")) {
-            LOGGER.info("Trainer updates contains specialization");
-            String specialization = updates.get("specialization");
-            trainer.setSpecialization(specialization);
-        }
-
-        trainerDAO.update(trainer);
-        LOGGER.info("Trainer updated with ID: {}", trainer.getId());
-
+    private TrainerDTO fillTrainerDTO(User user, Trainer trainer) {
         TrainerDTO trainerDTO = new TrainerDTO();
-        fillTrainerDTO(trainerDTO, user, trainer);
-         */
-        return new TrainerDTO();
-
-    }
-
-    public void deleteTrainer(String username) {
-        /*
-        Trainer trainerToDelete = findByUsername(username);
-        if (trainerToDelete != null) {
-            trainerDAO.deleteById(trainerToDelete.getId());
-            userDAO.deleteById(trainerToDelete.getUserId());
-            LOGGER.info("User and Trainer were deleted");
-        }
-        */
-    }
-    /*
-
-    private void fillTrainerDTO(TrainerDTO trainerDTO, User user, Trainer trainer) {
-        trainerDTO.setUserId(user.getId());
-        trainerDTO.setUsername(user.getUsername());
-        trainerDTO.setPassword(user.getPassword());
+        trainerDTO.setUser(user);
         trainerDTO.setFirstName(user.getFirstName());
         trainerDTO.setLastName(user.getLastName());
-        trainerDTO.setTrainerId(trainer.getId());
+        trainerDTO.setUsername(user.getUsername());
         trainerDTO.setSpecialization(trainer.getSpecialization());
+        return trainerDTO;
     }
-    */
+
 }
