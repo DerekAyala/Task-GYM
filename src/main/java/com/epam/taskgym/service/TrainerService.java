@@ -28,9 +28,6 @@
         private UserService userService;
 
         @Autowired
-        private UserRepository userRepository;
-
-        @Autowired
         private TrainingTypeService trainingTypeService;
 
         private static final Logger LOGGER = LoggerFactory.getLogger(TrainerService.class);
@@ -101,7 +98,7 @@
                     Trainer trainer = trainerOptional.get();
                     User user = trainer.getUser();
                     user.setPassword(newPassword);
-                    userRepository.save(user);
+                    userService.saveUser(user);
                     trainer.setUser(user);
                     trainerRepository.save(trainer);
                     return true;

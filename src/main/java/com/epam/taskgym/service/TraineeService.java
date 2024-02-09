@@ -18,18 +18,13 @@ import java.util.Optional;
 @Service
 public class TraineeService {
 
-
     @Autowired
     private TraineeRepository traineeRepository;
 
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private UserRepository userRepository;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(TraineeService.class);
-
 
     public boolean authenticateTrainee(String username, String password) {
         return traineeRepository.findByUserUsernameAndUserPassword(username, password).isPresent();
@@ -81,7 +76,7 @@ public class TraineeService {
                 Trainee trainee = traineeOptional.get();
                 User user = trainee.getUser();
                 user.setPassword(newPassword);
-                userRepository.save(user);
+                userService.saveUser(user);
                 trainee.setUser(user);
                 traineeRepository.save(trainee);
                 return true;
@@ -90,7 +85,7 @@ public class TraineeService {
         return false;
     }
 
-    private TraineeDTO fillTrainerDTO(User user,Trainee trainee) {
+    private TraineeDTO fillTrainerDTO(User user, Trainee trainee) {
         return new TraineeDTO(user, user.getUsername(), user.getPassword(), user.getFirstName(), user.getLastName(), trainee, trainee.getDateOfBirth(), trainee.getAddress());
     }
 }
