@@ -4,6 +4,7 @@ import com.epam.taskgym.dto.TraineeDTO;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.repository.TraineeRepository;
+import com.epam.taskgym.service.exception.BadRequestException;
 import com.epam.taskgym.service.exception.FailAuthenticateException;
 import com.epam.taskgym.service.exception.MissingAttributes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,10 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
@@ -41,10 +46,23 @@ public class TraineeService {
 
         Trainee trainee = new Trainee();
         trainee.setUser(user);
-        trainee.setDateOfBirth(traineeDetails.getOrDefault("dateOfBirth", ""));
+        addDate(traineeDetails, trainee);
         trainee.setAddress(traineeDetails.getOrDefault("address", ""));
         traineeRepository.save(trainee);
         return fillTrainerDTO(user, trainee);
+    }
+
+    private void addDate(Map<String, String> traineeDetails, Trainee trainee) {
+        if ((traineeDetails.containsKey("dateOfBirth") || !traineeDetails.get("dateOfBirth").isEmpty())) {
+            DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+            Date dateOfBirth = null;
+            try {
+                dateOfBirth = df.parse(traineeDetails.get("dateOfBirth"));
+            } catch (ParseException e) {
+                throw new BadRequestException("Invalid date format");
+            }
+            trainee.setDateOfBirth(dateOfBirth);
+        }
     }
 
     public TraineeDTO updateTrainee(Map<String, String> traineeDetails, String username, String password) {
@@ -57,7 +75,7 @@ public class TraineeService {
                 Trainee trainee = traineeOptional.get();
                 User user = userService.updateUser(traineeDetails, trainee.getUser());
                 trainee.setUser(user);
-                trainee.setDateOfBirth(traineeDetails.getOrDefault("dateOfBirth", trainee.getDateOfBirth()));
+                addDate(traineeDetails, trainee);
                 trainee.setAddress(traineeDetails.getOrDefault("address", trainee.getAddress()));
                 traineeRepository.save(trainee);
                 return fillTrainerDTO(user, trainee);
