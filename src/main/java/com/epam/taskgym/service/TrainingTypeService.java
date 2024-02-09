@@ -29,4 +29,8 @@ public class TrainingTypeService {
         TrainingType trainingType = new TrainingType();
         return trainingTypeRepository.save(trainingType);
     }
+
+    public Optional<TrainingType> getTrainingTypeByName(String name) {
+        return trainingTypeRepository.findByName(name);
+    }
 }
