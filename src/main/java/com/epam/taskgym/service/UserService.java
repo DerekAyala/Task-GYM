@@ -48,10 +48,6 @@ public class UserService {
     }
 
     public User createUser(Map<String, String> userDetails) {
-        if (userDetails == null || userDetails.isEmpty()) {
-            throw new MissingAttributes("User details cannot be null or empty");
-        }
-
         if ((!userDetails.containsKey("firstName") || userDetails.get("firstName").isEmpty()) ||
                 (!userDetails.containsKey("lastName") || userDetails.get("lastName").isEmpty())) {
             throw new MissingAttributes("First name and lastName are required");
@@ -66,15 +62,12 @@ public class UserService {
         user.setLastName(lastName);
         user.setUsername(username);
         user.setPassword(password);
-        user = userRepository.save(user);
+        userRepository.save(user);
 
         return user;
     }
 
     public User updateUser(Map<String, String> userDetails, User user) {
-        if (userDetails == null || userDetails.isEmpty()) {
-            throw new MissingAttributes("User details cannot be null or empty");
-        }
         user.setFirstName(userDetails.getOrDefault("firstName", user.getFirstName()));
         user.setLastName(userDetails.getOrDefault("lastName", user.getLastName()));
         userRepository.save(user);
