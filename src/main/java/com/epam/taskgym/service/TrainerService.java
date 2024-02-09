@@ -1,12 +1,12 @@
     package com.epam.taskgym.service;
 
-    import com.epam.taskgym.dto.TraineeDTO;
     import com.epam.taskgym.dto.TrainerDTO;
     import com.epam.taskgym.entity.Trainer;
     import com.epam.taskgym.entity.TrainingType;
     import com.epam.taskgym.entity.User;
     import com.epam.taskgym.repository.TrainerRepository;
     import com.epam.taskgym.repository.UserRepository;
+    import com.epam.taskgym.service.exception.FailAuthenticateException;
     import com.epam.taskgym.service.exception.MissingAttributes;
     import com.epam.taskgym.service.exception.NotFoundException;
     import org.springframework.beans.factory.annotation.Autowired;
@@ -44,11 +44,10 @@
             return trainerRepository.findByUserUsername(username);
         }
 
-        public Optional<Trainer> getTrainerById(Long id) {
-            return trainerRepository.findById(id);
-        }
-
         public TrainerDTO registerTrainer(Map<String, String> trainerDetails) {
+            if (trainerDetails == null || trainerDetails.isEmpty()) {
+                throw new MissingAttributes("Trainer details cannot be null or empty");
+            }
             User user = userService.createUser(trainerDetails);
 
             Trainer trainer = new Trainer();
@@ -57,17 +56,42 @@
                 throw new MissingAttributes("specialization is required");
             }
 
-            Optional<TrainingType> specialization = trainingTypeService.getTrainingTypeById(Long.parseLong(trainerDetails.get("specialization")));
+            Optional<TrainingType> specialization = trainingTypeService.getTrainingTypeByName(trainerDetails.get("specialization"));
 
             if (specialization.isEmpty()) {
-                throw new NotFoundException("Specialization with id {" + Long.parseLong(trainerDetails.get("specialization")) + "}found");
+                throw new NotFoundException("Specialization with name {" + trainerDetails.get("specialization") + "} found");
             }
 
             trainer.setSpecialization(specialization.get());
-            trainer = trainerRepository.save(trainer);
-            LOGGER.info("Trainer saved with ID: {}", trainer.getId());
+            trainerRepository.save(trainer);
 
             return fillTrainerDTO(user, trainer);
+        }
+
+        public TrainerDTO updateTrainer(Map<String, String> trainerDetails, String username, String password) {
+            if (trainerDetails == null || trainerDetails.isEmpty()) {
+                throw new MissingAttributes("Trainer Update details cannot be null or empty");
+            }
+            if (authenticateTrainer(username, password)) {
+                Optional<Trainer> trainerOptional = getTrainerByUsername(username);
+                if (trainerOptional.isPresent()) {
+                    Trainer trainer = trainerOptional.get();
+                    User user = userService.updateUser(trainerDetails, trainer.getUser());
+                    trainer.setUser(user);
+                    if (trainerDetails.containsKey("specialization") && !trainerDetails.get("specialization").isEmpty()) {
+                        Optional<TrainingType> specialization = trainingTypeService.getTrainingTypeByName(trainerDetails.get("specialization"));
+                        if (specialization.isEmpty()) {
+                            throw new NotFoundException("Specialization with name {" + trainerDetails.get("specialization") + "} found");
+                        }
+                        trainer.setSpecialization(specialization.get());
+                    }
+                    trainerRepository.save(trainer);
+                    return fillTrainerDTO(user, trainer);
+                }
+            } else {
+                throw new FailAuthenticateException("Fail to authenticate");
+            }
+            return null;
         }
 
         public boolean updatePasssword(String username, String password, String newPassword) {
@@ -89,5 +113,4 @@
         private TrainerDTO fillTrainerDTO(User user, Trainer trainer) {
             return new TrainerDTO(user, user.getUsername(), user.getPassword(), user.getFirstName(), user.getLastName(), trainer, trainer.getSpecialization());
         }
-
     }
