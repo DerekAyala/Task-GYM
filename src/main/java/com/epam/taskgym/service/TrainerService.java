@@ -91,6 +91,21 @@
             return null;
         }
 
+        public boolean deleteTrainer(String username, String password) {
+            if (authenticateTrainer(username, password)) {
+                Optional<Trainer> trainerOptional = getTrainerByUsername(username);
+                if (trainerOptional.isPresent()) {
+                    Trainer trainer = trainerOptional.get();
+                    userService.deleteUser(trainer.getUser());
+                    trainerRepository.delete(trainer);
+                    return true;
+                }
+            } else {
+                throw new FailAuthenticateException("Fail to authenticate");
+            }
+            return false;
+        }
+
         public boolean updatePasssword(String username, String password, String newPassword) {
             if (authenticateTrainer(username, password)) {
                 Optional<Trainer> trainerOptional = getTrainerByUsername(username);

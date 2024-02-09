@@ -85,6 +85,11 @@ public class UserService {
         return user;
     }
 
+    // delete user
+    public void deleteUser(User user) {
+        userRepository.delete(user);
+    }
+
     public User activateUser(User user) {
         user.setIsActive(true);
         userRepository.save(user);

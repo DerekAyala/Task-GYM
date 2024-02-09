@@ -69,6 +69,21 @@ public class TraineeService {
         return null;
     }
 
+    public boolean deleteTrainee(String username, String password) {
+        if (authenticateTrainee(username, password)) {
+            Optional<Trainee> traineeOptional = traineeRepository.findByUserUsername(username);
+            if (traineeOptional.isPresent()) {
+                Trainee trainee = traineeOptional.get();
+                userService.deleteUser(trainee.getUser());
+                traineeRepository.delete(trainee);
+                return true;
+            }
+        } else {
+            throw new FailAuthenticateException("Fail to authenticate");
+        }
+        return false;
+    }
+
     public boolean updatePasssword(String username, String password, String newPassword) {
         if (authenticateTrainee(username, password)) {
             Optional<Trainee> traineeOptional = getTraineeByUsername(username);
