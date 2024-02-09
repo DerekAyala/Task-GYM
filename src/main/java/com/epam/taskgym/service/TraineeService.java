@@ -4,7 +4,6 @@ import com.epam.taskgym.dto.TraineeDTO;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.repository.TraineeRepository;
-import com.epam.taskgym.repository.UserRepository;
 import com.epam.taskgym.service.exception.FailAuthenticateException;
 import com.epam.taskgym.service.exception.MissingAttributes;
 import org.springframework.beans.factory.annotation.Autowired;

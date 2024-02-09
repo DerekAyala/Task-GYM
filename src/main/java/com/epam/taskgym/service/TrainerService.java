@@ -5,7 +5,6 @@
     import com.epam.taskgym.entity.TrainingType;
     import com.epam.taskgym.entity.User;
     import com.epam.taskgym.repository.TrainerRepository;
-    import com.epam.taskgym.repository.UserRepository;
     import com.epam.taskgym.service.exception.FailAuthenticateException;
     import com.epam.taskgym.service.exception.MissingAttributes;
     import com.epam.taskgym.service.exception.NotFoundException;
