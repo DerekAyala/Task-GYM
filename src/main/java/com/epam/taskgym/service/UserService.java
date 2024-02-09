@@ -70,4 +70,27 @@ public class UserService {
 
         return user;
     }
+
+    public User updateUser(Map<String, String> userDetails, User user) {
+        if (userDetails == null || userDetails.isEmpty()) {
+            throw new MissingAttributes("User details cannot be null or empty");
+        }
+        user.setFirstName(userDetails.getOrDefault("firstName", user.getFirstName()));
+        user.setLastName(userDetails.getOrDefault("lastName", user.getLastName()));
+        userRepository.save(user);
+
+        return user;
+    }
+
+    public User deActivateUser(User user) {
+        user.setIsActive(false);
+        userRepository.save(user);
+        return user;
+    }
+
+    public User activateUser(User user) {
+        user.setIsActive(true);
+        userRepository.save(user);
+        return user;
+    }
 }
