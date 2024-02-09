@@ -1,12 +1,11 @@
 package com.epam.taskgym.service;
 
 import com.epam.taskgym.dto.TraineeDTO;
-import com.epam.taskgym.dto.TrainerDTO;
 import com.epam.taskgym.entity.Trainee;
-import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.repository.TraineeRepository;
 import com.epam.taskgym.repository.UserRepository;
+import com.epam.taskgym.service.exception.FailAuthenticateException;
 import com.epam.taskgym.service.exception.MissingAttributes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,24 +39,44 @@ public class TraineeService {
         return traineeRepository.findByUserUsername(username);
     }
 
-    public Optional<Trainee> getTraineeById(Long id) {
-        return traineeRepository.findById(id);
-    }
-
     public TraineeDTO registerTrainee(Map<String, String> traineeDetails) {
+        if (traineeDetails == null || traineeDetails.isEmpty()) {
+            throw new MissingAttributes("Trainee details cannot be null or empty");
+        }
         User user = userService.createUser(traineeDetails);
 
         Trainee trainee = new Trainee();
         trainee.setUser(user);
-        trainee.setDateOfBirth(traineeDetails.getOrDefault("dateOfBirth", null));
-        trainee.setAddress(traineeDetails.getOrDefault("address", null));
-        trainee = traineeRepository.save(trainee);
+        trainee.setDateOfBirth(traineeDetails.getOrDefault("dateOfBirth", ""));
+        trainee.setAddress(traineeDetails.getOrDefault("address", ""));
+        traineeRepository.save(trainee);
         return fillTrainerDTO(user, trainee);
+    }
+
+    public TraineeDTO updateTrainee(Map<String, String> traineeDetails, String username, String password) {
+        if (traineeDetails == null || traineeDetails.isEmpty()) {
+            throw new MissingAttributes("Trainee Update details cannot be null or empty");
+        }
+        if (authenticateTrainee(username, password)) {
+            Optional<Trainee> traineeOptional = traineeRepository.findByUserUsername(username);
+            if (traineeOptional.isPresent()) {
+                Trainee trainee = traineeOptional.get();
+                User user = userService.updateUser(traineeDetails, trainee.getUser());
+                trainee.setUser(user);
+                trainee.setDateOfBirth(traineeDetails.getOrDefault("dateOfBirth", trainee.getDateOfBirth()));
+                trainee.setAddress(traineeDetails.getOrDefault("address", trainee.getAddress()));
+                traineeRepository.save(trainee);
+                return fillTrainerDTO(user, trainee);
+            }
+        } else {
+            throw new FailAuthenticateException("Fail to authenticate");
+        }
+        return null;
     }
 
     public boolean updatePasssword(String username, String password, String newPassword) {
         if (authenticateTrainee(username, password)) {
-            Optional<Trainee> traineeOptional = traineeRepository.findByUserUsername(username);
+            Optional<Trainee> traineeOptional = getTraineeByUsername(username);
             if (traineeOptional.isPresent()) {
                 Trainee trainee = traineeOptional.get();
                 User user = trainee.getUser();
