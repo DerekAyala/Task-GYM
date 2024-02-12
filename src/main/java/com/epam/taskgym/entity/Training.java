@@ -32,4 +32,7 @@ public class Training {
     @ManyToOne
     @NonNull
     private TrainingType trainingType;
+    @Column(name = "duration", nullable=false)
+    @NonNull
+    private Integer duration;
 }
