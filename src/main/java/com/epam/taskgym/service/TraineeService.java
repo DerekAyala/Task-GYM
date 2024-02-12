@@ -25,7 +25,6 @@ public class TraineeService {
 
     @Autowired
     private TraineeRepository traineeRepository;
-
     @Autowired
     private UserService userService;
 

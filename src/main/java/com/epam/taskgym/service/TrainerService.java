@@ -22,10 +22,8 @@ public class TrainerService {
 
     @Autowired
     private TrainerRepository trainerRepository;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private TrainingTypeService trainingTypeService;
 
