@@ -30,7 +30,11 @@ public class TrainingTypeService {
         return trainingTypeRepository.save(trainingType);
     }
 
-    public Optional<TrainingType> getTrainingTypeByName(String name) {
-        return trainingTypeRepository.findByName(name);
+    public TrainingType getTrainingTypeByName(String name) {
+        Optional<TrainingType> trainingType = trainingTypeRepository.findByName(name);
+        if (trainingType.isEmpty()) {
+            throw new IllegalArgumentException("Training type with name {" + name + "} not found");
+        }
+        return trainingType.get();
     }
 }
