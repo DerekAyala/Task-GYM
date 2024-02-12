@@ -22,8 +22,6 @@ public class TrainingService {
     private TrainerService trainerService;
     @Autowired
     private TrainingTypeService trainingTypeService;
-    @Autowired
-    private UserService userService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainingService.class);
 
@@ -43,7 +41,7 @@ public class TrainingService {
         Trainee trainee = traineeService.getTraineeByUsername(trainingDetails.get("traineeUsername"));
         Trainer trainer = trainerService.getTrainerByUsername(trainingDetails.get("trainerUsername"));
         TrainingType trainingType = trainingTypeService.getTrainingTypeByName(trainingDetails.get("trainingTypeName"));
-        Date date = userService.validateDate(trainingDetails.get("date"));
+        Date date = traineeService.validateDate(trainingDetails.get("date"));
         Training training = new Training();
         training.setTrainee(trainee);
         training.setTrainer(trainer);

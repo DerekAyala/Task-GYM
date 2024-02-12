@@ -52,17 +52,6 @@ public class UserService {
         return username;
     }
 
-    public Date validateDate(String Stringdate) {
-        DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
-        Date date = null;
-        try {
-           date = df.parse(Stringdate);
-        } catch (ParseException e) {
-            throw new BadRequestException("Invalid date format {DD-MM-YYYY}");
-        }
-        return date;
-    }
-
     public User createUser(Map<String, String> userDetails) {
         if ((!userDetails.containsKey("firstName") || userDetails.get("firstName").isEmpty()) ||
                 (!userDetails.containsKey("lastName") || userDetails.get("lastName").isEmpty())) {

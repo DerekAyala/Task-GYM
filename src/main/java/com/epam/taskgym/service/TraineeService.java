@@ -63,9 +63,20 @@ public class TraineeService {
 
     private void addDate(Map<String, String> traineeDetails, Trainee trainee) {
         if ((traineeDetails.containsKey("dateOfBirth") || !traineeDetails.get("dateOfBirth").isEmpty())) {
-            Date dateOfBirth = userService.validateDate(traineeDetails.get("dateOfBirth"));
+            Date dateOfBirth = validateDate(traineeDetails.get("dateOfBirth"));
             trainee.setDateOfBirth(dateOfBirth);
         }
+    }
+
+    public Date validateDate(String Stringdate) {
+        DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        Date date = null;
+        try {
+            date = df.parse(Stringdate);
+        } catch (ParseException e) {
+            throw new BadRequestException("Invalid date format {DD-MM-YYYY}");
+        }
+        return date;
     }
 
     public TraineeDTO updateTrainee(Map<String, String> traineeDetails, String username, String password) {
