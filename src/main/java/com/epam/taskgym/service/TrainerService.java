@@ -79,13 +79,6 @@ public class TrainerService {
         return fillTrainerDTO(user, trainer);
     }
 
-    public boolean deleteTrainer(String username, String password) {
-        authenticateTrainer(username, password);
-        Trainer trainer = getTrainerByUsername(username);
-        userService.deleteUser(trainer.getUser());
-        trainerRepository.delete(trainer);
-        return true;
-    }
 
     public boolean updatePasssword(String username, String password, String newPassword) {
         authenticateTrainer(username, password);
