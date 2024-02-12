@@ -63,13 +63,7 @@ public class TraineeService {
 
     private void addDate(Map<String, String> traineeDetails, Trainee trainee) {
         if ((traineeDetails.containsKey("dateOfBirth") || !traineeDetails.get("dateOfBirth").isEmpty())) {
-            DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
-            Date dateOfBirth = null;
-            try {
-                dateOfBirth = df.parse(traineeDetails.get("dateOfBirth"));
-            } catch (ParseException e) {
-                throw new BadRequestException("Invalid date format");
-            }
+            Date dateOfBirth = userService.validateDate(traineeDetails.get("dateOfBirth"));
             trainee.setDateOfBirth(dateOfBirth);
         }
     }

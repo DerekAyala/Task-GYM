@@ -2,10 +2,15 @@ package com.epam.taskgym.service;
 
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.repository.UserRepository;
+import com.epam.taskgym.service.exception.BadRequestException;
 import com.epam.taskgym.service.exception.MissingAttributes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
@@ -47,6 +52,17 @@ public class UserService {
         return username;
     }
 
+    public Date validateDate(String Stringdate) {
+        DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        Date date = null;
+        try {
+           date = df.parse(Stringdate);
+        } catch (ParseException e) {
+            throw new BadRequestException("Invalid date format {DD-MM-YYYY}");
+        }
+        return date;
+    }
+
     public User createUser(Map<String, String> userDetails) {
         if ((!userDetails.containsKey("firstName") || userDetails.get("firstName").isEmpty()) ||
                 (!userDetails.containsKey("lastName") || userDetails.get("lastName").isEmpty())) {
@@ -85,7 +101,6 @@ public class UserService {
         return user;
     }
 
-    // delete user
     public void deleteUser(User user) {
         userRepository.delete(user);
     }
