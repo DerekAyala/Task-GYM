@@ -23,6 +23,6 @@ public class Trainer {
     @NonNull
     private User user;
 
-    @ManyToMany(mappedBy = "trainers")
+    @ManyToMany
     private List<Trainee> trainees;
 }

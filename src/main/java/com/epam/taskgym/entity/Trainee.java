@@ -26,6 +26,6 @@ public class Trainee {
     @Column(name = "address")
     private String address;
 
-    @ManyToMany(mappedBy = "trainees")
+    @ManyToMany
     private List<Trainer> trainers;
 }
