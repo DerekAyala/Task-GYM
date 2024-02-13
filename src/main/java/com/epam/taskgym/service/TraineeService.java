@@ -34,17 +34,21 @@ public class TraineeService {
 
     private void authenticateTrainee(String username, String password) {
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
+            LOGGER.error("Username and password are required");
             throw new MissingAttributes("Username and password are required");
         }
         Trainee trainee = getTraineeByUsername(username);
         if (!trainee.getUser().getPassword().equals(password)) {
+            LOGGER.error("Fail to authenticate: Password and username do not match");
             throw new FailAuthenticateException("Fail to authenticate: Password and username do not match");
         }
     }
 
     public Trainee getTraineeByUsername(String username) {
+        LOGGER.info("Finding trainee by username: {}", username);
         Optional<Trainee> trainee = traineeRepository.findByUserUsername(username);
         if (trainee.isEmpty()) {
+            LOGGER.error("Trainee with username {} not found", username);
             throw new NotFoundException("Trainee with username {" + username + "} not found");
         }
         return trainee.get();
@@ -60,7 +64,8 @@ public class TraineeService {
         addDate(traineeDetails, trainee);
         trainee.setAddress(traineeDetails.getOrDefault("address", ""));
         traineeRepository.save(trainee);
-        return fillTrainerDTO(user, trainee);
+        LOGGER.info("Trainee registered: {}", trainee);
+        return fillTraineeDTO(user, trainee);
     }
 
     @Transactional
@@ -73,20 +78,24 @@ public class TraineeService {
         addDate(traineeDetails, trainee);
         trainee.setAddress(traineeDetails.getOrDefault("address", ""));
         traineeRepository.save(trainee);
-        return fillTrainerDTO(user, trainee);
+        LOGGER.info("Trainee updated: {}", trainee);
+        return fillTraineeDTO(user, trainee);
     }
 
     @Transactional
     public void deleteTrainee(String username, String password) {
         authenticateTrainee(username, password);
         Trainee trainee = getTraineeByUsername(username);
-
+        LOGGER.info("Hard Deleting trainee with username: {}", username);
         try {
             trainingRepository.deleteAllByTrainee_User_Username(username);
+            LOGGER.info("Trainings deleted for trainee with username: {}", username);
             User user = trainee.getUser();
             traineeRepository.delete(trainee);
+            LOGGER.info("Trainee deleted: {}", trainee);
             userService.deleteUser(user);
         } catch (DataAccessException e) {
+            LOGGER.error("An error occurred while deleting trainee with username:" + username, e);
             throw new TraineeDeletionException("An error occurred while deleting trainee with username: " + username + " " + e.getMessage(), e);
         }
     }
@@ -101,6 +110,7 @@ public class TraineeService {
         userService.saveUser(user);
         trainee.setUser(user);
         traineeRepository.save(trainee);
+        LOGGER.info("Password updated for user {}", username);
     }
 
     public Date validateDate(String StringDate) {
@@ -109,34 +119,41 @@ public class TraineeService {
         try {
             date = df.parse(StringDate);
         } catch (ParseException e) {
+            LOGGER.error("Invalid date format {DD-MM-YYYY}");
             throw new BadRequestException("Invalid date format {DD-MM-YYYY}");
         }
         return date;
     }
 
-    private TraineeDTO fillTrainerDTO(User user, Trainee trainee) {
-        return new TraineeDTO(user.getUsername(), user.getPassword(), user.getFirstName(), user.getLastName(), trainee.getDateOfBirth(), trainee.getAddress());
+    private TraineeDTO fillTraineeDTO(User user, Trainee trainee) {
+        TraineeDTO trainerDTO = new TraineeDTO(user.getUsername(), user.getPassword(), user.getFirstName(), user.getLastName(), trainee.getDateOfBirth(), trainee.getAddress());
+        LOGGER.info("TraineeDTO filled: {}", trainerDTO);
+        return trainerDTO;
     }
 
     private void addDate(Map<String, String> traineeDetails, Trainee trainee) {
         if (traineeDetails.containsKey("dateOfBirth") && !traineeDetails.get("dateOfBirth").isEmpty()) {
             Date dateOfBirth = validateDate(traineeDetails.get("dateOfBirth"));
             trainee.setDateOfBirth(dateOfBirth);
+            LOGGER.info("Date of birth added: {}", dateOfBirth);
         }
     }
 
     private void validateTraineeDetails(Map<String, String> traineeDetails) {
         if (traineeDetails == null || traineeDetails.isEmpty()) {
+            LOGGER.error("Trainee details cannot be null or empty");
             throw new MissingAttributes("Trainee details cannot be null or empty");
         }
     }
 
     public static void validatePassword(String newPassword) {
         if(newPassword == null || newPassword.isEmpty()){
+            LOGGER.error("Password cannot be null or empty.");
             throw new InvalidPasswordException("Password cannot be null or empty.");
         }
 
         if(newPassword.length() < 8){
+            LOGGER.error("Password must be at least 8 characters long.");
             throw new InvalidPasswordException("Password must be at least 8 characters long.");
         }
     }
