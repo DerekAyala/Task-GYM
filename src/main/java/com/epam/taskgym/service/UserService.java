@@ -25,10 +25,6 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public Optional<User> findByUsernameAndPassword(String username, String password) {
-        return userRepository.findByUsernameAndPassword(username, password);
-    }
-
     public String generateRandomPassword() {
         return new Random().ints(48, 122)
                 .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
