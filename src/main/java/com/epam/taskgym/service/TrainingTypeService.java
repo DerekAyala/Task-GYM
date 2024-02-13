@@ -2,6 +2,7 @@ package com.epam.taskgym.service;
 
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.repository.TrainingTypeRepository;
+import com.epam.taskgym.service.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -33,7 +34,7 @@ public class TrainingTypeService {
     public TrainingType getTrainingTypeByName(String name) {
         Optional<TrainingType> trainingType = trainingTypeRepository.findByName(name);
         if (trainingType.isEmpty()) {
-            throw new IllegalArgumentException("Training type with name {" + name + "} not found");
+            throw new NotFoundException("Training type with name {" + name + "} not found");
         }
         return trainingType.get();
     }
