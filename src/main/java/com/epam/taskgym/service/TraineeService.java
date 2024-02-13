@@ -102,11 +102,11 @@ public class TraineeService {
         traineeRepository.save(trainee);
     }
 
-    public Date validateDate(String Stringdate) {
+    public Date validateDate(String StringDate) {
         DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
         Date date = null;
         try {
-            date = df.parse(Stringdate);
+            date = df.parse(StringDate);
         } catch (ParseException e) {
             throw new BadRequestException("Invalid date format {DD-MM-YYYY}");
         }
