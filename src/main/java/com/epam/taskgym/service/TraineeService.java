@@ -37,7 +37,7 @@ public class TraineeService {
         }
         Trainee trainee = getTraineeByUsername(username);
         if (!trainee.getUser().getPassword().equals(password)) {
-            throw new FailAuthenticateException("Fail to authenticate");
+            throw new FailAuthenticateException("Fail to authenticate: Password and username do not match");
         }
     }
 
