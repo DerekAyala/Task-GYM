@@ -10,6 +10,7 @@ import java.util.List;
 
 @Data
 @Entity
+@Table(name = "trainee")
 @NoArgsConstructor
 public class Trainee {
 

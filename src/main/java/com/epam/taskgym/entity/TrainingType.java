@@ -7,6 +7,7 @@ import lombok.NonNull;
 
 @Data
 @Entity
+@Table(name = "training_type")
 @NoArgsConstructor
 public class TrainingType {
 
