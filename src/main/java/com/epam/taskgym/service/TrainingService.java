@@ -22,6 +22,8 @@ public class TrainingService {
     private TrainerService trainerService;
     @Autowired
     private TrainingTypeService trainingTypeService;
+    @Autowired
+    private TrainingRepository trainingRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainingService.class);
 
