@@ -34,7 +34,8 @@ public class TrainerService {
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
             throw new MissingAttributes("Username and password are required");
         }
-        if (trainerRepository.findByUserUsernameAndUserPassword(username, password).isEmpty()) {
+        Trainer trainer = getTrainerByUsername(username);
+        if (!trainer.getUser().getPassword().equals(password)) {
             throw new FailAuthenticateException("Fail to authenticate");
         }
     }

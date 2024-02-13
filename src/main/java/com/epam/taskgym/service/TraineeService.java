@@ -36,7 +36,8 @@ public class TraineeService {
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
             throw new MissingAttributes("Username and password are required");
         }
-        if (traineeRepository.findByUserUsernameAndUserPassword(username, password).isEmpty()) {
+        Trainee trainee = getTraineeByUsername(username);
+        if (!trainee.getUser().getPassword().equals(password)) {
             throw new FailAuthenticateException("Fail to authenticate");
         }
     }
