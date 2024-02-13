@@ -130,7 +130,7 @@ public class TraineeService {
         }
     }
 
-    private void validatePassword(String newPassword) {
+    public static void validatePassword(String newPassword) {
         if(newPassword == null || newPassword.isEmpty()){
             throw new InvalidPasswordException("Password cannot be null or empty.");
         }
