@@ -34,7 +34,7 @@ public class UserService {
         String password = generateRandomPassword();
 
         User user = buildUser(userDetails, username, password);
-        userRepository.save(user);
+        saveUser(user);
 
         return user;
     }
@@ -43,7 +43,7 @@ public class UserService {
     public User updateUser(Map<String, String> userDetails, User user) {
         user.setFirstName(userDetails.getOrDefault("firstName", user.getFirstName()));
         user.setLastName(userDetails.getOrDefault("lastName", user.getLastName()));
-        userRepository.save(user);
+        saveUser(user);
 
         return user;
     }
@@ -56,7 +56,7 @@ public class UserService {
     @Transactional
     public User toggleUserActivation(User user) {
         user.setIsActive(!user.getIsActive());
-        userRepository.save(user);
+        saveUser(user);
         return user;
     }
 
