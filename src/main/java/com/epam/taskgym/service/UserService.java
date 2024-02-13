@@ -67,6 +67,7 @@ public class UserService {
         user.setLastName(lastName);
         user.setUsername(username);
         user.setPassword(password);
+        user.setIsActive(true);
         userRepository.save(user);
 
         return user;
@@ -84,19 +85,13 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User deActivateUser(User user) {
-        user.setIsActive(false);
+    public User ActivateOrDeactivateUser(User user) {
+        user.setIsActive(!user.getIsActive());
         userRepository.save(user);
         return user;
     }
 
     public void deleteUser(User user) {
         userRepository.delete(user);
-    }
-
-    public User activateUser(User user) {
-        user.setIsActive(true);
-        userRepository.save(user);
-        return user;
     }
 }
