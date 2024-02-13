@@ -7,6 +7,7 @@ import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.repository.TrainingRepository;
 import com.epam.taskgym.service.exception.BadRequestException;
 import com.epam.taskgym.service.exception.MissingAttributes;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ public class TrainingService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainingService.class);
 
+    @Transactional
     public Training createTraining(Map<String, String> trainingDetails) {
         validateTrainingDetails(trainingDetails);
 
