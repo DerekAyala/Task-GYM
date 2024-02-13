@@ -8,6 +8,7 @@ import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.service.exception.FailAuthenticateException;
 import com.epam.taskgym.service.exception.MissingAttributes;
 import com.epam.taskgym.service.exception.NotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -30,13 +31,13 @@ public class TrainerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainerService.class);
 
 
-    public void authenticateTrainer(String username, String password) {
+    private void authenticateTrainer(String username, String password) {
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
             throw new MissingAttributes("Username and password are required");
         }
         Trainer trainer = getTrainerByUsername(username);
         if (!trainer.getUser().getPassword().equals(password)) {
-            throw new FailAuthenticateException("Fail to authenticate");
+            throw new FailAuthenticateException("Fail to authenticate: Password and username do not match");
         }
     }
 
@@ -48,51 +49,56 @@ public class TrainerService {
         return trainer.get();
     }
 
+    @Transactional
     public TrainerDTO registerTrainer(Map<String, String> trainerDetails) {
-        if (trainerDetails == null || trainerDetails.isEmpty()) {
-            throw new MissingAttributes("Trainer details cannot be null or empty");
-        }
+        validateTrainerDetails(trainerDetails);
         User user = userService.createUser(trainerDetails);
         Trainer trainer = new Trainer();
         trainer.setUser(user);
-        if ((!trainerDetails.containsKey("specialization") || trainerDetails.get("specialization").isEmpty())) {
-            throw new MissingAttributes("specialization is required");
-        }
-        TrainingType specialization = trainingTypeService.getTrainingTypeByName(trainerDetails.get("specialization"));
-        trainer.setSpecialization(specialization);
+        trainer.setSpecialization(validateSpecialization(trainerDetails));
         trainerRepository.save(trainer);
         return fillTrainerDTO(user, trainer);
     }
 
+    @Transactional
     public TrainerDTO updateTrainer(Map<String, String> trainerDetails, String username, String password) {
-        if (trainerDetails == null || trainerDetails.isEmpty()) {
-            throw new MissingAttributes("Trainer Update details cannot be null or empty");
-        }
         authenticateTrainer(username, password);
+        validateTrainerDetails(trainerDetails);
         Trainer trainer = getTrainerByUsername(username);
         User user = userService.updateUser(trainerDetails, trainer.getUser());
         trainer.setUser(user);
-        if (trainerDetails.containsKey("specialization") && !trainerDetails.get("specialization").isEmpty()) {
-            TrainingType specialization = trainingTypeService.getTrainingTypeByName(trainerDetails.get("specialization"));
-            trainer.setSpecialization(specialization);
-        }
+        trainer.setSpecialization(validateSpecialization(trainerDetails));
         trainerRepository.save(trainer);
         return fillTrainerDTO(user, trainer);
     }
 
-
-    public boolean updatePasssword(String username, String password, String newPassword) {
+    @Transactional
+    public void updatePasssword(String username, String password, String newPassword) {
         authenticateTrainer(username, password);
+        TraineeService.validatePassword(newPassword);
         Trainer trainer = getTrainerByUsername(username);
         User user = trainer.getUser();
         user.setPassword(newPassword);
         userService.saveUser(user);
         trainer.setUser(user);
         trainerRepository.save(trainer);
-        return true;
     }
 
     private TrainerDTO fillTrainerDTO(User user, Trainer trainer) {
         return new TrainerDTO(user, user.getUsername(), user.getPassword(), user.getFirstName(), user.getLastName(), trainer, trainer.getSpecialization());
+    }
+
+    private TrainingType validateSpecialization(Map<String, String> trainerDetails) {
+        if ((!trainerDetails.containsKey("specialization") || trainerDetails.get("specialization").isEmpty())) {
+            throw new MissingAttributes("specialization is required");
+        }
+        return trainingTypeService.getTrainingTypeByName(trainerDetails.get("specialization"));
+
+    }
+
+    private void validateTrainerDetails(Map<String, String> trainerDetails) {
+        if (trainerDetails == null || trainerDetails.isEmpty()) {
+            throw new MissingAttributes("Trainer details cannot be null or empty");
+        }
     }
 }
