@@ -27,6 +27,8 @@ public class TraineeService {
     private TraineeRepository traineeRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private TrainingService trainingService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TraineeService.class);
 
@@ -96,8 +98,10 @@ public class TraineeService {
     public boolean deleteTrainee(String username, String password) {
         authenticateTrainee(username, password);
         Trainee trainee = getTraineeByUsername(username);
-        userService.deleteUser(trainee.getUser());
+        trainingService.deleteTrainingsByTraineeUsername(username);
+        User user = trainee.getUser();
         traineeRepository.delete(trainee);
+        userService.deleteUser(user);
         return true;
     }
 
