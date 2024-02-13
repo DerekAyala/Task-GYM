@@ -33,6 +33,7 @@ public class TraineeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TraineeService.class);
 
     private void authenticateTrainee(String username, String password) {
+        LOGGER.info("Authenticating trainee with username: {}", username);
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
             LOGGER.error("Username and password are required");
             throw new MissingAttributes("Username and password are required");
@@ -58,7 +59,6 @@ public class TraineeService {
     public TraineeDTO registerTrainee(Map<String, String> traineeDetails) {
         validateTraineeDetails(traineeDetails);
         User user = userService.createUser(traineeDetails);
-
         Trainee trainee = new Trainee();
         trainee.setUser(user);
         addDate(traineeDetails, trainee);
@@ -114,6 +114,7 @@ public class TraineeService {
     }
 
     public Date validateDate(String StringDate) {
+        LOGGER.info("Validating date: {}", StringDate);
         DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
         Date date = null;
         try {
@@ -140,6 +141,7 @@ public class TraineeService {
     }
 
     private void validateTraineeDetails(Map<String, String> traineeDetails) {
+        LOGGER.info("Validating trainee details: {}", traineeDetails);
         if (traineeDetails == null || traineeDetails.isEmpty()) {
             LOGGER.error("Trainee details cannot be null or empty");
             throw new MissingAttributes("Trainee details cannot be null or empty");
@@ -147,6 +149,7 @@ public class TraineeService {
     }
 
     public static void validatePassword(String newPassword) {
+        LOGGER.info("Validating password");
         if(newPassword == null || newPassword.isEmpty()){
             LOGGER.error("Password cannot be null or empty.");
             throw new InvalidPasswordException("Password cannot be null or empty.");
