@@ -14,13 +14,11 @@ import java.util.Date;
 @AllArgsConstructor
 @ToString
 public class TraineeDTO {
-    private User user;
     private String username;
     private String password;
     private String firstName;
     private String lastName;
 
-    private Trainee trainee;
     private Date dateOfBirth;
     private String address;
 }

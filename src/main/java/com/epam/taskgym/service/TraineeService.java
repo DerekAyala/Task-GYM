@@ -115,11 +115,11 @@ public class TraineeService {
     }
 
     private TraineeDTO fillTrainerDTO(User user, Trainee trainee) {
-        return new TraineeDTO(user, user.getUsername(), user.getPassword(), user.getFirstName(), user.getLastName(), trainee, trainee.getDateOfBirth(), trainee.getAddress());
+        return new TraineeDTO(user.getUsername(), user.getPassword(), user.getFirstName(), user.getLastName(), trainee.getDateOfBirth(), trainee.getAddress());
     }
 
     private void addDate(Map<String, String> traineeDetails, Trainee trainee) {
-        if ((traineeDetails.containsKey("dateOfBirth") || !traineeDetails.get("dateOfBirth").isEmpty())) {
+        if (traineeDetails.containsKey("dateOfBirth") && !traineeDetails.get("dateOfBirth").isEmpty()) {
             Date dateOfBirth = validateDate(traineeDetails.get("dateOfBirth"));
             trainee.setDateOfBirth(dateOfBirth);
         }
