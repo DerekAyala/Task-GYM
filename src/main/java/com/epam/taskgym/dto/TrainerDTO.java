@@ -13,12 +13,10 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class TrainerDTO {
-    private User user;
     private String username;
     private String password;
     private String firstName;
     private String lastName;
 
-    private Trainer trainer;
     private TrainingType specialization;
 }

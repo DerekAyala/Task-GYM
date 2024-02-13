@@ -85,7 +85,7 @@ public class TrainerService {
     }
 
     private TrainerDTO fillTrainerDTO(User user, Trainer trainer) {
-        return new TrainerDTO(user, user.getUsername(), user.getPassword(), user.getFirstName(), user.getLastName(), trainer, trainer.getSpecialization());
+        return new TrainerDTO(user.getUsername(), user.getPassword(), user.getFirstName(), user.getLastName(), trainer.getSpecialization());
     }
 
     private TrainingType validateSpecialization(Map<String, String> trainerDetails) {
