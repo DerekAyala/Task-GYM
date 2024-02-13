@@ -22,17 +22,17 @@ public class Training {
     @ManyToOne
     @NonNull
     private Trainer trainer;
-    @Column(name = "name", nullable=false)
+    @Column(name = "training_name", nullable=false)
     @NonNull
     private String name;
-    @Column(name = "Date", nullable=false)
+    @Column(name = "training_date", nullable=false)
     @NonNull
     @Temporal(TemporalType.DATE)
     private Date date;
     @ManyToOne
     @NonNull
     private TrainingType trainingType;
-    @Column(name = "duration", nullable=false)
+    @Column(name = "training_duration", nullable=false)
     @NonNull
     private Integer duration;
 }

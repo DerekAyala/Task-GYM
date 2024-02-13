@@ -17,7 +17,7 @@ public class Trainee {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(name = "dateOfBirth")
+    @Column(name = "date_of_birth")
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
     @OneToOne

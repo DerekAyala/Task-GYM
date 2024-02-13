@@ -14,7 +14,7 @@ public class TrainingType {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(name = "name", nullable=false)
+    @Column(name = "training_type_name", nullable=false)
     @NonNull
     private String name;
 }
