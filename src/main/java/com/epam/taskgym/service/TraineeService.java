@@ -4,6 +4,7 @@ import com.epam.taskgym.dto.TraineeDTO;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.repository.TraineeRepository;
+import com.epam.taskgym.repository.TrainingRepository;
 import com.epam.taskgym.service.exception.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ public class TraineeService {
     @Autowired
     private UserService userService;
     @Autowired
-    private TrainingService trainingService;
+    private TrainingRepository trainingRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TraineeService.class);
 
@@ -81,7 +82,7 @@ public class TraineeService {
         Trainee trainee = getTraineeByUsername(username);
 
         try {
-            trainingService.deleteTrainingsByTraineeUsername(username);
+            trainingRepository.deleteAllByTrainee_User_Username(username);
             User user = trainee.getUser();
             traineeRepository.delete(trainee);
             userService.deleteUser(user);

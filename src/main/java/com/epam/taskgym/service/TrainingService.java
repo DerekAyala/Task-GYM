@@ -50,10 +50,6 @@ public class TrainingService {
         return trainingRepository.findAllByTrainee_User_Username(username);
     }
 
-    public void deleteTrainingsByTraineeUsername(String username) {
-        trainingRepository.deleteAllByTrainee_User_Username(username);
-    }
-
     public List<Training> getTrainingsByTraineeUsernameAndDateBetween(String username, Date startDate, Date endDate) {
         return trainingRepository.findAllByTrainee_User_UsernameAndDateBetween(username, startDate, endDate);
     }
