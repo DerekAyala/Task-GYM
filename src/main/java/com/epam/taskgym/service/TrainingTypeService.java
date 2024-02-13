@@ -7,6 +7,8 @@ import com.epam.taskgym.service.exception.NotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +19,8 @@ public class TrainingTypeService {
     @Autowired
     private TrainingTypeRepository trainingTypeRepository;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TrainingTypeService.class);
+
     public List<TrainingType> getAllTrainingTypes() {
         return trainingTypeRepository.findAll();
     }
@@ -24,16 +28,21 @@ public class TrainingTypeService {
     @Transactional
     public TrainingType RegisterTrainingType(String name) {
         if (name == null || name.isEmpty()) {
+            LOGGER.error("Name is required");
             throw new MissingAttributes("Name is required");
         }
         TrainingType trainingType = new TrainingType();
         trainingType.setName(name);
-        return trainingTypeRepository.save(trainingType);
+        trainingTypeRepository.save(trainingType);
+        LOGGER.info("Successfully registered training type: {}", trainingType);
+        return trainingType;
     }
 
     public TrainingType getTrainingTypeByName(String name) {
+        LOGGER.info("Finding training type by name: {}", name);
         Optional<TrainingType> trainingType = trainingTypeRepository.findByName(name);
         if (trainingType.isEmpty()) {
+            LOGGER.error("Training type with name {} not found", name);
             throw new NotFoundException("Training type with name {" + name + "} not found");
         }
         return trainingType.get();
