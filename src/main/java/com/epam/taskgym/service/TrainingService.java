@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class TrainingService {
@@ -31,18 +33,7 @@ public class TrainingService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainingService.class);
 
     public Training createTraining(Map<String, String> trainingDetails) {
-        if (trainingDetails == null || trainingDetails.isEmpty()) {
-            throw new MissingAttributes("Training details cannot be null or empty");
-        }
-
-        if ((!trainingDetails.containsKey("traineeUsername") || trainingDetails.get("traineeUsername").isEmpty()) &&
-                (!trainingDetails.containsKey("trainerUsername") || trainingDetails.get("trainerUsername").isEmpty()) &&
-                (!trainingDetails.containsKey("trainingTypeName") || trainingDetails.get("trainingTypeName").isEmpty()) &&
-                (!trainingDetails.containsKey("date") || trainingDetails.get("date").isEmpty()) &&
-                (!trainingDetails.containsKey("duration") || trainingDetails.get("duration").isEmpty()) &&
-                (!trainingDetails.containsKey("name") || trainingDetails.get("name").isEmpty())) {
-            throw new MissingAttributes("Trainee, trainer, trainingType, name, date and duration are required");
-        }
+        validateTrainingDetails(trainingDetails);
 
         Trainee trainee = traineeService.getTraineeByUsername(trainingDetails.get("traineeUsername"));
         Trainer trainer = trainerService.getTrainerByUsername(trainingDetails.get("trainerUsername"));
@@ -50,23 +41,7 @@ public class TrainingService {
         TrainingType trainingType = trainingTypeService.getTrainingTypeByName(trainingDetails.get("trainingTypeName"));
         int duration = validateDuration(trainingDetails.get("duration"));
 
-        Training training = new Training();
-        training.setTrainee(trainee);
-        training.setTrainer(trainer);
-        training.setName(trainingDetails.get("name"));
-        training.setDate(date);
-        training.setTrainingType(trainingType);
-        training.setDuration(duration);
-
-        return training;
-    }
-
-    public Integer validateDuration(String duration) {
-        try {
-            return Integer.parseInt(duration);
-        } catch (NumberFormatException e) {
-            throw new BadRequestException("Duration must be a number");
-        }
+        return buildTraining(trainee, trainer, date, trainingType, duration, trainingDetails.get("name"));
     }
 
     public List<Training> getTrainingsByTraineeUsername(String username) {
@@ -99,5 +74,35 @@ public class TrainingService {
 
     public List<Training> getTrainingsByTrainerUsernameAndTraineeName(String username, String traineeName) {
         return trainingRepository.findAllByTrainer_User_UsernameAndTrainee_User_FirstName(username, traineeName);
+    }
+
+    private Integer validateDuration(String duration) {
+        try {
+            return Integer.parseInt(duration);
+        } catch (NumberFormatException e) {
+            throw new BadRequestException("Duration must be a number");
+        }
+    }
+
+    private Training buildTraining(Trainee trainee, Trainer trainer, Date date, TrainingType trainingType, int duration, String name) {
+        Training training = new Training();
+        training.setTrainee(trainee);
+        training.setTrainer(trainer);
+        training.setName(name);
+        training.setDate(date);
+        training.setTrainingType(trainingType);
+        training.setDuration(duration);
+        return training;
+    }
+
+    private void validateTrainingDetails(Map<String, String> trainingDetails) {
+        List<String> missingFields = Stream
+                .of("traineeUsername", "trainerUsername", "trainingTypeName", "date", "duration", "name")
+                .filter(field -> !trainingDetails.containsKey(field) || trainingDetails.get(field).isEmpty())
+                .collect(Collectors.toList());
+
+        if (!missingFields.isEmpty()) {
+            throw new MissingAttributes("Fields missing or empty: " + String.join(", ", missingFields));
+        }
     }
 }
