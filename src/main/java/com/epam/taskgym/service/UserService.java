@@ -85,7 +85,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User ActivateOrDeactivateUser(User user) {
+    public User toggleUserActivation(User user) {
         user.setIsActive(!user.getIsActive());
         userRepository.save(user);
         return user;
