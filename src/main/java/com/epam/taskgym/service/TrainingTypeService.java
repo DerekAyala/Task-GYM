@@ -5,12 +5,12 @@ import com.epam.taskgym.repository.TrainingTypeRepository;
 import com.epam.taskgym.service.exception.MissingAttributes;
 import com.epam.taskgym.service.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-@Repository
+@Service
 public class TrainingTypeService {
 
     @Autowired
@@ -25,6 +25,7 @@ public class TrainingTypeService {
             throw new MissingAttributes("Name is required");
         }
         TrainingType trainingType = new TrainingType();
+        trainingType.setName(name);
         return trainingTypeRepository.save(trainingType);
     }
 
