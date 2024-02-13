@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Entity
@@ -23,4 +24,7 @@ public class Trainee {
     private User user;
     @Column(name = "address")
     private String address;
+
+    @ManyToMany(mappedBy = "trainees")
+    private List<Trainer> trainers;
 }

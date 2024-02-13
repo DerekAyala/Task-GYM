@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+import java.util.List;
+
 @Data
 @Entity
 @Table(name = "trainer")
@@ -20,4 +22,7 @@ public class Trainer {
     @OneToOne
     @NonNull
     private User user;
+
+    @ManyToMany(mappedBy = "trainers")
+    private List<Trainee> trainees;
 }
