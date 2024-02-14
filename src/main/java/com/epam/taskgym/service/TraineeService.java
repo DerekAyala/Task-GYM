@@ -124,7 +124,7 @@ public class TraineeService {
             throw new NotFoundException("Trainee with username " + traineeUsername + " not found.");
         }
 
-        List<Trainer> trainers = trainerRepository.findByUserUsername(trainerUsernames);
+        List<Trainer> trainers = trainerRepository.findAllByUserUsernameIn(trainerUsernames);
 
         if(trainers.size() < trainerUsernames.size()) {
             throw new NotFoundException("One or more trainers not found.");

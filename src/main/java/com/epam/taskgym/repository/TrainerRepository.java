@@ -12,5 +12,5 @@ public interface TrainerRepository extends JpaRepository<Trainer, Long> {
     Optional<Trainer> findByUserUsername(String username);
     List<Trainer> findAll();
 
-    List<Trainer> findByUserUsername(List<String> trainerUsernames);
+    List<Trainer> findAllByUserUsernameIn(List<String> trainerUsernames);
 }
