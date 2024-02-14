@@ -2,8 +2,10 @@ package com.epam.taskgym.service;
 
 import com.epam.taskgym.dto.TraineeDTO;
 import com.epam.taskgym.entity.Trainee;
+import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.repository.TraineeRepository;
+import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
 import com.epam.taskgym.service.exception.*;
 import jakarta.transaction.Transactional;
@@ -17,6 +19,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,6 +32,8 @@ public class TraineeService {
     private UserService userService;
     @Autowired
     private TrainingRepository trainingRepository;
+    @Autowired
+    private TrainerRepository trainerRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TraineeService.class);
 
@@ -111,6 +116,23 @@ public class TraineeService {
         trainee.setUser(user);
         traineeRepository.save(trainee);
         LOGGER.info("Password updated for user {}", username);
+    }
+
+    public void updateTraineeTrainers(String traineeUsername, List<String> trainerUsernames) {
+        Trainee trainee = getTraineeByUsername(traineeUsername);
+        if(trainee == null) {
+            throw new NotFoundException("Trainee with username " + traineeUsername + " not found.");
+        }
+
+        List<Trainer> trainers = trainerRepository.findByUserUsername(trainerUsernames);
+
+        if(trainers.size() < trainerUsernames.size()) {
+            throw new NotFoundException("One or more trainers not found.");
+        }
+
+        trainee.setTrainers(trainers);
+
+        traineeRepository.save(trainee);
     }
 
     public Date validateDate(String StringDate) {

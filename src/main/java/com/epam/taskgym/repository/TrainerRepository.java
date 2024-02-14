@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface TrainerRepository extends JpaRepository<Trainer, Long> {
     Optional<Trainer> findByUserUsername(String username);
     List<Trainer> findAll();
+
+    List<Trainer> findByUserUsername(List<String> trainerUsernames);
 }
