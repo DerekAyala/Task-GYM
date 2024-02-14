@@ -102,8 +102,8 @@ class TrainingServiceTest {
 
     @Test
     void getTrainingsByTraineeUsernameAndDateBetween_shouldReturnTrainings() {
-        Date startDate = new Date();
-        Date endDate = new Date();
+        String startDate = "20-09-2021";
+        String endDate = "29-09-2021";
 
         when(trainingRepository.findAllByTrainee_User_UsernameAndDateBetween(anyString(), any(Date.class), any(Date.class)))
                 .thenReturn(Arrays.asList(new Training(), new Training()));
@@ -145,8 +145,8 @@ class TrainingServiceTest {
 
     @Test
     void getTrainingsByTrainerUsernameAndDateBetween_shouldReturnTrainings() {
-        Date startDate = new Date();
-        Date endDate = new Date();
+        String startDate = "20-09-2021";
+        String endDate = "29-09-2021";
 
         when(trainingRepository.findAllByTrainer_User_UsernameAndDateBetween(anyString(), any(Date.class), any(Date.class)))
                 .thenReturn(Arrays.asList(new Training()));
