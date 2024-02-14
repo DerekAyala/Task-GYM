@@ -1,7 +1,10 @@
 package com.epam.taskgym.repository;
 
+import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.Training;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -17,4 +20,8 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
     List<Training> findAllByTrainer_User_UsernameAndDateBetween(String username, Date startDate, Date endDate);
     List<Training> findAllByTrainer_User_UsernameAndTrainee_User_FirstName(String username, String traineeName);
     void deleteAllByTrainee_User_Username(String username);
+
+    @Query("SELECT DISTINCT t.trainer FROM Training t WHERE t.trainee.user.username = :username")
+    List<Trainer> findAllTrainersByTraineeUsername(@Param("username") String username);
+
 }

@@ -5,6 +5,7 @@ import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.repository.TrainerRepository;
+import com.epam.taskgym.repository.TrainingRepository;
 import com.epam.taskgym.service.exception.FailAuthenticateException;
 import com.epam.taskgym.service.exception.MissingAttributes;
 import com.epam.taskgym.service.exception.NotFoundException;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,6 +29,8 @@ public class TrainerService {
     private UserService userService;
     @Autowired
     private TrainingTypeService trainingTypeService;
+    @Autowired
+    private TrainingRepository trainingRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainerService.class);
 
@@ -90,6 +94,15 @@ public class TrainerService {
         trainer.setUser(user);
         trainerRepository.save(trainer);
         LOGGER.info("Password updated for trainer: {}", trainer);
+    }
+
+    public List<Trainer> getUnassignedTrainers(String traineeUsername) {
+        List<Trainer> allTrainers = trainerRepository.findAll();
+        List<Trainer> trainersAssignedToTrainee = trainingRepository.findAllTrainersByTraineeUsername(traineeUsername);
+
+        allTrainers.removeAll(trainersAssignedToTrainee);
+
+        return allTrainers;
     }
 
     private TrainerDTO fillTrainerDTO(User user, Trainer trainer) {
