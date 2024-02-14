@@ -108,7 +108,7 @@ public class TrainingService {
         return trainingRepository.findAllByTrainer_User_UsernameAndTrainee_User_FirstName(username, traineeName);
     }
 
-    private Integer validateDuration(String duration) {
+    public Integer validateDuration(String duration) {
         LOGGER.info("Validating duration: {}", duration);
         try {
             return Integer.parseInt(duration);

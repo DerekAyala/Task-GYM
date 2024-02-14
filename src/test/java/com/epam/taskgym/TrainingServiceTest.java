@@ -10,6 +10,7 @@ import com.epam.taskgym.service.TrainerService;
 import com.epam.taskgym.service.TrainingService;
 import com.epam.taskgym.service.TrainingTypeService;
 import com.epam.taskgym.service.exception.BadRequestException;
+import com.epam.taskgym.service.exception.MissingAttributes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -170,5 +171,26 @@ class TrainingServiceTest {
         List<Training> result = trainingService.getTrainingsByTrainerUsernameAndTraineeName("trainer.doe", "john");
 
         assertEquals(2, result.size());
+    }
+
+    @Test
+    public void getTrainingsByTraineeUsername_shouldThrowMissingAttributes_whenUsernameIsEmpty() {
+        assertThrows(MissingAttributes.class, () -> trainingService.getTrainingsByTraineeUsername(""));
+    }
+
+    @Test
+    public void getTrainingsByTraineeUsername_shouldThrowMissingAttributes_whenUsernameIsNull() {
+        assertThrows(MissingAttributes.class, () -> trainingService.getTrainingsByTraineeUsername(null));
+    }
+
+    @Test
+    public void validateDuration_shouldThrowBadRequestException_whenDurationIsNotNumber() {
+        assertThrows(BadRequestException.class, () -> trainingService.validateDuration("not a number"));
+    }
+
+    @Test
+    public void validateDuration_shouldThrowBadRequestExceptionWithCorrectMessage_whenDurationIsNotNumber() {
+        Exception exception = assertThrows(BadRequestException.class, () -> trainingService.validateDuration("not a number"));
+        assertEquals("Duration must be a number", exception.getMessage());
     }
 }
