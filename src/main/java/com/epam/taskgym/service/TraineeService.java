@@ -120,9 +120,6 @@ public class TraineeService {
 
     public void updateTraineeTrainers(String traineeUsername, List<String> trainerUsernames) {
         Trainee trainee = getTraineeByUsername(traineeUsername);
-        if(trainee == null) {
-            throw new NotFoundException("Trainee with username " + traineeUsername + " not found.");
-        }
 
         List<Trainer> trainers = trainerRepository.findAllByUserUsernameIn(trainerUsernames);
 
