@@ -1,11 +1,20 @@
 package com.epam.taskgym.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Getter
 @Setter
-public class TrainingType extends BaseIdEntity {
+@ToString
+@Entity
+@Table(name = "training_type")
+@NoArgsConstructor
+public class TrainingType {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    @Column(name = "training_type_name", nullable=false)
+    @NonNull
     private String name;
 }

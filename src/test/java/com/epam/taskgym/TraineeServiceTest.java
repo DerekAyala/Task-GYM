@@ -1,117 +1,196 @@
 package com.epam.taskgym;
 
-import com.epam.taskgym.dao.TraineeDAO;
-import com.epam.taskgym.dao.UserDAO;
 import com.epam.taskgym.dto.TraineeDTO;
+import com.epam.taskgym.entity.Trainee;
+import com.epam.taskgym.entity.User;
+import com.epam.taskgym.repository.TraineeRepository;
+import com.epam.taskgym.repository.TrainingRepository;
 import com.epam.taskgym.service.TraineeService;
-import com.epam.taskgym.storage.TraineeInMemoryDb;
-import com.epam.taskgym.storage.UserInMemoryDb;
+import com.epam.taskgym.service.UserService;
+import com.epam.taskgym.service.exception.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
-public class TraineeServiceTest {
+// Required imports
+@ExtendWith(MockitoExtension.class)
+class TraineeServiceTest {
 
-    // Actual instances, not mocks
-    private UserDAO userDAO;
-    private TraineeDAO traineeDAO;
+    @InjectMocks
+    TraineeService traineeService;
+    @Mock
+    TraineeRepository traineeRepository;
+    @Mock
+    UserService userService;
+    @Mock
+    TrainingRepository trainingRepository;
 
-    private TraineeService traineeService;
-
-    private TraineeDTO traineeDTOTest;
+    User user;
+    Trainee trainee;
 
     @BeforeEach
-    public void setup(){
-        // Reset the repositories before each test
-        UserInMemoryDb userInMemoryDb = new UserInMemoryDb();
-        userDAO = new UserDAO(userInMemoryDb);
-        traineeDAO = new TraineeDAO(new TraineeInMemoryDb(), userInMemoryDb);
+    public void setup() {
+        user = new User();
+        user.setFirstName("John");
+        user.setLastName("Doe");
+        user.setUsername("john.doe");
+        user.setPassword("password");
 
-        traineeService = new TraineeService(userDAO, traineeDAO);
-        traineeDTOTest = traineeService.registerTrainee("First", "Last", "2000-07-10", "123 Trainee Street");
+        trainee = new Trainee();
+        trainee.setUser(user);
     }
 
     @Test
-    public void testRegisterTrainee() {
-        String firstName = "First";
-        String lastName = "Last";
-        String dateOfBirth = "2000-07-10";
-        String address = "123 Trainee Street";
-
-        TraineeDTO traineeDTO = traineeService.registerTrainee(firstName, lastName, dateOfBirth, address);
-
-        // Assertions
-        assertNotNull(traineeDTO);
-        assertEquals(firstName, traineeDTO.getFirstName());
-        assertEquals(lastName, traineeDTO.getLastName());
-        assertEquals(dateOfBirth, traineeDTO.getDateOfBirth());
-        assertEquals(address, traineeDTO.getAddress());
-        // test unique username
-        assertEquals("first.last1", traineeDTO.getUsername());
-        assertNotNull(traineeDTO.getPassword());
+    void getTraineeByUsername_whenTraineeExists_shouldReturnTrainee() {
+        when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainee));
+        Trainee result = traineeService.getTraineeByUsername("john.doe");
+        assertEquals(trainee, result);
     }
 
     @Test
-    public void testAuthenticateTrainee() {
-        // it should return true when credentials are correct
-        boolean isAuthenticated = traineeService.authenticateTrainee(traineeDTOTest.getUsername(), traineeDTOTest.getPassword());
-        assertTrue(isAuthenticated);
+    void getTraineeByUsername_whenTraineeDoesNotExist_shouldThrowException() {
+        when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.empty());
 
-        // it should return false when password is incorrect
-        isAuthenticated = traineeService.authenticateTrainee(traineeDTOTest.getUsername(), "wrongPassword");
-        assertFalse(isAuthenticated);
+        assertThrows(NotFoundException.class, () -> {
+            traineeService.getTraineeByUsername("john.doe");
+        });
     }
 
     @Test
-    public void testGetTrainee() {
-        // It should return a TraineeDTO object when username is correct
-        TraineeDTO traineeDTO = traineeService.getTrainee(traineeDTOTest.getUsername());
-        assertNotNull(traineeDTO);
-        assertEquals(traineeDTOTest.getUsername(), traineeDTO.getUsername());
+    void registerTrainee_whenDetailsAreValid_shouldReturnCreatedTrainee() {
+        Map<String, String> traineeDetails = new HashMap<>();
+        traineeDetails.put("firstName", "John");
+        traineeDetails.put("lastName", "Doe");
 
-        // It should return null when username does not exist
-        traineeDTO = traineeService.getTrainee("NonExistingUsername");
-        assertNull(traineeDTO);
+        when(userService.createUser(traineeDetails)).thenReturn(user);
+        when(traineeRepository.save(any(Trainee.class))).thenReturn(trainee);
+
+        TraineeDTO result = traineeService.registerTrainee(traineeDetails);
+        assertEquals("John", result.getFirstName());
+        assertEquals("Doe", result.getLastName());
     }
 
     @Test
-    public void testUpdateTrainee() {
-        // Update firstName and address
-        Map<String, String> updates = new HashMap<>();
-        updates.put("firstName", "UpdatedFirstName");
-        updates.put("lastName", "UpdatedLastName");
-        updates.put("dateOfBirth", "2000-07-11");
-        updates.put("address", "Updated address 123");
+    void registerTrainee_whenDetailsAreInvalid_shouldThrowException() {
+        Map<String, String> invalidTraineeDetails = new HashMap<>();
 
-        TraineeDTO updatedTraineeDTO = traineeService.updateTrainee(traineeDTOTest.getUsername(), updates);
-
-        // Assert updated values
-        assertNotNull(updatedTraineeDTO);
-        assertEquals(updatedTraineeDTO.getFirstName(), "UpdatedFirstName");
-        assertEquals(updatedTraineeDTO.getAddress(), "Updated address 123");
-
-        // Assert old values are unchanged
-        assertNotEquals(updatedTraineeDTO.getDateOfBirth(), traineeDTOTest.getDateOfBirth());
-        assertNotEquals(updatedTraineeDTO.getLastName(), traineeDTOTest.getLastName());
+        assertThrows(MissingAttributes.class, () -> {
+            traineeService.registerTrainee(invalidTraineeDetails);
+        });
     }
 
     @Test
-    public void testDeleteTrainee() {
-        // At first, trainee should exist
-        TraineeDTO existingTraineeDTO = traineeService.getTrainee(traineeDTOTest.getUsername());
-        assertNotNull(existingTraineeDTO);
+    void updateTrainee_whenUsernameAndPasswordAreCorrect_shouldUpdateTrainee() {
+        Map<String, String> traineeDetails = new HashMap<>();
+        traineeDetails.put("firstName", "John");
+        traineeDetails.put("lastName", "Doe");
 
-        // Delete user
-        traineeService.deleteTrainee(traineeDTOTest.getUsername());
+        when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainee));
+        when(userService.updateUser(traineeDetails, user)).thenReturn(user);
+        when(traineeRepository.save(any(Trainee.class))).thenReturn(trainee);
 
-        // Now, trainee should not exist
-        TraineeDTO deletedTraineeDTO = traineeService.getTrainee(traineeDTOTest.getUsername());
-        assertNull(deletedTraineeDTO);
+        TraineeDTO result = traineeService.updateTrainee(traineeDetails, "john.doe", "password");
+
+        assertEquals("John", result.getFirstName());
+        assertEquals("Doe", result.getLastName());
     }
 
-    // Similar tests for other operations...
+    @Test
+    void updateTrainee_whenUsernameOrPasswordIsIncorrect_shouldThrowException() {
+        Trainee incorrectPasswordTrainee = new Trainee();
+        User incorrectPasswordUser = new User();
+        incorrectPasswordUser.setPassword("not the right password");
+        incorrectPasswordTrainee.setUser(incorrectPasswordUser);
+
+        when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.of(incorrectPasswordTrainee));
+
+        assertThrows(FailAuthenticateException.class, () -> {
+            traineeService.updateTrainee(new HashMap<>(), "john.doe", "password");
+        });
+    }
+
+    @Test
+    void deleteTrainee_whenTraineeExists_shouldNotThrowException() {
+        when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainee));
+
+        assertDoesNotThrow(() -> {
+            traineeService.deleteTrainee("john.doe", "password");
+        });
+        verify(userService, times(1)).deleteUser(user);
+        verify(traineeRepository, times(1)).delete(trainee);
+        verify(trainingRepository, times(1)).deleteAllByTrainee_User_Username("john.doe");
+    }
+
+    @Test
+    void deleteTrainee_whenTraineeDoesNotExist_shouldThrowException() {
+        when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> {
+            traineeService.deleteTrainee("john.doe", "password");
+        });
+    }
+
+    @Test
+    void updatePassword_whenCurrentPasswordIsCorrect_shouldUpdatePassword() {
+        when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainee));
+
+        assertDoesNotThrow(() -> {
+            traineeService.updatePasssword("john.doe", "password", "newPassword");
+        });
+
+        verify(userService, times(1)).saveUser(user);
+        verify(traineeRepository, times(1)).save(trainee);
+        assertEquals("newPassword", user.getPassword());
+    }
+
+    @Test
+    void updatePassword_whenCurrentPasswordIsIncorrect_shouldThrowException() {
+        Trainee incorrectPasswordTrainee = new Trainee();
+        User incorrectPasswordUser = new User();
+        incorrectPasswordUser.setPassword("not the right password");
+        incorrectPasswordTrainee.setUser(incorrectPasswordUser);
+
+        when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.of(incorrectPasswordTrainee));
+
+        assertThrows(FailAuthenticateException.class, () -> {
+            traineeService.updatePasssword("john.doe", "password", "newPassword");
+        });
+    }
+
+    @Test
+    void updatePassword_whenNewPasswordIsInvalid_shouldThrowException() {
+        String invalidNewPassword = "abc"; // assuming password length should be more than 3
+
+        when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainee));
+
+        assertThrows(InvalidPasswordException.class, () -> {
+            traineeService.updatePasssword("john.doe", "password", invalidNewPassword);
+        });
+    }
+
+    @Test
+    void validateDate_whenDateFormatIsValid_shouldNotThrowException() {
+        assertDoesNotThrow(() -> {
+            traineeService.validateDate("12-12-2022");
+        });
+    }
+
+    @Test
+    void validateDate_whenDateFormatIsInvalid_shouldThrowException() {
+        assertThrows(BadRequestException.class, () -> {
+            traineeService.validateDate("invalid date format");
+        });
+    }
 }

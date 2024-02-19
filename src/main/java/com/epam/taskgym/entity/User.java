@@ -1,15 +1,32 @@
 package com.epam.taskgym.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Getter
 @Setter
-public class User extends BaseIdEntity {
+@ToString
+@Entity
+@Table(name = "user")
+@NoArgsConstructor
+public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    @Column(name = "first_name", nullable=false)
+    @NonNull
     private String firstName;
+    @Column(name = "last_name", nullable=false)
+    @NonNull
     private String lastName;
+    @Column(name = "username", unique = true, nullable=false)
+    @NonNull
     private String username;
+    @Column(name = "password", nullable=false)
+    @NonNull
     private String password;
-    private boolean isActive;
+    @Column(name = "is_active", nullable=false)
+    @NonNull
+    private Boolean isActive;
 }

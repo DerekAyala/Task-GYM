@@ -1,17 +1,20 @@
 package com.epam.taskgym.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.ToString;
+
+import java.util.Date;
 
 @Getter
-@Setter
+@AllArgsConstructor
+@ToString
 public class TraineeDTO {
-    private Long userId;
     private String username;
     private String password;
     private String firstName;
     private String lastName;
-    private Long traineeId;
-    private String dateOfBirth;
+
+    private Date dateOfBirth;
     private String address;
 }

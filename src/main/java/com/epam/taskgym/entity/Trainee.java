@@ -1,13 +1,31 @@
 package com.epam.taskgym.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
-public class Trainee extends BaseIdEntity {
+@ToString
+@Entity
+@Table(name = "trainee")
+@NoArgsConstructor
+public class Trainee {
 
-    private String dateOfBirth;
-    private Long userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    @Column(name = "date_of_birth")
+    @Temporal(TemporalType.DATE)
+    private Date dateOfBirth;
+    @OneToOne
+    @NonNull
+    private User user;
+    @Column(name = "address")
     private String address;
+
+    @ManyToMany
+    private List<Trainer> trainers;
 }

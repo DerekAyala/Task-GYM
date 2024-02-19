@@ -1,116 +1,173 @@
 package com.epam.taskgym;
 
-import com.epam.taskgym.dao.TraineeDAO;
-import com.epam.taskgym.dao.TrainerDAO;
-import com.epam.taskgym.dao.UserDAO;
 import com.epam.taskgym.dto.TrainerDTO;
+import com.epam.taskgym.entity.Trainer;
+import com.epam.taskgym.entity.TrainingType;
+import com.epam.taskgym.entity.User;
+import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.service.TrainerService;
-import com.epam.taskgym.storage.TraineeInMemoryDb;
-import com.epam.taskgym.storage.TrainerInMemoryDb;
-import com.epam.taskgym.storage.UserInMemoryDb;
+import com.epam.taskgym.service.TrainingTypeService;
+import com.epam.taskgym.service.UserService;
+import com.epam.taskgym.service.exception.FailAuthenticateException;
+import com.epam.taskgym.service.exception.InvalidPasswordException;
+import com.epam.taskgym.service.exception.MissingAttributes;
+import com.epam.taskgym.service.exception.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
-public class TrainerServiceTest {
+@ExtendWith(MockitoExtension.class)
+class TrainerServiceTest {
 
-    private UserDAO userDAO;
-    private TrainerDAO trainerDAO;
-
+    @InjectMocks
     private TrainerService trainerService;
+    @Mock
+    private TrainerRepository trainerRepository;
+    @Mock
+    private UserService userService;
+    @Mock
+    private TrainingTypeService trainingTypeService;
 
-    private TrainerDTO trainerDTOTest;
+    private Trainer trainer;
+    private User user;
+    private TrainingType trainingType;
 
     @BeforeEach
-    public void setup(){
-        UserInMemoryDb userInMemoryDb = new UserInMemoryDb();
-        userDAO = new UserDAO(userInMemoryDb);
-        trainerDAO = new TrainerDAO(new TrainerInMemoryDb(), userInMemoryDb);
-        TraineeDAO traineeDAO = new TraineeDAO(new TraineeInMemoryDb(), userInMemoryDb);
+    public void setUp() {
+        user = new User();
+        user.setFirstName("John");
+        user.setLastName("Doe");
+        user.setUsername("john.doe");
+        user.setPassword("password");
 
-        trainerService = new TrainerService(userDAO, trainerDAO, traineeDAO);
-        trainerDTOTest = trainerService.registerTrainer("First", "Last", "Specialization");
+        trainingType = new TrainingType();
+        trainingType.setName("TrainingType1");
+
+        trainer = new Trainer();
+        trainer.setUser(user);
+        trainer.setSpecialization(trainingType);
     }
 
     @Test
-    public void testAuthenticateTrainer() {
-        // It should return true if the username and password are correct
-        boolean loginSuccessful = trainerService.authenticateTrainer(trainerDTOTest.getUsername(), trainerDTOTest.getPassword());
-        assertTrue(loginSuccessful);
-
-        // It should return false if the username and password are incorrect
-        boolean loginUnsuccessful = trainerService.authenticateTrainer("NonExistentUsername", "NonExistentPassword");
-        assertFalse(loginUnsuccessful);
+    void getTrainerByUsername_whenTrainerExists_shouldReturnTrainer() {
+        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
+        Trainer result = trainerService.getTrainerByUsername("john.doe");
+        assertEquals(trainer, result);
     }
 
     @Test
-    public void testRegisterTrainer() {
-        // Register a new trainer
-        String firstName = "First";
-        String lastName = "Last";
-        String specialization = "Something";
+    void getTrainerByUsername_whenTrainerDoesNotExist_shouldThrowException() {
+        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.empty());
 
-        TrainerDTO trainerDTO = trainerService.registerTrainer(firstName, lastName, specialization);
-
-        // Now you can assert that the trainerDTO object is initialized and the fields set are as expected
-        assertNotNull(trainerDTO);
-        assertEquals(firstName, trainerDTO.getFirstName());
-        assertEquals(lastName, trainerDTO.getLastName());
-        assertEquals(specialization, trainerDTO.getSpecialization());
-        assertEquals("first.last1", trainerDTO.getUsername());
-        assertNotNull(trainerDTO.getPassword());
-        // here assert other fields as needed
+        assertThrows(NotFoundException.class, () -> {
+            trainerService.getTrainerByUsername("john.doe");
+        });
     }
 
     @Test
-    public void testGetTrainer() {
-        // It should return a TraineeDTO object when username is correct
-        TrainerDTO fetchedTrainer = trainerService.getTrainer(trainerDTOTest.getUsername());
+    void registerTrainer_whenDetailsAreValid_shouldReturnRegisteredTrainer() {
+        Map<String, String> trainerDetails = new HashMap<>();
+        trainerDetails.put("firstName", "John");
+        trainerDetails.put("lastName", "Doe");
+        trainerDetails.put("specialization", "TrainingType1");
 
-        assertNotNull(fetchedTrainer);
-        assertEquals(trainerDTOTest.getUsername(), fetchedTrainer.getUsername());
-        assertEquals(trainerDTOTest.getFirstName(), fetchedTrainer.getFirstName());
-        assertEquals(trainerDTOTest.getLastName(), fetchedTrainer.getLastName());
+        when(userService.createUser(trainerDetails)).thenReturn(user);
+        when(trainingTypeService.getTrainingTypeByName(anyString())).thenReturn(trainingType);
+        when(trainerRepository.save(any(Trainer.class))).thenReturn(trainer);
 
-        // It should return null if username does not exist
-        TrainerDTO nonExistentTrainer = trainerService.getTrainer("NonExistentUsername");
-        assertNull(nonExistentTrainer);
+        TrainerDTO result = trainerService.registerTrainer(trainerDetails);
+
+        assertEquals("John", result.getFirstName());
+        assertEquals("Doe", result.getLastName());
+        assertEquals("TrainingType1", result.getSpecialization().getName());
     }
 
     @Test
-    public void testUpdateTrainer() {
-        Map<String, String> updates = new HashMap<>();
-        updates.put("firstName", "NewFirstName");
-        updates.put("lastName", "NewLastName");
-        updates.put("specialization", "NewSpecialization");
+    void registerTrainer_whenDetailsAreInvalid_shouldThrowException() {
+        Map<String, String> invalidTrainerDetails = new HashMap<>();
 
-        // Update trainer details
-        TrainerDTO updatedTrainer = trainerService.updateTrainer(trainerDTOTest.getUsername(), updates);
-
-        assertNotNull(updatedTrainer);
-        assertNotEquals(trainerDTOTest.getFirstName(), updatedTrainer.getFirstName());
-        assertNotEquals(trainerDTOTest.getLastName(), updatedTrainer.getLastName());
-        assertNotEquals(trainerDTOTest.getSpecialization(), updatedTrainer.getSpecialization());
-        assertEquals("NewFirstName", updatedTrainer.getFirstName());
-        assertEquals("NewLastName", updatedTrainer.getLastName());
-        assertEquals("NewSpecialization", updatedTrainer.getSpecialization());
+        assertThrows(MissingAttributes.class, () -> {
+            trainerService.registerTrainer(invalidTrainerDetails);
+        });
     }
 
     @Test
-    public void testDeleteTrainer() {
-        // Let's first verify that the trainer does exist
-        TrainerDTO existingTrainer = trainerService.getTrainer(trainerDTOTest.getUsername());
-        assertNotNull(existingTrainer);
+    void updateTrainer_whenDetailsAreValid_shouldUpdateTrainer() {
+        Map<String, String> trainerDetails = new HashMap<>();
+        trainerDetails.put("firstName", "Jack");
+        trainerDetails.put("lastName", "Daniel");
+        trainerDetails.put("specialization", "TrainingType2");
 
-        // Delete the trainer
-        trainerService.deleteTrainer(existingTrainer.getUsername());
+        user.setFirstName("Jack");
+        user.setLastName("Daniel");
 
-        // Test that the trainer doesn't exist anymore
-        TrainerDTO deletedTrainer = trainerService.getTrainer(existingTrainer.getUsername());
-        assertNull(deletedTrainer);
+        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
+        when(userService.updateUser(trainerDetails, user)).thenReturn(user);
+        when(trainingTypeService.getTrainingTypeByName(anyString())).thenReturn(new TrainingType());
+        when(trainerRepository.save(any(Trainer.class))).thenReturn(trainer);
+
+        TrainerDTO result = trainerService.updateTrainer(trainerDetails, "john.doe", "password");
+
+        assertEquals("Jack", result.getFirstName());
+        assertEquals("Daniel", result.getLastName());
+    }
+
+    @Test
+    void updateTrainer_whenDetailsAreInvalid_shouldThrowException() {
+        Map<String, String> invalidTrainerDetails = new HashMap<>();
+        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
+
+        assertThrows(MissingAttributes.class, () -> {
+            trainerService.updateTrainer(invalidTrainerDetails, "john.doe", "password");
+        });
+    }
+
+    @Test
+    void updatePassword_whenCurrentPasswordIsCorrect_shouldUpdatePassword() {
+        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
+
+        assertDoesNotThrow(() -> {
+            trainerService.updatePasssword("john.doe", "password", "newPassword");
+        });
+
+        verify(userService, times(1)).saveUser(user);
+        verify(trainerRepository, times(1)).save(trainer);
+    }
+
+    @Test
+    void updatePassword_whenCurrentPasswordIsIncorrect_shouldThrowException() {
+        Trainer incorrectPasswordTrainer = new Trainer();
+        User incorrectPasswordUser = new User();
+        incorrectPasswordUser.setPassword("not the right password");
+        incorrectPasswordTrainer.setUser(incorrectPasswordUser);
+
+        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(incorrectPasswordTrainer));
+
+        assertThrows(FailAuthenticateException.class, () -> {
+            trainerService.updatePasssword("john.doe", "password", "newPassword");
+        });
+    }
+
+    @Test
+    void updatePassword_whenNewPasswordIsInvalid_shouldThrowException() {
+        String invalidNewPassword = "abc";
+
+        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
+
+        assertThrows(InvalidPasswordException.class, () -> {
+            trainerService.updatePasssword("john.doe", "password", invalidNewPassword);
+        });
     }
 }
