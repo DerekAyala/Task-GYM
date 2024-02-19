@@ -1,6 +1,5 @@
 package com.epam.taskgym.service;
 
-import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.repository.TrainingTypeRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
