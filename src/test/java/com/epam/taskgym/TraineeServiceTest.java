@@ -8,7 +8,6 @@ import com.epam.taskgym.repository.TraineeRepository;
 import com.epam.taskgym.repository.TrainingRepository;
 import com.epam.taskgym.service.TraineeService;
 import com.epam.taskgym.service.UserService;
-import com.epam.taskgym.service.exception.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
