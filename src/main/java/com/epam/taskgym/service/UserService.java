@@ -2,7 +2,7 @@ package com.epam.taskgym.service;
 
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.repository.UserRepository;
-import com.epam.taskgym.service.exception.MissingAttributes;
+import com.epam.taskgym.exception.MissingAttributes;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

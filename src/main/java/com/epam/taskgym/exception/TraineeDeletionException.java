@@ -1,4 +1,4 @@
-package com.epam.taskgym.service.exception;
+package com.epam.taskgym.exception;
 
 import org.springframework.dao.DataAccessException;
 

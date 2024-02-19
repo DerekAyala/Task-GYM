@@ -2,8 +2,8 @@ package com.epam.taskgym.service;
 
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.repository.TrainingTypeRepository;
-import com.epam.taskgym.service.exception.MissingAttributes;
-import com.epam.taskgym.service.exception.NotFoundException;
+import com.epam.taskgym.exception.MissingAttributes;
+import com.epam.taskgym.exception.NotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -4,6 +4,7 @@ import com.epam.taskgym.dto.TraineeDTO;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
+import com.epam.taskgym.exception.*;
 import com.epam.taskgym.repository.TraineeRepository;
 import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;

@@ -1,4 +1,4 @@
-package com.epam.taskgym.service.exception;
+package com.epam.taskgym.exception;
 
 public class BadRequestException extends RuntimeException{
     public BadRequestException(String message) {
