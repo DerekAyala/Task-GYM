@@ -83,7 +83,6 @@ public class UserService {
     }
 
     private User buildUser(Map<String, String> userDetails, String username, String password) {
-        LOGGER.info("Building user: {} - {}", userDetails, username);
         User user = new User();
         user.setFirstName(userDetails.get("firstName"));
         user.setLastName(userDetails.get("lastName"));
@@ -109,7 +108,7 @@ public class UserService {
     }
 
     private String generateUniqueUsername(String firstName, String lastName) {
-        LOGGER.info("Generating unique username for: {}.{}", firstName,lastName);
+        LOGGER.info("Generating unique username for: {} {}", firstName,lastName);
         String baseUsername = firstName + "." + lastName;
         String username = baseUsername;
 

@@ -153,7 +153,7 @@ public class TraineeService {
     }
 
     private void validateTraineeDetails(Map<String, String> traineeDetails) {
-        LOGGER.info("Validating trainee details: {}", traineeDetails);
+        LOGGER.info("Validating trainee details is not null or empty: {}", traineeDetails);
         if (traineeDetails == null || traineeDetails.isEmpty()) {
             LOGGER.error("Trainee details cannot be null or empty");
             throw new MissingAttributes("Trainee details cannot be null or empty");
