@@ -59,6 +59,21 @@ public class GymController {
         return new ResponseEntity<>(traineeService.getTraineeByUsername(username), HttpStatus.OK);
     }
 
+    // 6. Update Trainee Profile
+    @RequestMapping(value = "/trainee/{username}", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Trainee> updateTraineeProfile(@PathVariable String username, @RequestParam String password, @RequestBody Map<String, String> traineeDetails) {
+        return new ResponseEntity<>(traineeService.updateTrainee(traineeDetails, username, password), HttpStatus.OK);
+    }
+
+    // 7. Delete Trainee Profile
+    @RequestMapping(value = "/trainee/{username}", method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<String> deleteTraineeProfile(@PathVariable String username, @RequestParam String password) {
+        traineeService.deleteTrainee(username, password);
+        return new ResponseEntity<>("Trainee profile deleted successfully", HttpStatus.OK);
+    }
+
     // 8. Get Trainer Profile by Username
     @RequestMapping(value = "/trainer/{username}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
