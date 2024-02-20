@@ -1,6 +1,5 @@
 package com.epam.taskgym.service;
 
-import com.epam.taskgym.dto.TrainerDTO;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.entity.User;
@@ -59,7 +58,7 @@ public class TrainerService {
     }
 
     @Transactional
-    public TrainerDTO registerTrainer(Map<String, String> trainerDetails) {
+    public Trainer registerTrainer(Map<String, String> trainerDetails) {
         validateTrainerDetails(trainerDetails);
         User user = userService.createUser(trainerDetails);
         Trainer trainer = new Trainer();
@@ -67,11 +66,11 @@ public class TrainerService {
         trainer.setSpecialization(validateSpecialization(trainerDetails));
         trainerRepository.save(trainer);
         LOGGER.info("Successfully registered trainer: {}", trainer);
-        return fillTrainerDTO(user, trainer);
+        return trainer;
     }
 
     @Transactional
-    public TrainerDTO updateTrainer(Map<String, String> trainerDetails, String username, String password) {
+    public Trainer updateTrainer(Map<String, String> trainerDetails, String username, String password) {
         authenticateTrainer(username, password);
         validateTrainerDetails(trainerDetails);
         Trainer trainer = getTrainerByUsername(username);
@@ -80,7 +79,7 @@ public class TrainerService {
         trainer.setSpecialization(validateSpecialization(trainerDetails));
         trainerRepository.save(trainer);
         LOGGER.info("Trainer updated: {}", trainer);
-        return fillTrainerDTO(user, trainer);
+        return trainer;
     }
 
     @Transactional
@@ -103,12 +102,6 @@ public class TrainerService {
         allTrainers.removeAll(trainersAssignedToTrainee);
 
         return allTrainers;
-    }
-
-    private TrainerDTO fillTrainerDTO(User user, Trainer trainer) {
-        TrainerDTO trainerDTO = new TrainerDTO(user.getUsername(), user.getPassword(), user.getFirstName(), user.getLastName(), trainer.getSpecialization());
-        LOGGER.info("Filled trainer DTO: {}", trainerDTO);
-        return trainerDTO;
     }
 
     private TrainingType validateSpecialization(Map<String, String> trainerDetails) {

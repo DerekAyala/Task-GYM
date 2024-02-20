@@ -1,6 +1,5 @@
 package com.epam.taskgym;
 
-import com.epam.taskgym.dto.TrainerDTO;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.entity.User;
@@ -87,10 +86,10 @@ class TrainerServiceTest {
         when(trainingTypeService.getTrainingTypeByName(anyString())).thenReturn(trainingType);
         when(trainerRepository.save(any(Trainer.class))).thenReturn(trainer);
 
-        TrainerDTO result = trainerService.registerTrainer(trainerDetails);
+        Trainer result = trainerService.registerTrainer(trainerDetails);
 
-        assertEquals("John", result.getFirstName());
-        assertEquals("Doe", result.getLastName());
+        assertEquals("John", result.getUser().getFirstName());
+        assertEquals("Doe", result.getUser().getLastName());
         assertEquals("TrainingType1", result.getSpecialization().getName());
     }
 
@@ -118,10 +117,10 @@ class TrainerServiceTest {
         when(trainingTypeService.getTrainingTypeByName(anyString())).thenReturn(new TrainingType());
         when(trainerRepository.save(any(Trainer.class))).thenReturn(trainer);
 
-        TrainerDTO result = trainerService.updateTrainer(trainerDetails, "john.doe", "password");
+        Trainer result = trainerService.updateTrainer(trainerDetails, "john.doe", "password");
 
-        assertEquals("Jack", result.getFirstName());
-        assertEquals("Daniel", result.getLastName());
+        assertEquals("Jack", result.getUser().getFirstName());
+        assertEquals("Daniel", result.getUser().getLastName());
     }
 
     @Test
