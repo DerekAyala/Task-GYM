@@ -1,6 +1,5 @@
 package com.epam.taskgym;
 
-import com.epam.taskgym.dto.TraineeDTO;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.exception.*;
@@ -77,9 +76,9 @@ class TraineeServiceTest {
         when(userService.createUser(traineeDetails)).thenReturn(user);
         when(traineeRepository.save(any(Trainee.class))).thenReturn(trainee);
 
-        TraineeDTO result = traineeService.registerTrainee(traineeDetails);
-        assertEquals("John", result.getFirstName());
-        assertEquals("Doe", result.getLastName());
+        Trainee result = traineeService.registerTrainee(traineeDetails);
+        assertEquals("John", result.getUser().getFirstName());
+        assertEquals("Doe", result.getUser().getLastName());
     }
 
     @Test
@@ -101,10 +100,10 @@ class TraineeServiceTest {
         when(userService.updateUser(traineeDetails, user)).thenReturn(user);
         when(traineeRepository.save(any(Trainee.class))).thenReturn(trainee);
 
-        TraineeDTO result = traineeService.updateTrainee(traineeDetails, "john.doe", "password");
+        Trainee result = traineeService.updateTrainee(traineeDetails, "john.doe", "password");
 
-        assertEquals("John", result.getFirstName());
-        assertEquals("Doe", result.getLastName());
+        assertEquals("John", result.getUser().getFirstName());
+        assertEquals("Doe", result.getUser().getLastName());
     }
 
     @Test

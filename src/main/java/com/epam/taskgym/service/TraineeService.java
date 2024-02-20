@@ -1,6 +1,5 @@
 package com.epam.taskgym.service;
 
-import com.epam.taskgym.dto.TraineeDTO;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
@@ -61,7 +60,7 @@ public class TraineeService {
     }
 
     @Transactional
-    public TraineeDTO registerTrainee(Map<String, String> traineeDetails) {
+    public Trainee registerTrainee(Map<String, String> traineeDetails) {
         validateTraineeDetails(traineeDetails);
         User user = userService.createUser(traineeDetails);
         Trainee trainee = new Trainee();
@@ -70,11 +69,11 @@ public class TraineeService {
         trainee.setAddress(traineeDetails.getOrDefault("address", ""));
         traineeRepository.save(trainee);
         LOGGER.info("Trainee registered: {}", trainee);
-        return fillTraineeDTO(user, trainee);
+        return trainee;
     }
 
     @Transactional
-    public TraineeDTO updateTrainee(Map<String, String> traineeDetails, String username, String password) {
+    public Trainee updateTrainee(Map<String, String> traineeDetails, String username, String password) {
         authenticateTrainee(username, password);
         validateTraineeDetails(traineeDetails);
         Trainee trainee = getTraineeByUsername(username);
@@ -84,7 +83,7 @@ public class TraineeService {
         trainee.setAddress(traineeDetails.getOrDefault("address", ""));
         traineeRepository.save(trainee);
         LOGGER.info("Trainee updated: {}", trainee);
-        return fillTraineeDTO(user, trainee);
+        return trainee;
     }
 
     @Transactional
@@ -143,12 +142,6 @@ public class TraineeService {
             throw new BadRequestException("Invalid date format {DD-MM-YYYY}");
         }
         return date;
-    }
-
-    private TraineeDTO fillTraineeDTO(User user, Trainee trainee) {
-        TraineeDTO trainerDTO = new TraineeDTO(user.getUsername(), user.getPassword(), user.getFirstName(), user.getLastName(), trainee.getDateOfBirth(), trainee.getAddress());
-        LOGGER.info("TraineeDTO filled: {}", trainerDTO);
-        return trainerDTO;
     }
 
     private void addDate(Map<String, String> traineeDetails, Trainee trainee) {
