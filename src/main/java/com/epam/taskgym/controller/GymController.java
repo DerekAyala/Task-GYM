@@ -1,5 +1,7 @@
 package com.epam.taskgym.controller;
 
+import com.epam.taskgym.controller.response.RegisterResponse;
+import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.service.TraineeService;
 import com.epam.taskgym.service.TrainerService;
@@ -8,15 +10,13 @@ import com.epam.taskgym.service.TrainingTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/api")
 public class GymController {
 
     @Autowired
@@ -27,6 +27,13 @@ public class GymController {
     private TrainingTypeService trainingTypeService;
     @Autowired
     private TrainingService trainingService;
+
+    @PostMapping(value = "/trainee", consumes = "application/json", produces = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<RegisterResponse> registerTrainee(@RequestBody Map<String, String> traineeDetails) {
+        Trainee trainee = traineeService.registerTrainee(traineeDetails);
+        return new ResponseEntity<>(new RegisterResponse(trainee.getUser().getUsername(),trainee.getUser().getPassword()), HttpStatus.CREATED);
+    }
 
     @RequestMapping(value = "/trainingtypes", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
