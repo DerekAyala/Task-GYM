@@ -37,15 +37,13 @@ public class TraineeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TraineeService.class);
 
     private void authenticateTrainee(String username, String password) {
-        LOGGER.info("Authenticating trainee with username: {}", username);
-        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
-            LOGGER.error("Username and password are required");
-            throw new MissingAttributes("Username and password are required");
-        }
+        User user = userService.authenticateUser(username, password);
         Trainee trainee = getTraineeByUsername(username);
-        if (!trainee.getUser().getPassword().equals(password)) {
-            LOGGER.error("Fail to authenticate: Password and username do not match");
-            throw new FailAuthenticateException("Fail to authenticate: Password and username do not match");
+        if (trainee.getUser().equals(user)) {
+            LOGGER.info("Trainee authenticated: {}", username);
+        } else {
+            LOGGER.error("Fail to authenticate: Trainee and user do not match");
+            throw new FailAuthenticateException("Fail to authenticate: Trainee and user do not match");
         }
     }
 

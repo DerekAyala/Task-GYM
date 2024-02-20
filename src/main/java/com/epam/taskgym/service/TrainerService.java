@@ -35,15 +35,13 @@ public class TrainerService {
 
 
     private void authenticateTrainer(String username, String password) {
-        LOGGER.info("Authenticating trainer with username: {}", username);
-        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
-            LOGGER.error("Username and password are required");
-            throw new MissingAttributes("Username and password are required");
-        }
+        User user = userService.authenticateUser(username, password);
         Trainer trainer = getTrainerByUsername(username);
-        if (!trainer.getUser().getPassword().equals(password)) {
-            LOGGER.error("Fail to authenticate: Password and username do not match");
-            throw new FailAuthenticateException("Fail to authenticate: Password and username do not match");
+        if (trainer.getUser().equals(user)) {
+            LOGGER.info("Trainer authenticated: {}", username);
+        } else {
+            LOGGER.error("Fail to authenticate: Trainer and user do not match");
+            throw new FailAuthenticateException("Fail to authenticate: Trainer and user do not match");
         }
     }
 

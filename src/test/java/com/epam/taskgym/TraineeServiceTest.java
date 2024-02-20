@@ -97,6 +97,7 @@ class TraineeServiceTest {
         traineeDetails.put("lastName", "Doe");
 
         when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainee));
+        when(userService.authenticateUser(anyString(), anyString())).thenReturn(user);
         when(userService.updateUser(traineeDetails, user)).thenReturn(user);
         when(traineeRepository.save(any(Trainee.class))).thenReturn(trainee);
 
@@ -123,7 +124,7 @@ class TraineeServiceTest {
     @Test
     void deleteTrainee_whenTraineeExists_shouldNotThrowException() {
         when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainee));
-
+        when(userService.authenticateUser(anyString(), anyString())).thenReturn(user);
         assertDoesNotThrow(() -> {
             traineeService.deleteTrainee("john.doe", "password");
         });
@@ -144,7 +145,7 @@ class TraineeServiceTest {
     @Test
     void updatePassword_whenCurrentPasswordIsCorrect_shouldUpdatePassword() {
         when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainee));
-
+        when(userService.authenticateUser(anyString(), anyString())).thenReturn(user);
         assertDoesNotThrow(() -> {
             traineeService.updatePasssword("john.doe", "password", "newPassword");
         });
@@ -171,7 +172,7 @@ class TraineeServiceTest {
     @Test
     void updatePassword_whenNewPasswordIsInvalid_shouldThrowException() {
         String invalidNewPassword = "abc"; // assuming password length should be more than 3
-
+        when(userService.authenticateUser(anyString(), anyString())).thenReturn(user);
         when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainee));
 
         assertThrows(InvalidPasswordException.class, () -> {

@@ -112,6 +112,7 @@ class TrainerServiceTest {
         user.setFirstName("Jack");
         user.setLastName("Daniel");
 
+        when(userService.authenticateUser(anyString(), anyString())).thenReturn(user);
         when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
         when(userService.updateUser(trainerDetails, user)).thenReturn(user);
         when(trainingTypeService.getTrainingTypeByName(anyString())).thenReturn(new TrainingType());
@@ -127,6 +128,7 @@ class TrainerServiceTest {
     void updateTrainer_whenDetailsAreInvalid_shouldThrowException() {
         Map<String, String> invalidTrainerDetails = new HashMap<>();
         when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
+        when(userService.authenticateUser(anyString(), anyString())).thenReturn(user);
 
         assertThrows(MissingAttributes.class, () -> {
             trainerService.updateTrainer(invalidTrainerDetails, "john.doe", "password");
@@ -136,6 +138,7 @@ class TrainerServiceTest {
     @Test
     void updatePassword_whenCurrentPasswordIsCorrect_shouldUpdatePassword() {
         when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
+        when(userService.authenticateUser(anyString(), anyString())).thenReturn(user);
 
         assertDoesNotThrow(() -> {
             trainerService.updatePasssword("john.doe", "password", "newPassword");
@@ -163,6 +166,7 @@ class TrainerServiceTest {
     void updatePassword_whenNewPasswordIsInvalid_shouldThrowException() {
         String invalidNewPassword = "abc";
 
+        when(userService.authenticateUser(anyString(), anyString())).thenReturn(user);
         when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
 
         assertThrows(InvalidPasswordException.class, () -> {

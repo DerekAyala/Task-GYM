@@ -1,6 +1,8 @@
 package com.epam.taskgym.service;
 
 import com.epam.taskgym.entity.User;
+import com.epam.taskgym.exception.FailAuthenticateException;
+import com.epam.taskgym.exception.NotFoundException;
 import com.epam.taskgym.repository.UserRepository;
 import com.epam.taskgym.exception.MissingAttributes;
 import jakarta.transaction.Transactional;
@@ -71,6 +73,23 @@ public class UserService {
         LOGGER.info("Deleting user: {}", user);
         userRepository.delete(user);
         LOGGER.info("Successfully deleted user: {}", user);
+    }
+
+    public User authenticateUser(String username, String password) {
+        LOGGER.info("Authenticating user with username: {}", username);
+        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
+            LOGGER.error("Username and password are required");
+            throw new MissingAttributes("Username and password are required");
+        }
+        User user = findByUsername(username).orElseThrow(() -> {
+            LOGGER.error("User with username {} not found", username);
+            return new NotFoundException("User with username {" + username + "} not found");
+        });
+        if (!user.getPassword().equals(password)) {
+            LOGGER.error("Fail to authenticate: Password and username do not match");
+            throw new FailAuthenticateException("Fail to authenticate: Password and username do not match");
+        }
+        return user;
     }
 
     private void validateUserDetails(Map<String, String> userDetails) {
