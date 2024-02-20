@@ -29,6 +29,7 @@ public class GymController {
     @Autowired
     private UserService userService;
 
+    // 1. Add a new trainee
     @PostMapping(value = "/trainee", consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<RegisterResponse> registerTrainee(@RequestBody Map<String, String> traineeDetails) {
@@ -36,6 +37,7 @@ public class GymController {
         return new ResponseEntity<>(new RegisterResponse(trainee.getUser().getUsername(),trainee.getUser().getPassword()), HttpStatus.CREATED);
     }
 
+    // 2. Add a new trainer
     @PostMapping(value = "/trainer", consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<RegisterResponse> registerTrainer(@RequestBody Map<String, String> trainerDetails) {
@@ -43,12 +45,28 @@ public class GymController {
         return new ResponseEntity<>(new RegisterResponse(trainer.getUser().getUsername(),trainer.getUser().getPassword()), HttpStatus.CREATED);
     }
 
+    // 3. Login
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<User> loginUser(@RequestParam String username, @RequestParam String password) {
         return new ResponseEntity<>(userService.authenticateUser(username, password), HttpStatus.OK);
     }
 
+    // 5. Get Trainee Profile by Username
+    @RequestMapping(value = "/trainee/{username}", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Trainee> getTraineeProfile(@PathVariable String username) {
+        return new ResponseEntity<>(traineeService.getTraineeByUsername(username), HttpStatus.OK);
+    }
+
+    // 8. Get Trainer Profile by Username
+    @RequestMapping(value = "/trainer/{username}", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Trainer> getTrainerProfile(@PathVariable String username) {
+        return new ResponseEntity<>(trainerService.getTrainerByUsername(username), HttpStatus.OK);
+    }
+
+    // 17. Get Training Types
     @RequestMapping(value = "/trainingtypes", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<TrainingType>> getAllTrainingTypes() {
