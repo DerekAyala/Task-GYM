@@ -102,19 +102,6 @@ public class TraineeService {
         }
     }
 
-    @Transactional
-    public void updatePasssword(String username, String password, String newPassword) {
-        authenticateTrainee(username, password);
-        validatePassword(newPassword);
-        Trainee trainee = getTraineeByUsername(username);
-        User user = trainee.getUser();
-        user.setPassword(newPassword);
-        userService.saveUser(user);
-        trainee.setUser(user);
-        traineeRepository.save(trainee);
-        LOGGER.info("Password updated for user {}", username);
-    }
-
     public void updateTraineeTrainers(String traineeUsername, List<String> trainerUsernames) {
         Trainee trainee = getTraineeByUsername(traineeUsername);
 
@@ -132,7 +119,7 @@ public class TraineeService {
     public Date validateDate(String StringDate) {
         LOGGER.info("Validating date: {}", StringDate);
         DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
-        Date date = null;
+        Date date;
         try {
             date = df.parse(StringDate);
         } catch (ParseException e) {
@@ -155,19 +142,6 @@ public class TraineeService {
         if (traineeDetails == null || traineeDetails.isEmpty()) {
             LOGGER.error("Trainee details cannot be null or empty");
             throw new MissingAttributes("Trainee details cannot be null or empty");
-        }
-    }
-
-    public static void validatePassword(String newPassword) {
-        LOGGER.info("Validating password");
-        if(newPassword == null || newPassword.isEmpty()){
-            LOGGER.error("Password cannot be null or empty.");
-            throw new InvalidPasswordException("Password cannot be null or empty.");
-        }
-
-        if(newPassword.length() < 8){
-            LOGGER.error("Password must be at least 8 characters long.");
-            throw new InvalidPasswordException("Password must be at least 8 characters long.");
         }
     }
 }

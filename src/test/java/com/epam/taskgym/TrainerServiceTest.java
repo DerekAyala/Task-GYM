@@ -134,43 +134,4 @@ class TrainerServiceTest {
             trainerService.updateTrainer(invalidTrainerDetails, "john.doe", "password");
         });
     }
-
-    @Test
-    void updatePassword_whenCurrentPasswordIsCorrect_shouldUpdatePassword() {
-        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
-        when(userService.authenticateUser(anyString(), anyString())).thenReturn(user);
-
-        assertDoesNotThrow(() -> {
-            trainerService.updatePasssword("john.doe", "password", "newPassword");
-        });
-
-        verify(userService, times(1)).saveUser(user);
-        verify(trainerRepository, times(1)).save(trainer);
-    }
-
-    @Test
-    void updatePassword_whenCurrentPasswordIsIncorrect_shouldThrowException() {
-        Trainer incorrectPasswordTrainer = new Trainer();
-        User incorrectPasswordUser = new User();
-        incorrectPasswordUser.setPassword("not the right password");
-        incorrectPasswordTrainer.setUser(incorrectPasswordUser);
-
-        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(incorrectPasswordTrainer));
-
-        assertThrows(FailAuthenticateException.class, () -> {
-            trainerService.updatePasssword("john.doe", "password", "newPassword");
-        });
-    }
-
-    @Test
-    void updatePassword_whenNewPasswordIsInvalid_shouldThrowException() {
-        String invalidNewPassword = "abc";
-
-        when(userService.authenticateUser(anyString(), anyString())).thenReturn(user);
-        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
-
-        assertThrows(InvalidPasswordException.class, () -> {
-            trainerService.updatePasssword("john.doe", "password", invalidNewPassword);
-        });
-    }
 }

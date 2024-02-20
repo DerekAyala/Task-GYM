@@ -143,44 +143,6 @@ class TraineeServiceTest {
     }
 
     @Test
-    void updatePassword_whenCurrentPasswordIsCorrect_shouldUpdatePassword() {
-        when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainee));
-        when(userService.authenticateUser(anyString(), anyString())).thenReturn(user);
-        assertDoesNotThrow(() -> {
-            traineeService.updatePasssword("john.doe", "password", "newPassword");
-        });
-
-        verify(userService, times(1)).saveUser(user);
-        verify(traineeRepository, times(1)).save(trainee);
-        assertEquals("newPassword", user.getPassword());
-    }
-
-    @Test
-    void updatePassword_whenCurrentPasswordIsIncorrect_shouldThrowException() {
-        Trainee incorrectPasswordTrainee = new Trainee();
-        User incorrectPasswordUser = new User();
-        incorrectPasswordUser.setPassword("not the right password");
-        incorrectPasswordTrainee.setUser(incorrectPasswordUser);
-
-        when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.of(incorrectPasswordTrainee));
-
-        assertThrows(FailAuthenticateException.class, () -> {
-            traineeService.updatePasssword("john.doe", "password", "newPassword");
-        });
-    }
-
-    @Test
-    void updatePassword_whenNewPasswordIsInvalid_shouldThrowException() {
-        String invalidNewPassword = "abc"; // assuming password length should be more than 3
-        when(userService.authenticateUser(anyString(), anyString())).thenReturn(user);
-        when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainee));
-
-        assertThrows(InvalidPasswordException.class, () -> {
-            traineeService.updatePasssword("john.doe", "password", invalidNewPassword);
-        });
-    }
-
-    @Test
     void validateDate_whenDateFormatIsValid_shouldNotThrowException() {
         assertDoesNotThrow(() -> {
             traineeService.validateDate("12-12-2022");

@@ -2,6 +2,7 @@ package com.epam.taskgym.service;
 
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.exception.FailAuthenticateException;
+import com.epam.taskgym.exception.InvalidPasswordException;
 import com.epam.taskgym.exception.NotFoundException;
 import com.epam.taskgym.repository.UserRepository;
 import com.epam.taskgym.exception.MissingAttributes;
@@ -75,6 +76,16 @@ public class UserService {
         LOGGER.info("Successfully deleted user: {}", user);
     }
 
+    @Transactional
+    public User updatePassword(String username, String password, String newPassword) {
+        LOGGER.info("Updating password for user with username: {}", username);
+        User user = authenticateUser(username, password);
+        validatePassword(newPassword);
+        user.setPassword(newPassword);
+        User updatedUser = saveUser(user);
+        return user;
+    }
+
     public User authenticateUser(String username, String password) {
         LOGGER.info("Authenticating user with username: {}", username);
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
@@ -90,6 +101,19 @@ public class UserService {
             throw new FailAuthenticateException("Fail to authenticate: Password and username do not match");
         }
         return user;
+    }
+
+    private void validatePassword(String newPassword) {
+        LOGGER.info("Validating password");
+        if(newPassword == null || newPassword.isEmpty()){
+            LOGGER.error("Password cannot be null or empty.");
+            throw new InvalidPasswordException("Password cannot be null or empty.");
+        }
+
+        if(newPassword.length() < 8){
+            LOGGER.error("Password must be at least 8 characters long.");
+            throw new InvalidPasswordException("Password must be at least 8 characters long.");
+        }
     }
 
     private void validateUserDetails(Map<String, String> userDetails) {

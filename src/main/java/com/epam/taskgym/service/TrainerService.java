@@ -80,19 +80,6 @@ public class TrainerService {
         return trainer;
     }
 
-    @Transactional
-    public void updatePasssword(String username, String password, String newPassword) {
-        authenticateTrainer(username, password);
-        TraineeService.validatePassword(newPassword);
-        Trainer trainer = getTrainerByUsername(username);
-        User user = trainer.getUser();
-        user.setPassword(newPassword);
-        userService.saveUser(user);
-        trainer.setUser(user);
-        trainerRepository.save(trainer);
-        LOGGER.info("Password updated for trainer: {}", trainer);
-    }
-
     public List<Trainer> getUnassignedTrainers(String traineeUsername) {
         List<Trainer> allTrainers = trainerRepository.findAll();
         List<Trainer> trainersAssignedToTrainee = trainingRepository.findAllTrainersByTraineeUsername(traineeUsername);
