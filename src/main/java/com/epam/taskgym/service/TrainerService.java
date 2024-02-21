@@ -1,5 +1,6 @@
 package com.epam.taskgym.service;
 
+import com.epam.taskgym.controller.helpers.TrainerDetails;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.entity.User;
@@ -15,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 
@@ -56,25 +56,27 @@ public class TrainerService {
     }
 
     @Transactional
-    public Trainer registerTrainer(Map<String, String> trainerDetails) {
+    public Trainer registerTrainer(TrainerDetails trainerDetails) {
         validateTrainerDetails(trainerDetails);
-        User user = userService.createUser(trainerDetails);
+        validateAttributes(trainerDetails.getFirstName(), trainerDetails.getLastName());
+        User user = userService.createUser(trainerDetails.getFirstName(), trainerDetails.getLastName());
         Trainer trainer = new Trainer();
         trainer.setUser(user);
-        trainer.setSpecialization(validateSpecialization(trainerDetails));
+        trainer.setSpecialization(validateSpecialization(trainerDetails.getSpecialization()));
         trainerRepository.save(trainer);
         LOGGER.info("Successfully registered trainer: {}", trainer);
         return trainer;
     }
 
     @Transactional
-    public Trainer updateTrainer(Map<String, String> trainerDetails, String username, String password) {
+    public Trainer updateTrainer(TrainerDetails trainerDetails, String username, String password) {
         authenticateTrainer(username, password);
         validateTrainerDetails(trainerDetails);
         Trainer trainer = getTrainerByUsername(username);
-        User user = userService.updateUser(trainerDetails, trainer.getUser());
+        System.out.println(trainer);
+        User user = userService.updateUser(trainerDetails.getFirstName(), trainerDetails.getLastName(), trainer.getUser());
         trainer.setUser(user);
-        trainer.setSpecialization(validateSpecialization(trainerDetails));
+        trainer.setSpecialization(validateSpecialization(trainerDetails.getSpecialization()));
         trainerRepository.save(trainer);
         LOGGER.info("Trainer updated: {}", trainer);
         return trainer;
@@ -89,20 +91,28 @@ public class TrainerService {
         return allTrainers;
     }
 
-    private TrainingType validateSpecialization(Map<String, String> trainerDetails) {
-        if ((!trainerDetails.containsKey("specialization") || trainerDetails.get("specialization").isEmpty())) {
+    private TrainingType validateSpecialization(String specialization) {
+        if (specialization == null || specialization.isEmpty()) {
             LOGGER.error("specialization is required");
             throw new MissingAttributes("specialization is required");
         }
-        return trainingTypeService.getTrainingTypeByName(trainerDetails.get("specialization"));
+        return trainingTypeService.getTrainingTypeByName(specialization);
 
     }
 
-    private void validateTrainerDetails(Map<String, String> trainerDetails) {
+    private void validateTrainerDetails(TrainerDetails trainerDetails) {
         LOGGER.info("Validating trainer details: {}", trainerDetails);
-        if (trainerDetails == null || trainerDetails.isEmpty()) {
+        if (trainerDetails == null) {
             LOGGER.error("Trainer details cannot be null or empty");
             throw new MissingAttributes("Trainer details cannot be null or empty");
+        }
+    }
+
+    private void validateAttributes(String firstName, String lastName) {
+        LOGGER.info("Validating attributes");
+        if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty()) {
+            LOGGER.error("First name and last name are required");
+            throw new MissingAttributes("First name and last name are required");
         }
     }
 }

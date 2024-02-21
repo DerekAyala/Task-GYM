@@ -1,5 +1,6 @@
 package com.epam.taskgym.service;
 
+import com.epam.taskgym.controller.helpers.TraineeDetails;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
@@ -19,7 +20,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -58,27 +58,28 @@ public class TraineeService {
     }
 
     @Transactional
-    public Trainee registerTrainee(Map<String, String> traineeDetails) {
+    public Trainee registerTrainee(TraineeDetails traineeDetails) {
         validateTraineeDetails(traineeDetails);
-        User user = userService.createUser(traineeDetails);
+        validateAttributes(traineeDetails.getFirstName(), traineeDetails.getLastName());
+        User user = userService.createUser(traineeDetails.getFirstName(), traineeDetails.getLastName());
         Trainee trainee = new Trainee();
         trainee.setUser(user);
-        addDate(traineeDetails, trainee);
-        trainee.setAddress(traineeDetails.getOrDefault("address", ""));
+        addDate(traineeDetails.getDateOfBirth(), trainee);
+        trainee.setAddress((traineeDetails.getAddress() == null || traineeDetails.getAddress().isEmpty()) ? "" : traineeDetails.getAddress());
         traineeRepository.save(trainee);
         LOGGER.info("Trainee registered: {}", trainee);
         return trainee;
     }
 
     @Transactional
-    public Trainee updateTrainee(Map<String, String> traineeDetails, String username, String password) {
+    public Trainee updateTrainee(TraineeDetails traineeDetails, String username, String password) {
         authenticateTrainee(username, password);
         validateTraineeDetails(traineeDetails);
         Trainee trainee = getTraineeByUsername(username);
-        User user = userService.updateUser(traineeDetails, trainee.getUser());
+        User user = userService.updateUser(traineeDetails.getFirstName(), traineeDetails.getLastName(), trainee.getUser());
         trainee.setUser(user);
-        addDate(traineeDetails, trainee);
-        trainee.setAddress(traineeDetails.getOrDefault("address", ""));
+        addDate(traineeDetails.getDateOfBirth(), trainee);
+        trainee.setAddress((traineeDetails.getAddress() == null || traineeDetails.getAddress().isEmpty()) ? "" : traineeDetails.getAddress());
         traineeRepository.save(trainee);
         LOGGER.info("Trainee updated: {}", trainee);
         return trainee;
@@ -129,19 +130,26 @@ public class TraineeService {
         return date;
     }
 
-    private void addDate(Map<String, String> traineeDetails, Trainee trainee) {
-        if (traineeDetails.containsKey("dateOfBirth") && !traineeDetails.get("dateOfBirth").isEmpty()) {
-            Date dateOfBirth = validateDate(traineeDetails.get("dateOfBirth"));
+    private void addDate(Date dateOfBirth, Trainee trainee) {
+        if (dateOfBirth != null) {
             trainee.setDateOfBirth(dateOfBirth);
             LOGGER.info("Date of birth added: {}", dateOfBirth);
         }
     }
 
-    private void validateTraineeDetails(Map<String, String> traineeDetails) {
-        LOGGER.info("Validating trainee details is not null or empty: {}", traineeDetails);
-        if (traineeDetails == null || traineeDetails.isEmpty()) {
-            LOGGER.error("Trainee details cannot be null or empty");
-            throw new MissingAttributes("Trainee details cannot be null or empty");
+    private void validateTraineeDetails(TraineeDetails traineeDetails) {
+        LOGGER.info("Validating trainee details is not null: {}", traineeDetails);
+        if (traineeDetails == null){
+            LOGGER.error("Trainee details cannot be null");
+            throw new MissingAttributes("Trainee details cannot be null");
+        }
+    }
+
+    private void validateAttributes(String firstName, String lastName) {
+        LOGGER.info("Validating attributes: {} , {}", firstName, lastName);
+        if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty()) {
+            LOGGER.error("First name and last name are required");
+            throw new MissingAttributes("First name and last name are required");
         }
     }
 }
