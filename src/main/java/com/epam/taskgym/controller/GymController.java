@@ -100,6 +100,13 @@ public class GymController {
         return new ResponseEntity<>(trainerService.updateTrainer(trainerDetails, username, password), HttpStatus.OK);
     }
 
+    // 10. Get not assigned on trainee active trainers
+    @RequestMapping(value = "/trainee/{username}/trainersNotAssigned", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<Trainer>> getNotAssignedTrainers(@PathVariable String username) {
+        return new ResponseEntity<>(trainerService.getUnassignedTrainers(username), HttpStatus.OK);
+    }
+
     // 14. Add Training
     @RequestMapping(value = "/training", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
