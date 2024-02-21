@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -29,13 +28,13 @@ public class UserService {
     }
 
     @Transactional
-    public User createUser(Map<String, String> userDetails) {
-        LOGGER.info("Creating user with details: {}", userDetails);
-        validateUserDetails(userDetails);
-        String username = generateUniqueUsername(userDetails.get("firstName").toLowerCase(), userDetails.get("lastName").toLowerCase());
+    public User createUser(String firstName, String lastName) {
+        LOGGER.info("Creating user with: {}, {}", firstName, lastName);
+        validateUserDetails(firstName, lastName);
+        String username = generateUniqueUsername(firstName.toLowerCase(), lastName.toLowerCase());
         String password = generateRandomPassword();
 
-        User user = buildUser(userDetails, username, password);
+        User user = buildUser(firstName, lastName, username, password);
         saveUser(user);
         LOGGER.info("Successfully created user: {}", user);
 
@@ -43,10 +42,10 @@ public class UserService {
     }
 
     @Transactional
-    public User updateUser(Map<String, String> userDetails, User user) {
+    public User updateUser(String firstName, String lastName, User user) {
         LOGGER.info("Updating user: {}", user);
-        user.setFirstName(userDetails.getOrDefault("firstName", user.getFirstName()));
-        user.setLastName(userDetails.getOrDefault("lastName", user.getLastName()));
+        user.setFirstName((firstName == null || firstName.isEmpty()) ? user.getFirstName() : firstName);
+        user.setLastName((lastName == null || lastName.isEmpty()) ? user.getLastName() : lastName);
         saveUser(user);
         LOGGER.info("Successfully updated user: {}", user);
         return user;
@@ -58,15 +57,6 @@ public class UserService {
         User savedUser = userRepository.save(user);
         LOGGER.info("Successfully saved user: {}", savedUser);
         return savedUser;
-    }
-
-    @Transactional
-    public User toggleUserActivation(User user) {
-        LOGGER.info("Toggling user activation: {}", user);
-        user.setIsActive(!user.getIsActive());
-        User updatedUser = saveUser(user);
-        LOGGER.info("Successfully updated user activation: {}", updatedUser);
-        return updatedUser;
     }
 
     @Transactional
@@ -82,8 +72,7 @@ public class UserService {
         User user = authenticateUser(username, password);
         validatePassword(newPassword);
         user.setPassword(newPassword);
-        User updatedUser = saveUser(user);
-        return user;
+        return saveUser(user);
     }
 
     public User authenticateUser(String username, String password) {
@@ -116,19 +105,18 @@ public class UserService {
         }
     }
 
-    private void validateUserDetails(Map<String, String> userDetails) {
-        LOGGER.info("Validating user details: {}", userDetails);
-        if ((!userDetails.containsKey("firstName") || userDetails.get("firstName").isEmpty()) ||
-                (!userDetails.containsKey("lastName") || userDetails.get("lastName").isEmpty())) {
-            LOGGER.error("First name and lastName are missing in user details: {}", userDetails);
-            throw new MissingAttributes("First name and lastName are required");
+    private void validateUserDetails(String firstName, String lastName) {
+        LOGGER.info("Validating user details: {} , {}", firstName, lastName);
+        if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty()) {
+            LOGGER.error("First name and last name are required");
+            throw new MissingAttributes("First name and last name are required");
         }
     }
 
-    private User buildUser(Map<String, String> userDetails, String username, String password) {
+    private User buildUser(String firstName, String lastName, String username, String password) {
         User user = new User();
-        user.setFirstName(userDetails.get("firstName"));
-        user.setLastName(userDetails.get("lastName"));
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
         user.setUsername(username);
         user.setPassword(password);
         user.setIsActive(true);
