@@ -1,6 +1,8 @@
 package com.epam.taskgym.controller;
 
-import com.epam.taskgym.controller.response.RegisterResponse;
+import com.epam.taskgym.controller.helpers.RegisterResponse;
+import com.epam.taskgym.controller.helpers.TraineeDetails;
+import com.epam.taskgym.controller.helpers.TrainerDetails;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.TrainingType;
@@ -12,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -30,17 +31,17 @@ public class GymController {
     private UserService userService;
 
     // 1. Add a new trainee
-    @PostMapping(value = "/trainee", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/trainee")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<RegisterResponse> registerTrainee(@RequestBody Map<String, String> traineeDetails) {
+    public ResponseEntity<RegisterResponse> registerTrainee(@RequestBody TraineeDetails traineeDetails) {
         Trainee trainee = traineeService.registerTrainee(traineeDetails);
         return new ResponseEntity<>(new RegisterResponse(trainee.getUser().getUsername(),trainee.getUser().getPassword()), HttpStatus.CREATED);
     }
 
     // 2. Add a new trainer
-    @PostMapping(value = "/trainer", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/trainer")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<RegisterResponse> registerTrainer(@RequestBody Map<String, String> trainerDetails) {
+    public ResponseEntity<RegisterResponse> registerTrainer(@RequestBody TrainerDetails trainerDetails) {
         Trainer trainer = trainerService.registerTrainer(trainerDetails);
         return new ResponseEntity<>(new RegisterResponse(trainer.getUser().getUsername(),trainer.getUser().getPassword()), HttpStatus.CREATED);
     }
@@ -69,7 +70,7 @@ public class GymController {
     // 6. Update Trainee Profile
     @RequestMapping(value = "/trainee/{username}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Trainee> updateTraineeProfile(@PathVariable String username, @RequestParam String password, @RequestBody Map<String, String> traineeDetails) {
+    public ResponseEntity<Trainee> updateTraineeProfile(@PathVariable String username, @RequestParam String password, @RequestBody TraineeDetails traineeDetails) {
         return new ResponseEntity<>(traineeService.updateTrainee(traineeDetails, username, password), HttpStatus.OK);
     }
 
@@ -86,6 +87,13 @@ public class GymController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Trainer> getTrainerProfile(@PathVariable String username) {
         return new ResponseEntity<>(trainerService.getTrainerByUsername(username), HttpStatus.OK);
+    }
+
+    // 9. Update Trainer Profile
+    @RequestMapping(value = "/trainer/{username}", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Trainer> updateTrainerProfile(@PathVariable String username, @RequestParam String password, @RequestBody TrainerDetails trainerDetails) {
+        return new ResponseEntity<>(trainerService.updateTrainer(trainerDetails, username, password), HttpStatus.OK);
     }
 
     // 17. Get Training Types
