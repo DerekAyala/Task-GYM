@@ -1,4 +1,4 @@
-package com.epam.taskgym.controller.response;
+package com.epam.taskgym.controller.helpers;
 
 import lombok.Getter;
 import lombok.Setter;
