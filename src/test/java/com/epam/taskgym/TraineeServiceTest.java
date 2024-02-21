@@ -1,5 +1,6 @@
 package com.epam.taskgym;
 
+import com.epam.taskgym.controller.helpers.TraineeDetails;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.exception.*;
@@ -69,11 +70,10 @@ class TraineeServiceTest {
 
     @Test
     void registerTrainee_whenDetailsAreValid_shouldReturnCreatedTrainee() {
-        Map<String, String> traineeDetails = new HashMap<>();
-        traineeDetails.put("firstName", "John");
-        traineeDetails.put("lastName", "Doe");
-
-        when(userService.createUser(traineeDetails)).thenReturn(user);
+        TraineeDetails traineeDetails = new TraineeDetails();
+        traineeDetails.setFirstName("John");
+        traineeDetails.setLastName("Doe");
+        when(userService.createUser(traineeDetails.getFirstName(), traineeDetails.getLastName())).thenReturn(user);
         when(traineeRepository.save(any(Trainee.class))).thenReturn(trainee);
 
         Trainee result = traineeService.registerTrainee(traineeDetails);
@@ -83,7 +83,7 @@ class TraineeServiceTest {
 
     @Test
     void registerTrainee_whenDetailsAreInvalid_shouldThrowException() {
-        Map<String, String> invalidTraineeDetails = new HashMap<>();
+        TraineeDetails invalidTraineeDetails = new TraineeDetails();
 
         assertThrows(MissingAttributes.class, () -> {
             traineeService.registerTrainee(invalidTraineeDetails);
@@ -92,13 +92,13 @@ class TraineeServiceTest {
 
     @Test
     void updateTrainee_whenUsernameAndPasswordAreCorrect_shouldUpdateTrainee() {
-        Map<String, String> traineeDetails = new HashMap<>();
-        traineeDetails.put("firstName", "John");
-        traineeDetails.put("lastName", "Doe");
+        TraineeDetails traineeDetails = new TraineeDetails();
+        traineeDetails.setFirstName("John");
+        traineeDetails.setLastName("Doe");
 
         when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainee));
         when(userService.authenticateUser(anyString(), anyString())).thenReturn(user);
-        when(userService.updateUser(traineeDetails, user)).thenReturn(user);
+        when(userService.updateUser(traineeDetails.getFirstName(), traineeDetails.getLastName(),user)).thenReturn(user);
         when(traineeRepository.save(any(Trainee.class))).thenReturn(trainee);
 
         Trainee result = traineeService.updateTrainee(traineeDetails, "john.doe", "password");
@@ -117,7 +117,7 @@ class TraineeServiceTest {
         when(traineeRepository.findByUserUsername(anyString())).thenReturn(Optional.of(incorrectPasswordTrainee));
 
         assertThrows(FailAuthenticateException.class, () -> {
-            traineeService.updateTrainee(new HashMap<>(), "john.doe", "password");
+            traineeService.updateTrainee(new TraineeDetails(), "john.doe", "password");
         });
     }
 

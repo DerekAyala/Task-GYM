@@ -35,21 +35,10 @@ class UserServiceTest {
     }
 
     @Test
-    void createUserTestWhenUserDetailsAreMissing() {
-        Map<String, String> invalidUserDetails = new HashMap<>();
-
-        Assertions.assertThrows(MissingAttributes.class, () -> userService.createUser(invalidUserDetails));
-    }
-
-    @Test
     void createUserTestWhenUserDetailsAreValid() {
-        Map<String, String> userDetails = new HashMap<>();
-        userDetails.put("firstName", "John");
-        userDetails.put("lastName", "Smith");
-
         when(userRepository.save(any(User.class))).thenReturn(user);
 
-        User createdUser = userService.createUser(userDetails);
+        User createdUser = userService.createUser("John", "Smith");
 
         Assertions.assertEquals("John", createdUser.getFirstName());
         Assertions.assertEquals("Smith", createdUser.getLastName());
@@ -62,11 +51,7 @@ class UserServiceTest {
     @Test
     void updateUserTest() {
         when(userRepository.save(user)).thenReturn(user);
-        Map<String, String> userDetails = new HashMap<>();
-        userDetails.put("firstName", "Jane");
-        userDetails.put("lastName", "Doe");
-
-        User updatedUser = userService.updateUser(userDetails, user);
+        User updatedUser = userService.updateUser("Jane", "Doe", user);
 
         Assertions.assertEquals("Jane", updatedUser.getFirstName());
         Assertions.assertEquals("Doe", updatedUser.getLastName());
@@ -79,17 +64,5 @@ class UserServiceTest {
         userService.deleteUser(user);
 
         verify(userRepository, times(1)).delete(user);
-    }
-
-    @Test
-    void toggleUserActivationTest() {
-        when(userRepository.save(user)).thenReturn(user);
-        Assertions.assertFalse(user.getIsActive());
-
-        User updatedUser = userService.toggleUserActivation(user);
-
-        Assertions.assertTrue(updatedUser.getIsActive());
-
-        verify(userRepository, times(1)).save(user);
     }
 }

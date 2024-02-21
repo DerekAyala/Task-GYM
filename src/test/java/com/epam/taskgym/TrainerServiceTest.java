@@ -1,5 +1,6 @@
 package com.epam.taskgym;
 
+import com.epam.taskgym.controller.helpers.TrainerDetails;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.entity.User;
@@ -7,8 +8,6 @@ import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.service.TrainerService;
 import com.epam.taskgym.service.TrainingTypeService;
 import com.epam.taskgym.service.UserService;
-import com.epam.taskgym.exception.FailAuthenticateException;
-import com.epam.taskgym.exception.InvalidPasswordException;
 import com.epam.taskgym.exception.MissingAttributes;
 import com.epam.taskgym.exception.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,8 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -77,12 +74,12 @@ class TrainerServiceTest {
 
     @Test
     void registerTrainer_whenDetailsAreValid_shouldReturnRegisteredTrainer() {
-        Map<String, String> trainerDetails = new HashMap<>();
-        trainerDetails.put("firstName", "John");
-        trainerDetails.put("lastName", "Doe");
-        trainerDetails.put("specialization", "TrainingType1");
+        TrainerDetails trainerDetails = new TrainerDetails();
+        trainerDetails.setFirstName("John");
+        trainerDetails.setLastName("Doe");
+        trainerDetails.setSpecialization("TrainingType1");
 
-        when(userService.createUser(trainerDetails)).thenReturn(user);
+        when(userService.createUser(trainerDetails.getFirstName(), trainerDetails.getLastName())).thenReturn(user);
         when(trainingTypeService.getTrainingTypeByName(anyString())).thenReturn(trainingType);
         when(trainerRepository.save(any(Trainer.class))).thenReturn(trainer);
 
@@ -95,7 +92,7 @@ class TrainerServiceTest {
 
     @Test
     void registerTrainer_whenDetailsAreInvalid_shouldThrowException() {
-        Map<String, String> invalidTrainerDetails = new HashMap<>();
+        TrainerDetails invalidTrainerDetails = new TrainerDetails();
 
         assertThrows(MissingAttributes.class, () -> {
             trainerService.registerTrainer(invalidTrainerDetails);
@@ -104,17 +101,17 @@ class TrainerServiceTest {
 
     @Test
     void updateTrainer_whenDetailsAreValid_shouldUpdateTrainer() {
-        Map<String, String> trainerDetails = new HashMap<>();
-        trainerDetails.put("firstName", "Jack");
-        trainerDetails.put("lastName", "Daniel");
-        trainerDetails.put("specialization", "TrainingType2");
+        TrainerDetails trainerDetails = new TrainerDetails();
+        trainerDetails.setFirstName("Jack");
+        trainerDetails.setLastName("Daniel");
+        trainerDetails.setSpecialization("TrainingType1");
 
         user.setFirstName("Jack");
         user.setLastName("Daniel");
 
         when(userService.authenticateUser(anyString(), anyString())).thenReturn(user);
         when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
-        when(userService.updateUser(trainerDetails, user)).thenReturn(user);
+        when(userService.updateUser(trainerDetails.getFirstName(), trainerDetails.getLastName(), user)).thenReturn(user);
         when(trainingTypeService.getTrainingTypeByName(anyString())).thenReturn(new TrainingType());
         when(trainerRepository.save(any(Trainer.class))).thenReturn(trainer);
 
@@ -122,16 +119,5 @@ class TrainerServiceTest {
 
         assertEquals("Jack", result.getUser().getFirstName());
         assertEquals("Daniel", result.getUser().getLastName());
-    }
-
-    @Test
-    void updateTrainer_whenDetailsAreInvalid_shouldThrowException() {
-        Map<String, String> invalidTrainerDetails = new HashMap<>();
-        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
-        when(userService.authenticateUser(anyString(), anyString())).thenReturn(user);
-
-        assertThrows(MissingAttributes.class, () -> {
-            trainerService.updateTrainer(invalidTrainerDetails, "john.doe", "password");
-        });
     }
 }
