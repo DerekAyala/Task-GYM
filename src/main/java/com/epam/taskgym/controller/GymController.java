@@ -3,6 +3,7 @@ package com.epam.taskgym.controller;
 import com.epam.taskgym.controller.helpers.RegisterResponse;
 import com.epam.taskgym.controller.helpers.TraineeDetails;
 import com.epam.taskgym.controller.helpers.TrainerDetails;
+import com.epam.taskgym.controller.helpers.TrainingDetails;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.TrainingType;
@@ -94,6 +95,14 @@ public class GymController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Trainer> updateTrainerProfile(@PathVariable String username, @RequestParam String password, @RequestBody TrainerDetails trainerDetails) {
         return new ResponseEntity<>(trainerService.updateTrainer(trainerDetails, username, password), HttpStatus.OK);
+    }
+
+    // 14. Add Training
+    @RequestMapping(value = "/training", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<String> addTraining(@RequestBody TrainingDetails trainingDetails) {
+        trainingService.createTraining(trainingDetails);
+        return new ResponseEntity<>("Training added successfully", HttpStatus.CREATED);
     }
 
     // 17. Get Training Types
