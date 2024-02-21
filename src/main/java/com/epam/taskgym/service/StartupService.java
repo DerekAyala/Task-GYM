@@ -8,7 +8,6 @@ import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
 import com.epam.taskgym.repository.TrainingTypeRepository;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -18,22 +17,25 @@ import java.util.Map;
 @Service
 public class StartupService {
 
-    @Autowired
-    private TrainingTypeRepository trainingTypeRepository;
-    @Autowired
-    private TrainingTypeService trainingTypeService;
-    @Autowired
-    private TraineeService traineeService;
-    @Autowired
-    private TraineeRepository traineeRepository;
-    @Autowired
-    private TrainerService trainerService;
-    @Autowired
-    private TrainerRepository trainerRepository;
-    @Autowired
-    private TrainingService trainingService;
-    @Autowired
-    private TrainingRepository trainingRepository;
+    private final TrainingTypeRepository trainingTypeRepository;
+    private final TrainingTypeService trainingTypeService;
+    private final TraineeService traineeService;
+    private final TraineeRepository traineeRepository;
+    private final TrainerService trainerService;
+    private final TrainerRepository trainerRepository;
+    private final TrainingService trainingService;
+    private final TrainingRepository trainingRepository;
+
+    public StartupService(TrainingTypeRepository trainingTypeRepository, TrainingTypeService trainingTypeService, TraineeService traineeService, TraineeRepository traineeRepository, TrainerService trainerService, TrainerRepository trainerRepository, TrainingService trainingService, TrainingRepository trainingRepository) {
+        this.trainingTypeRepository = trainingTypeRepository;
+        this.trainingTypeService = trainingTypeService;
+        this.traineeService = traineeService;
+        this.traineeRepository = traineeRepository;
+        this.trainerService = trainerService;
+        this.trainerRepository = trainerRepository;
+        this.trainingService = trainingService;
+        this.trainingRepository = trainingRepository;
+    }
 
     @PostConstruct
     public void init() {

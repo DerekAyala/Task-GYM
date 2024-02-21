@@ -25,16 +25,18 @@ import java.util.Optional;
 @Service
 public class TraineeService {
 
-    @Autowired
-    private TraineeRepository traineeRepository;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private TrainingRepository trainingRepository;
-    @Autowired
-    private TrainerRepository trainerRepository;
-
+    private final TraineeRepository traineeRepository;
+    private final UserService userService;
+    private final TrainingRepository trainingRepository;
+    private final TrainerRepository trainerRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(TraineeService.class);
+
+    public TraineeService(TraineeRepository traineeRepository, UserService userService, TrainingRepository trainingRepository, TrainerRepository trainerRepository) {
+        this.traineeRepository = traineeRepository;
+        this.userService = userService;
+        this.trainingRepository = trainingRepository;
+        this.trainerRepository = trainerRepository;
+    }
 
     private void authenticateTrainee(String username, String password) {
         User user = userService.authenticateUser(username, password);

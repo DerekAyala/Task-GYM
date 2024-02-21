@@ -20,16 +20,19 @@ import java.util.List;
 @RequestMapping("/api")
 public class GymController {
 
-    @Autowired
-    private TraineeService traineeService;
-    @Autowired
-    private TrainerService trainerService;
-    @Autowired
-    private TrainingTypeService trainingTypeService;
-    @Autowired
-    private TrainingService trainingService;
-    @Autowired
-    private UserService userService;
+    private final TraineeService traineeService;
+    private final TrainerService trainerService;
+    private final TrainingTypeService trainingTypeService;
+    private final TrainingService trainingService;
+    private final UserService userService;
+
+    public GymController(TraineeService traineeService, TrainerService trainerService, TrainingTypeService trainingTypeService, TrainingService trainingService, UserService userService) {
+        this.traineeService = traineeService;
+        this.trainerService = trainerService;
+        this.trainingTypeService = trainingTypeService;
+        this.trainingService = trainingService;
+        this.userService = userService;
+    }
 
     // 1. Add a new trainee
     @PostMapping(value = "/trainee")

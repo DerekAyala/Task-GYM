@@ -10,7 +10,6 @@ import com.epam.taskgym.exception.FailAuthenticateException;
 import com.epam.taskgym.exception.MissingAttributes;
 import com.epam.taskgym.exception.NotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,17 +21,18 @@ import java.util.Optional;
 @Service
 public class TrainerService {
 
-    @Autowired
-    private TrainerRepository trainerRepository;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private TrainingTypeService trainingTypeService;
-    @Autowired
-    private TrainingRepository trainingRepository;
-
+    private final TrainerRepository trainerRepository;
+    private final UserService userService;
+    private final TrainingTypeService trainingTypeService;
+    private final TrainingRepository trainingRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainerService.class);
 
+    public TrainerService(TrainerRepository trainerRepository, UserService userService, TrainingTypeService trainingTypeService, TrainingRepository trainingRepository) {
+        this.trainerRepository = trainerRepository;
+        this.userService = userService;
+        this.trainingTypeService = trainingTypeService;
+        this.trainingRepository = trainingRepository;
+    }
 
     private void authenticateTrainer(String username, String password) {
         User user = userService.authenticateUser(username, password);

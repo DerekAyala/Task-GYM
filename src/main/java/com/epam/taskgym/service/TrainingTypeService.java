@@ -16,10 +16,12 @@ import java.util.Optional;
 @Service
 public class TrainingTypeService {
 
-    @Autowired
-    private TrainingTypeRepository trainingTypeRepository;
-
+    private final TrainingTypeRepository trainingTypeRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainingTypeService.class);
+
+    public TrainingTypeService(TrainingTypeRepository trainingTypeRepository) {
+        this.trainingTypeRepository = trainingTypeRepository;
+    }
 
     public List<TrainingType> getAllTrainingTypes() {
         return trainingTypeRepository.findAll();

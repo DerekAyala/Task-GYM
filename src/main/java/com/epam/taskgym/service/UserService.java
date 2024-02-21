@@ -7,7 +7,6 @@ import com.epam.taskgym.exception.NotFoundException;
 import com.epam.taskgym.repository.UserRepository;
 import com.epam.taskgym.exception.MissingAttributes;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +16,11 @@ import java.util.Random;
 
 @Service
 public class UserService {
+    private final UserRepository userRepository;
     private final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
-
-    @Autowired
-    private UserRepository userRepository;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     private Optional<User> findByUsername(String username) {
         LOGGER.info("Finding user by username: {}", username);
@@ -33,11 +33,9 @@ public class UserService {
         validateUserDetails(firstName, lastName);
         String username = generateUniqueUsername(firstName.toLowerCase(), lastName.toLowerCase());
         String password = generateRandomPassword();
-
         User user = buildUser(firstName, lastName, username, password);
         saveUser(user);
         LOGGER.info("Successfully created user: {}", user);
-
         return user;
     }
 
@@ -94,12 +92,11 @@ public class UserService {
 
     private void validatePassword(String newPassword) {
         LOGGER.info("Validating password");
-        if(newPassword == null || newPassword.isEmpty()){
+        if (newPassword == null || newPassword.isEmpty()) {
             LOGGER.error("Password cannot be null or empty.");
             throw new InvalidPasswordException("Password cannot be null or empty.");
         }
-
-        if(newPassword.length() < 8){
+        if (newPassword.length() < 8) {
             LOGGER.error("Password must be at least 8 characters long.");
             throw new InvalidPasswordException("Password must be at least 8 characters long.");
         }
@@ -121,7 +118,6 @@ public class UserService {
         user.setPassword(password);
         user.setIsActive(true);
         LOGGER.info("User successfully built: {}", username);
-
         return user;
     }
 
@@ -134,25 +130,20 @@ public class UserService {
                 .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
                 .toString();
         LOGGER.info("Random password generated successfully");
-
         return password;
     }
 
     private String generateUniqueUsername(String firstName, String lastName) {
-        LOGGER.info("Generating unique username for: {} {}", firstName,lastName);
+        LOGGER.info("Generating unique username for: {} {}", firstName, lastName);
         String baseUsername = firstName + "." + lastName;
         String username = baseUsername;
-
         int suffix = 1;
-
         while (findByUsername(username).isPresent()) {
             username = baseUsername + suffix;
             suffix++;
             LOGGER.debug("Username already exists, generating a new one: {}", username);
         }
-
         LOGGER.info("Unique username generated successfully: {}", username);
-
         return username;
     }
 }

@@ -9,30 +9,28 @@ import com.epam.taskgym.repository.TrainingRepository;
 import com.epam.taskgym.exception.BadRequestException;
 import com.epam.taskgym.exception.MissingAttributes;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class TrainingService {
 
-    @Autowired
-    private TraineeService traineeService;
-    @Autowired
-    private TrainerService trainerService;
-    @Autowired
-    private TrainingTypeService trainingTypeService;
-    @Autowired
-    private TrainingRepository trainingRepository;
-
+    private final TraineeService traineeService;
+    private final TrainerService trainerService;
+    private final TrainingTypeService trainingTypeService;
+    private final TrainingRepository trainingRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainingService.class);
+
+    public TrainingService(TraineeService traineeService, TrainerService trainerService, TrainingTypeService trainingTypeService, TrainingRepository trainingRepository) {
+        this.traineeService = traineeService;
+        this.trainerService = trainerService;
+        this.trainingTypeService = trainingTypeService;
+        this.trainingRepository = trainingRepository;
+    }
 
     @Transactional
     public Training createTraining(TrainingDetails trainingDetails) {

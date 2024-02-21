@@ -3,7 +3,6 @@ package com.epam.taskgym;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.repository.UserRepository;
 import com.epam.taskgym.service.UserService;
-import com.epam.taskgym.exception.MissingAttributes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,9 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.mockito.Mockito.*;
 
