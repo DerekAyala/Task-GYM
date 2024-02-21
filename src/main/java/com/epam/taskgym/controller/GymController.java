@@ -9,6 +9,7 @@ import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.service.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -105,6 +106,20 @@ public class GymController {
     public ResponseEntity<String> addTraining(@RequestBody TrainingDetails trainingDetails) {
         trainingService.createTraining(trainingDetails);
         return new ResponseEntity<>("Training added successfully", HttpStatus.CREATED);
+    }
+
+    // 15. Activate/Deactivate Trainee
+    @RequestMapping(value = "/trainee/{username}/status", method = RequestMethod.PATCH)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<User> activateDeactivateTrainee(@PathVariable String username, @RequestParam String password, @RequestParam boolean isActive) {
+        return new ResponseEntity<>(traineeService.ActivateDeactivateTrainee(username, password, isActive), HttpStatus.OK);
+    }
+
+    // 16. Activate/Deactivate Trainer
+    @RequestMapping(value = "/trainer/{username}/status", method = RequestMethod.PATCH)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<User> activateDeactivateTrainer(@PathVariable String username, @RequestParam String password, @RequestParam boolean isActive) {
+        return new ResponseEntity<>(trainerService.ActivateDeactivateTrainer(username, password, isActive), HttpStatus.OK);
     }
 
     // 17. Get Training Types

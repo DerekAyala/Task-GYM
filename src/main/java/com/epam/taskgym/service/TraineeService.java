@@ -104,6 +104,18 @@ public class TraineeService {
         }
     }
 
+    @Transactional
+    public User ActivateDeactivateTrainee(String username, String password, boolean isActive) {
+        LOGGER.info("Activating/Deactivating trainee: {}", username);
+        authenticateTrainee(username, password);
+        Trainee trainee = getTraineeByUsername(username);
+        User user = trainee.getUser();
+        user.setIsActive(isActive);
+        userService.saveUser(user);
+        LOGGER.info("Trainee {} isActive: {}", username, user.getIsActive());
+        return user;
+    }
+
     public void updateTraineeTrainers(String traineeUsername, List<String> trainerUsernames) {
         Trainee trainee = getTraineeByUsername(traineeUsername);
 

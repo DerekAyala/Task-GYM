@@ -82,6 +82,18 @@ public class TrainerService {
         return trainer;
     }
 
+    @Transactional
+    public User ActivateDeactivateTrainer(String username, String password, boolean isActive) {
+        LOGGER.info("Activating/Deactivating trainer: {}", username);
+        authenticateTrainer(username, password);
+        Trainer trainer = getTrainerByUsername(username);
+        User user = trainer.getUser();
+        user.setIsActive(isActive);
+        userService.saveUser(user);
+        LOGGER.info("Trainer {} isActive: {}", trainer, user.getIsActive());
+        return user;
+    }
+
     public List<Trainer> getUnassignedTrainers(String traineeUsername) {
         List<Trainer> allTrainers = trainerRepository.findAll();
         List<Trainer> trainersAssignedToTrainee = trainingRepository.findAllTrainersByTraineeUsername(traineeUsername);
