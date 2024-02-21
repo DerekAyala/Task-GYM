@@ -1,5 +1,7 @@
 package com.epam.taskgym.service;
 
+import com.epam.taskgym.controller.helpers.TraineeDetails;
+import com.epam.taskgym.controller.helpers.TrainerDetails;
 import com.epam.taskgym.repository.TraineeRepository;
 import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
@@ -65,7 +67,12 @@ public class StartupService {
         );
         defaultTrainees.forEach(trainee -> {
             if (traineeRepository.findByUserUsername(trainee.get("username")).isEmpty()) {
-                traineeService.registerTrainee(trainee);
+                TraineeDetails traineeDetails = new TraineeDetails();
+                traineeDetails.setFirstName(trainee.get("firstName"));
+                traineeDetails.setLastName(trainee.get("lastName"));
+                traineeDetails.setDateOfBirth(traineeService.validateDate(trainee.get("dateOfBirth")));
+                traineeDetails.setAddress(trainee.get("address"));
+                traineeService.registerTrainee(traineeDetails);
             }
         });
     }
@@ -80,7 +87,11 @@ public class StartupService {
         );
         defaultTrainers.forEach(trainer -> {
             if (trainerRepository.findByUserUsername(trainer.get("username")).isEmpty()) {
-                trainerService.registerTrainer(trainer);
+                TrainerDetails trainerDetails = new TrainerDetails();
+                trainerDetails.setFirstName(trainer.get("firstName"));
+                trainerDetails.setLastName(trainer.get("lastName"));
+                trainerDetails.setSpecialization(trainer.get("specialization"));
+                trainerService.registerTrainer(trainerDetails);
             }
         });
     }
