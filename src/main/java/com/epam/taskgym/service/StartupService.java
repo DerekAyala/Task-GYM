@@ -2,6 +2,7 @@ package com.epam.taskgym.service;
 
 import com.epam.taskgym.controller.helpers.TraineeDetails;
 import com.epam.taskgym.controller.helpers.TrainerDetails;
+import com.epam.taskgym.controller.helpers.TrainingDetails;
 import com.epam.taskgym.repository.TraineeRepository;
 import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
@@ -113,7 +114,14 @@ public class StartupService {
 
         defaultTrainings.forEach(training -> {
             if (trainingRepository.findByTrainee_User_UsernameAndTrainer_User_UsernameAndDateAndTrainingType_Name(training.get("traineeUsername"), training.get("trainerUsername"), traineeService.validateDate(training.get("date")), training.get("trainingTypeName")).isEmpty()) {
-                trainingService.createTraining(training);
+                TrainingDetails trainingDetails = new TrainingDetails();
+                trainingDetails.setTraineeUsername(training.get("traineeUsername"));
+                trainingDetails.setTrainerUsername(training.get("trainerUsername"));
+                trainingDetails.setDate(traineeService.validateDate(training.get("date")));
+                trainingDetails.setTrainingTypeName(training.get("trainingTypeName"));
+                trainingDetails.setDuration(trainingService.validateDuration(training.get("duration")));
+                trainingDetails.setName(training.get("name"));
+                trainingService.createTraining(trainingDetails);
             }
         });
     }

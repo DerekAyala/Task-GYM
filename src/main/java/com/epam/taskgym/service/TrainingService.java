@@ -1,5 +1,6 @@
 package com.epam.taskgym.service;
 
+import com.epam.taskgym.controller.helpers.TrainingDetails;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.Training;
@@ -34,15 +35,13 @@ public class TrainingService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainingService.class);
 
     @Transactional
-    public Training createTraining(Map<String, String> trainingDetails) {
+    public Training createTraining(TrainingDetails trainingDetails) {
         validateTrainingDetails(trainingDetails);
-        Trainee trainee = traineeService.getTraineeByUsername(trainingDetails.get("traineeUsername"));
-        Trainer trainer = trainerService.getTrainerByUsername(trainingDetails.get("trainerUsername"));
-        Date date = traineeService.validateDate(trainingDetails.get("date"));
-        TrainingType trainingType = trainingTypeService.getTrainingTypeByName(trainingDetails.get("trainingTypeName"));
-        int duration = validateDuration(trainingDetails.get("duration"));
+        Trainee trainee = traineeService.getTraineeByUsername(trainingDetails.getTraineeUsername());
+        Trainer trainer = trainerService.getTrainerByUsername(trainingDetails.getTrainerUsername());
+        TrainingType trainingType = trainingTypeService.getTrainingTypeByName(trainingDetails.getTrainingTypeName());
 
-        return buildTraining(trainee, trainer, date, trainingType, duration, trainingDetails.get("name"));
+        return buildTraining(trainee, trainer, trainingDetails.getDate(), trainingType, trainingDetails.getDuration(), trainingDetails.getName());
     }
 
     public List<Training> getTrainingsByTraineeUsername(String username) {
@@ -131,16 +130,20 @@ public class TrainingService {
         return training;
     }
 
-    private void validateTrainingDetails(Map<String, String> trainingDetails) {
+    private void validateTrainingDetails(TrainingDetails trainingDetails) {
         LOGGER.info("Validating training details: {}", trainingDetails);
-        List<String> missingFields = Stream
-                .of("traineeUsername", "trainerUsername", "trainingTypeName", "date", "duration", "name")
-                .filter(field -> !trainingDetails.containsKey(field) || trainingDetails.get(field).isEmpty())
-                .collect(Collectors.toList());
-
-        if (!missingFields.isEmpty()) {
-            LOGGER.error("Fields missing or empty: {}", missingFields);
-            throw new MissingAttributes("Fields missing or empty: " + String.join(", ", missingFields));
+        if (trainingDetails == null) {
+            LOGGER.error("Training details are required");
+            throw new MissingAttributes("Training details are required");
+        }
+        if (trainingDetails.getTraineeUsername() == null || trainingDetails.getTraineeUsername().isEmpty() ||
+                trainingDetails.getTrainerUsername() == null || trainingDetails.getTrainerUsername().isEmpty() ||
+                trainingDetails.getDate() == null ||
+                trainingDetails.getTrainingTypeName() == null || trainingDetails.getTrainingTypeName().isEmpty() ||
+                trainingDetails.getName() == null || trainingDetails.getName().isEmpty() ||
+                trainingDetails.getDuration() <= 0) {
+            LOGGER.error("Trainee username, trainer username, date, training type name, name and duration are required");
+            throw new MissingAttributes("Trainee username, trainer username, date, training type name, name and duration are required");
         }
     }
 }

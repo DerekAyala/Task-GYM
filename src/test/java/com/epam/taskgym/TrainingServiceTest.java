@@ -1,5 +1,6 @@
 package com.epam.taskgym;
 
+import com.epam.taskgym.controller.helpers.TrainingDetails;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.Training;
@@ -45,29 +46,36 @@ class TrainingServiceTest {
     Trainer trainer;
     TrainingType trainingType;
     Date date;
+    Training training;
 
     @BeforeEach
     public void setup() {
         trainee = new Trainee();
         trainer = new Trainer();
         trainingType = new TrainingType();
-        date = new Date(); //assuming the format of date is correct here
+        date = new Date();
+        training = new Training();
+        training.setTrainee(trainee);
+        training.setTrainer(trainer);
+        training.setTrainingType(trainingType);
+        training.setDate(date);
+        training.setDuration(1);
     }
 
     @Test
     public void createTraining_whenValidInput_shouldReturnTraining() {
-        Map<String, String> trainingDetails = new HashMap<>();
-        trainingDetails.put("traineeUsername", "aUser");
-        trainingDetails.put("trainerUsername", "aTrainer");
-        trainingDetails.put("trainingTypeName", "aType");
-        trainingDetails.put("date", "29-09-2021");
-        trainingDetails.put("duration", "1");
-        trainingDetails.put("name", "aName");
+        TrainingDetails trainingDetails = new TrainingDetails();
+        trainingDetails.setTraineeUsername("aUser");
+        trainingDetails.setTrainerUsername("aTrainer");
+        trainingDetails.setTrainingTypeName("aType");
+        trainingDetails.setDate(date);
+        trainingDetails.setDuration(1);
+        trainingDetails.setName("aName");
 
         when(traineeService.getTraineeByUsername(anyString())).thenReturn(trainee);
         when(trainerService.getTrainerByUsername(anyString())).thenReturn(trainer);
         when(trainingTypeService.getTrainingTypeByName(anyString())).thenReturn(trainingType);
-        when(traineeService.validateDate(anyString())).thenReturn(date);
+        when(trainingRepository.save(any(Training.class))).thenReturn(training);
 
         Training training = trainingService.createTraining(trainingDetails);
         assertEquals(trainee, training.getTrainee());
@@ -75,20 +83,6 @@ class TrainingServiceTest {
         assertEquals(trainingType, training.getTrainingType());
         assertEquals(1, training.getDuration());
         assertEquals(date, training.getDate());
-    }
-
-    @Test
-    public void createTraining_whenInvalidDuration_shouldThrowException() {
-        Map<String, String> trainingDetails = new HashMap<>();
-        trainingDetails.put("traineeUsername", "aUser");
-        trainingDetails.put("trainerUsername", "aTrainer");
-        trainingDetails.put("trainingTypeName", "aType");
-        trainingDetails.put("date", "29-09-2021");
-        trainingDetails.put("duration", "NotANumber");
-        trainingDetails.put("name", "aName");
-
-        assertThrows(BadRequestException.class, () ->
-                trainingService.createTraining(trainingDetails));
     }
 
     @Test
