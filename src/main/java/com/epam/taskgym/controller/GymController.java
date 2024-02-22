@@ -1,15 +1,14 @@
 package com.epam.taskgym.controller;
 
-import com.epam.taskgym.controller.helpers.RegisterResponse;
-import com.epam.taskgym.controller.helpers.TraineeDetails;
-import com.epam.taskgym.controller.helpers.TrainerDetails;
-import com.epam.taskgym.controller.helpers.TrainingDetails;
+import com.epam.taskgym.dto.RegisterResponseDTO;
+import com.epam.taskgym.dto.TraineeDTO;
+import com.epam.taskgym.dto.TrainerDTO;
+import com.epam.taskgym.dto.TrainingDTO;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.service.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,102 +35,87 @@ public class GymController {
 
     // 1. Add a new trainee
     @PostMapping(value = "/trainee")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<RegisterResponse> registerTrainee(@RequestBody TraineeDetails traineeDetails) {
-        Trainee trainee = traineeService.registerTrainee(traineeDetails);
-        return new ResponseEntity<>(new RegisterResponse(trainee.getUser().getUsername(),trainee.getUser().getPassword()), HttpStatus.CREATED);
+    public ResponseEntity<RegisterResponseDTO> registerTrainee(@RequestBody TraineeDTO traineeDTO) {
+        Trainee trainee = traineeService.registerTrainee(traineeDTO);
+        return new ResponseEntity<>(new RegisterResponseDTO(trainee.getUser().getUsername(),trainee.getUser().getPassword()), HttpStatus.CREATED);
     }
 
     // 2. Add a new trainer
     @PostMapping(value = "/trainer")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<RegisterResponse> registerTrainer(@RequestBody TrainerDetails trainerDetails) {
-        Trainer trainer = trainerService.registerTrainer(trainerDetails);
-        return new ResponseEntity<>(new RegisterResponse(trainer.getUser().getUsername(),trainer.getUser().getPassword()), HttpStatus.CREATED);
+    public ResponseEntity<RegisterResponseDTO> registerTrainer(@RequestBody TrainerDTO trainerDTO) {
+        Trainer trainer = trainerService.registerTrainer(trainerDTO);
+        return new ResponseEntity<>(new RegisterResponseDTO(trainer.getUser().getUsername(),trainer.getUser().getPassword()), HttpStatus.CREATED);
     }
 
     // 3. Login
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/user/login")
     public ResponseEntity<User> loginUser(@RequestParam String username, @RequestParam String password) {
         return new ResponseEntity<>(userService.authenticateUser(username, password), HttpStatus.OK);
     }
 
     // 4. Update Password
-    @RequestMapping(value = "/password", method = RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<User> updatePassword(@RequestParam String username, @RequestParam String oldPassword, @RequestParam String newPassword) {
+    @PutMapping(value = "/user/{username}/password")
+    public ResponseEntity<User> updatePassword(@PathVariable String username, @RequestParam String oldPassword, @RequestParam String newPassword) {
         return new ResponseEntity<>(userService.updatePassword(username, oldPassword, newPassword), HttpStatus.OK);
     }
 
     // 5. Get Trainee Profile by Username
-    @RequestMapping(value = "/trainee/{username}", method = RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/trainees/{username}")
     public ResponseEntity<Trainee> getTraineeProfile(@PathVariable String username) {
         return new ResponseEntity<>(traineeService.getTraineeByUsername(username), HttpStatus.OK);
     }
 
     // 6. Update Trainee Profile
-    @RequestMapping(value = "/trainee/{username}", method = RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Trainee> updateTraineeProfile(@PathVariable String username, @RequestParam String password, @RequestBody TraineeDetails traineeDetails) {
-        return new ResponseEntity<>(traineeService.updateTrainee(traineeDetails, username, password), HttpStatus.OK);
+    @PutMapping(value = "/trainees/{username}")
+    public ResponseEntity<Trainee> updateTraineeProfile(@PathVariable String username, @RequestParam String password, @RequestBody TraineeDTO traineeDTO) {
+        return new ResponseEntity<>(traineeService.updateTrainee(traineeDTO, username, password), HttpStatus.OK);
     }
 
     // 7. Delete Trainee Profile
-    @RequestMapping(value = "/trainee/{username}", method = RequestMethod.DELETE)
-    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping(value = "/trainees/{username}")
     public ResponseEntity<String> deleteTraineeProfile(@PathVariable String username, @RequestParam String password) {
         traineeService.deleteTrainee(username, password);
         return new ResponseEntity<>("Trainee profile deleted successfully", HttpStatus.OK);
     }
 
     // 8. Get Trainer Profile by Username
-    @RequestMapping(value = "/trainer/{username}", method = RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/trainers/{username}")
     public ResponseEntity<Trainer> getTrainerProfile(@PathVariable String username) {
         return new ResponseEntity<>(trainerService.getTrainerByUsername(username), HttpStatus.OK);
     }
 
     // 9. Update Trainer Profile
-    @RequestMapping(value = "/trainer/{username}", method = RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Trainer> updateTrainerProfile(@PathVariable String username, @RequestParam String password, @RequestBody TrainerDetails trainerDetails) {
-        return new ResponseEntity<>(trainerService.updateTrainer(trainerDetails, username, password), HttpStatus.OK);
+    @PutMapping(value = "/trainers/{username}")
+    public ResponseEntity<Trainer> updateTrainerProfile(@PathVariable String username, @RequestParam String password, @RequestBody TrainerDTO trainerDTO) {
+        return new ResponseEntity<>(trainerService.updateTrainer(trainerDTO, username, password), HttpStatus.OK);
     }
 
     // 10. Get not assigned on trainee active trainers
-    @RequestMapping(value = "/trainee/{username}/trainersNotAssigned", method = RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/trainees/{username}/trainersNotAssigned")
     public ResponseEntity<List<Trainer>> getNotAssignedTrainers(@PathVariable String username) {
         return new ResponseEntity<>(trainerService.getUnassignedTrainers(username), HttpStatus.OK);
     }
 
     // 14. Add Training
-    @RequestMapping(value = "/training", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<String> addTraining(@RequestBody TrainingDetails trainingDetails) {
-        trainingService.createTraining(trainingDetails);
-        return new ResponseEntity<>("Training added successfully", HttpStatus.CREATED);
+    @PostMapping(value = "/training")
+    public ResponseEntity<TrainingDTO> addTraining(@RequestBody TrainingDTO trainingDTO) {
+        return new ResponseEntity<>(trainingService.createTraining(trainingDTO), HttpStatus.CREATED);
     }
 
     // 15. Activate/Deactivate Trainee
-    @RequestMapping(value = "/trainee/{username}/status", method = RequestMethod.PATCH)
-    @ResponseStatus(HttpStatus.OK)
+    @PatchMapping(value = "/trainees/{username}/status")
     public ResponseEntity<User> activateDeactivateTrainee(@PathVariable String username, @RequestParam String password, @RequestParam boolean isActive) {
         return new ResponseEntity<>(traineeService.ActivateDeactivateTrainee(username, password, isActive), HttpStatus.OK);
     }
 
     // 16. Activate/Deactivate Trainer
-    @RequestMapping(value = "/trainer/{username}/status", method = RequestMethod.PATCH)
-    @ResponseStatus(HttpStatus.OK)
+    @PatchMapping(value = "/trainers/{username}/status")
     public ResponseEntity<User> activateDeactivateTrainer(@PathVariable String username, @RequestParam String password, @RequestParam boolean isActive) {
         return new ResponseEntity<>(trainerService.ActivateDeactivateTrainer(username, password, isActive), HttpStatus.OK);
     }
 
     // 17. Get Training Types
-    @RequestMapping(value = "/trainingtypes", method = RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/training-Types")
     public ResponseEntity<List<TrainingType>> getAllTrainingTypes() {
         return new ResponseEntity<>(trainingTypeService.getAllTrainingTypes(), HttpStatus.OK);
     }
