@@ -1,6 +1,5 @@
 package com.epam.taskgym;
 
-import com.epam.taskgym.dto.TrainingDetails;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.Training;
@@ -10,10 +9,7 @@ import com.epam.taskgym.service.TraineeService;
 import com.epam.taskgym.service.TrainerService;
 import com.epam.taskgym.service.TrainingService;
 import com.epam.taskgym.service.TrainingTypeService;
-import com.epam.taskgym.exception.BadRequestException;
-import com.epam.taskgym.exception.MissingAttributes;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -24,8 +20,6 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TrainingServiceTest {

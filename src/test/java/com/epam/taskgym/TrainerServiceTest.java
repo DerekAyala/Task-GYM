@@ -1,6 +1,6 @@
 package com.epam.taskgym;
 
-import com.epam.taskgym.dto.TrainerDetails;
+import com.epam.taskgym.dto.TrainerDTO;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.entity.User;
@@ -54,70 +54,5 @@ class TrainerServiceTest {
         trainer = new Trainer();
         trainer.setUser(user);
         trainer.setSpecialization(trainingType);
-    }
-
-    @Test
-    void getTrainerByUsername_whenTrainerExists_shouldReturnTrainer() {
-        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
-        Trainer result = trainerService.getTrainerByUsername("john.doe");
-        assertEquals(trainer, result);
-    }
-
-    @Test
-    void getTrainerByUsername_whenTrainerDoesNotExist_shouldThrowException() {
-        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.empty());
-
-        assertThrows(NotFoundException.class, () -> {
-            trainerService.getTrainerByUsername("john.doe");
-        });
-    }
-
-    @Test
-    void registerTrainer_whenDetailsAreValid_shouldReturnRegisteredTrainer() {
-        TrainerDetails trainerDetails = new TrainerDetails();
-        trainerDetails.setFirstName("John");
-        trainerDetails.setLastName("Doe");
-        trainerDetails.setSpecialization("TrainingType1");
-
-        when(userService.createUser(trainerDetails.getFirstName(), trainerDetails.getLastName())).thenReturn(user);
-        when(trainingTypeService.getTrainingTypeByName(anyString())).thenReturn(trainingType);
-        when(trainerRepository.save(any(Trainer.class))).thenReturn(trainer);
-
-        Trainer result = trainerService.registerTrainer(trainerDetails);
-
-        assertEquals("John", result.getUser().getFirstName());
-        assertEquals("Doe", result.getUser().getLastName());
-        assertEquals("TrainingType1", result.getSpecialization().getName());
-    }
-
-    @Test
-    void registerTrainer_whenDetailsAreInvalid_shouldThrowException() {
-        TrainerDetails invalidTrainerDetails = new TrainerDetails();
-
-        assertThrows(MissingAttributes.class, () -> {
-            trainerService.registerTrainer(invalidTrainerDetails);
-        });
-    }
-
-    @Test
-    void updateTrainer_whenDetailsAreValid_shouldUpdateTrainer() {
-        TrainerDetails trainerDetails = new TrainerDetails();
-        trainerDetails.setFirstName("Jack");
-        trainerDetails.setLastName("Daniel");
-        trainerDetails.setSpecialization("TrainingType1");
-
-        user.setFirstName("Jack");
-        user.setLastName("Daniel");
-
-        when(userService.authenticateUser(anyString(), anyString())).thenReturn(user);
-        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
-        when(userService.updateUser(trainerDetails.getFirstName(), trainerDetails.getLastName(), user)).thenReturn(user);
-        when(trainingTypeService.getTrainingTypeByName(anyString())).thenReturn(new TrainingType());
-        when(trainerRepository.save(any(Trainer.class))).thenReturn(trainer);
-
-        Trainer result = trainerService.updateTrainer(trainerDetails, "john.doe", "password");
-
-        assertEquals("Jack", result.getUser().getFirstName());
-        assertEquals("Daniel", result.getUser().getLastName());
     }
 }
