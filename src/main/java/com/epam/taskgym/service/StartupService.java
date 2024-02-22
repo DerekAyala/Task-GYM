@@ -1,8 +1,8 @@
 package com.epam.taskgym.service;
 
-import com.epam.taskgym.controller.helpers.TraineeDetails;
-import com.epam.taskgym.controller.helpers.TrainerDetails;
-import com.epam.taskgym.controller.helpers.TrainingDetails;
+import com.epam.taskgym.dto.TraineeDTO;
+import com.epam.taskgym.dto.TrainerDTO;
+import com.epam.taskgym.dto.TrainingDTO;
 import com.epam.taskgym.repository.TraineeRepository;
 import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
@@ -70,12 +70,12 @@ public class StartupService {
         );
         defaultTrainees.forEach(trainee -> {
             if (traineeRepository.findByUserUsername(trainee.get("username")).isEmpty()) {
-                TraineeDetails traineeDetails = new TraineeDetails();
-                traineeDetails.setFirstName(trainee.get("firstName"));
-                traineeDetails.setLastName(trainee.get("lastName"));
-                traineeDetails.setDateOfBirth(traineeService.validateDate(trainee.get("dateOfBirth")));
-                traineeDetails.setAddress(trainee.get("address"));
-                traineeService.registerTrainee(traineeDetails);
+                TraineeDTO traineeDTO = new TraineeDTO();
+                traineeDTO.setFirstName(trainee.get("firstName"));
+                traineeDTO.setLastName(trainee.get("lastName"));
+                traineeDTO.setDateOfBirth(traineeService.validateDate(trainee.get("dateOfBirth")));
+                traineeDTO.setAddress(trainee.get("address"));
+                traineeService.registerTrainee(traineeDTO);
             }
         });
     }
@@ -90,40 +90,39 @@ public class StartupService {
         );
         defaultTrainers.forEach(trainer -> {
             if (trainerRepository.findByUserUsername(trainer.get("username")).isEmpty()) {
-                TrainerDetails trainerDetails = new TrainerDetails();
-                trainerDetails.setFirstName(trainer.get("firstName"));
-                trainerDetails.setLastName(trainer.get("lastName"));
-                trainerDetails.setSpecialization(trainer.get("specialization"));
-                trainerService.registerTrainer(trainerDetails);
+                TrainerDTO trainerDTO = new TrainerDTO();
+                trainerDTO.setFirstName(trainer.get("firstName"));
+                trainerDTO.setLastName(trainer.get("lastName"));
+                trainerDTO.setSpecialization(trainer.get("specialization"));
+                trainerService.registerTrainer(trainerDTO);
             }
         });
     }
 
     private void insertDefaultTraining() {
         List<Map<String, String>> defaultTrainings = Arrays.asList(
-                Map.of("traineeUsername", "derek.ayala", "trainerUsername", "beatrice.stone", "date", "14-02-2024", "trainingTypeName", "Mobility Training", "duration", "60", "name", "Mobility Training 1"),
-                Map.of("traineeUsername", "derek.ayala", "trainerUsername", "charles.jennings", "date", "20-02-2024", "trainingTypeName", "Strength Training", "duration", "60", "name", "Strength Training 1"),
-                Map.of("traineeUsername", "sarah.jones", "trainerUsername", "diana.freeman", "date", "01-03-2024", "trainingTypeName", "Strength Training", "duration", "60", "name", "Strength Training 2"),
-                Map.of("traineeUsername", "sarah.jones", "trainerUsername", "elvis.mitchell", "date", "10-03-2024", "trainingTypeName", "Agility Training", "duration", "60", "name", "Agility Training 1"),
-                Map.of("traineeUsername", "michael.smith", "trainerUsername", "beatrice.stone", "date", "15-04-2024","trainingTypeName", "Functional Training", "duration", "60", "name", "Functional Training 1"),
-                Map.of("traineeUsername", "michael.smith", "trainerUsername", "charles.jennings", "date", "28-04-2024", "trainingTypeName", "Mobility Training", "duration", "60", "name", "Mobility Training 2"),
-                Map.of("traineeUsername", "lisa.johnson", "trainerUsername", "diana.freeman", "date", "19-05-2024", "trainingTypeName", "Balance Training", "duration", "60", "name", "Balance Training 1"),
-                Map.of("traineeUsername", "lisa.johnson", "trainerUsername", "elvis.mitchell", "date", "26-05-2024", "trainingTypeName", "Functional Training", "duration", "60", "name", "Functional Training 2"),
-                Map.of("traineeUsername", "peter.brown", "trainerUsername", "beatrice.stone", "date", "14-06-2024", "trainingTypeName", "Agility Training", "duration", "60", "name", "Agility Training 2"),
-                Map.of("traineeUsername", "peter.brown", "trainerUsername", "charles.jennings", "date", "21-06-2024", "trainingTypeName", "Balance Training", "duration", "60", "name", "Balance Training 2")
+                Map.of("traineeUsername", "derek.ayala", "trainerUsername", "beatrice.stone", "date", "14-02-2024", "duration", "60", "name", "Mobility Training 1"),
+                Map.of("traineeUsername", "derek.ayala", "trainerUsername", "charles.jennings", "date", "20-02-2024", "duration", "60", "name", "Strength Training 1"),
+                Map.of("traineeUsername", "sarah.jones", "trainerUsername", "diana.freeman", "date", "01-03-2024", "duration", "60", "name", "Strength Training 2"),
+                Map.of("traineeUsername", "sarah.jones", "trainerUsername", "elvis.mitchell", "date", "10-03-2024", "duration", "60", "name", "Agility Training 1"),
+                Map.of("traineeUsername", "michael.smith", "trainerUsername", "beatrice.stone", "date", "15-04-2024", "duration", "60", "name", "Functional Training 1"),
+                Map.of("traineeUsername", "michael.smith", "trainerUsername", "charles.jennings", "date", "28-04-2024", "duration", "60", "name", "Mobility Training 2"),
+                Map.of("traineeUsername", "lisa.johnson", "trainerUsername", "diana.freeman", "date", "19-05-2024", "duration", "60", "name", "Balance Training 1"),
+                Map.of("traineeUsername", "lisa.johnson", "trainerUsername", "elvis.mitchell", "date", "26-05-2024", "duration", "60", "name", "Functional Training 2"),
+                Map.of("traineeUsername", "peter.brown", "trainerUsername", "beatrice.stone", "date", "14-06-2024", "duration", "60", "name", "Agility Training 2"),
+                Map.of("traineeUsername", "peter.brown", "trainerUsername", "charles.jennings", "date", "21-06-2024", "duration", "60", "name", "Balance Training 2")
                 // Additional trainings...
         );
 
         defaultTrainings.forEach(training -> {
             if (trainingRepository.findByTrainee_User_UsernameAndTrainer_User_UsernameAndDateAndTrainingType_Name(training.get("traineeUsername"), training.get("trainerUsername"), traineeService.validateDate(training.get("date")), training.get("trainingTypeName")).isEmpty()) {
-                TrainingDetails trainingDetails = new TrainingDetails();
-                trainingDetails.setTraineeUsername(training.get("traineeUsername"));
-                trainingDetails.setTrainerUsername(training.get("trainerUsername"));
-                trainingDetails.setDate(traineeService.validateDate(training.get("date")));
-                trainingDetails.setTrainingTypeName(training.get("trainingTypeName"));
-                trainingDetails.setDuration(trainingService.validateDuration(training.get("duration")));
-                trainingDetails.setName(training.get("name"));
-                trainingService.createTraining(trainingDetails);
+                TrainingDTO trainingDTO = new TrainingDTO();
+                trainingDTO.setTraineeUsername(training.get("traineeUsername"));
+                trainingDTO.setTrainerUsername(training.get("trainerUsername"));
+                trainingDTO.setDate(traineeService.validateDate(training.get("date")));
+                trainingDTO.setDuration(trainingService.validateDuration(training.get("duration")));
+                trainingDTO.setName(training.get("name"));
+                trainingService.createTraining(trainingDTO);
             }
         });
     }
