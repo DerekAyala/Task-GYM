@@ -1,6 +1,7 @@
 package com.epam.taskgym.service;
 
 import com.epam.taskgym.dto.TraineeDTO;
+import com.epam.taskgym.dto.TrainerListDTO;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
@@ -57,6 +58,30 @@ public class TraineeService {
             throw new NotFoundException("Trainee with username {" + username + "} not found");
         }
         return trainee.get();
+    }
+
+    public TraineeDTO convertTraineeToTraineeDTO(Trainee trainee) {
+        TraineeDTO traineeDTO = new TraineeDTO();
+        traineeDTO.setFirstName(trainee.getUser().getFirstName());
+        traineeDTO.setLastName(trainee.getUser().getLastName());
+        traineeDTO.setDateOfBirth(trainee.getDateOfBirth());
+        traineeDTO.setAddress(trainee.getAddress());
+        traineeDTO.setIsActive(trainee.getUser().getIsActive());
+        traineeDTO.setTrainers(convertTrainersToTrainerListDTO(trainee.getTrainers()));
+        return traineeDTO;
+    }
+
+    public ArrayList<TrainerListDTO> convertTrainersToTrainerListDTO(List<Trainer> trainers) {
+        ArrayList<TrainerListDTO> trainerListDTO = new ArrayList<>();
+        trainers.forEach(trainer -> {
+            TrainerListDTO trainerDTO = new TrainerListDTO();
+            trainerDTO.setFirstName(trainer.getUser().getFirstName());
+            trainerDTO.setLastName(trainer.getUser().getLastName());
+            trainerDTO.setUsername(trainer.getUser().getUsername());
+            trainerDTO.setSpecialization(trainer.getSpecialization().getName());
+            trainerListDTO.add(trainerDTO);
+        });
+        return trainerListDTO;
     }
 
     @Transactional

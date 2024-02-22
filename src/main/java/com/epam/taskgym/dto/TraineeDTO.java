@@ -3,6 +3,7 @@ package com.epam.taskgym.dto;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,4 +15,6 @@ public class TraineeDTO {
     private String lastName;
     private Date dateOfBirth;
     private String address;
+    private Boolean isActive;
+    private List<TrainerListDTO> trainers;
 }

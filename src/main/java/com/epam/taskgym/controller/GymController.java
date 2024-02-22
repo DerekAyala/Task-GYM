@@ -61,14 +61,18 @@ public class GymController {
 
     // 5. Get Trainee Profile by Username
     @GetMapping(value = "/trainees/{username}")
-    public ResponseEntity<Trainee> getTraineeProfile(@PathVariable String username) {
-        return new ResponseEntity<>(traineeService.getTraineeByUsername(username), HttpStatus.OK);
+    public ResponseEntity<TraineeDTO> getTraineeProfile(@PathVariable String username) {
+        Trainee trainee = traineeService.getTraineeByUsername(username);
+        TraineeDTO traineeDTO = traineeService.convertTraineeToTraineeDTO(trainee);
+        return new ResponseEntity<>(traineeDTO, HttpStatus.OK);
     }
 
     // 6. Update Trainee Profile
     @PutMapping(value = "/trainees/{username}")
-    public ResponseEntity<Trainee> updateTraineeProfile(@PathVariable String username, @RequestParam String password, @RequestBody TraineeDTO traineeDTO) {
-        return new ResponseEntity<>(traineeService.updateTrainee(traineeDTO, username, password), HttpStatus.OK);
+    public ResponseEntity<TraineeDTO> updateTraineeProfile(@PathVariable String username, @RequestParam String password, @RequestBody TraineeDTO traineeDTO) {
+        Trainee trainee = traineeService.updateTrainee(traineeDTO, username, password);
+        TraineeDTO traineeDTOResponse = traineeService.convertTraineeToTraineeDTO(trainee);
+        return new ResponseEntity<>(traineeDTOResponse, HttpStatus.OK);
     }
 
     // 7. Delete Trainee Profile
