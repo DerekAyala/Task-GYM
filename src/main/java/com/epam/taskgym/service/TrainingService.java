@@ -35,70 +35,22 @@ public class TrainingService {
         validateTrainingDetails(trainingDTO);
         Trainee trainee = traineeService.getTraineeByUsername(trainingDTO.getTraineeUsername());
         Trainer trainer = trainerService.getTrainerByUsername(trainingDTO.getTrainerUsername());
+        manyToManyTrainerAndTrainee(trainee, trainer);
         return buildTraining(trainee, trainer, trainingDTO.getDate(), trainer.getSpecialization(), trainingDTO.getDuration(), trainingDTO.getName());
     }
 
-    public List<Training> getTrainingsByTraineeUsername(String username) {
-        LOGGER.info("Finding trainings by trainee username: {}", username);
-        if (username == null || username.isEmpty()) {
-            LOGGER.error("Username is required");
-            throw new MissingAttributes("Username is required");
+    @Transactional
+    public void manyToManyTrainerAndTrainee(Trainee trainee, Trainer trainer){
+        List<Trainer> trainers = trainee.getTrainers();
+        List<Trainee> trainees = trainer.getTrainees();
+        if (!trainers.contains(trainer)) {
+            trainers.add(trainer);
+            trainerService.saveTrainer(trainer);
         }
-        return trainingRepository.findAllByTrainee_User_Username(username);
-    }
-
-    public List<Training> getTrainingsByTraineeUsernameAndDateBetween(String username, String startDate, String endDate) {
-        LOGGER.info("Finding trainings by trainee username: {} and date between: {} and {}", username, startDate, endDate);
-        if (username == null || username.isEmpty() || startDate == null || endDate == null) {
-            LOGGER.error("Username is required");
-            throw new MissingAttributes("Username is required");
+        if (!trainees.contains(trainee)) {
+            trainees.add(trainee);
+            traineeService.saveTrainee(trainee);
         }
-        return trainingRepository.findAllByTrainee_User_UsernameAndDateBetween(username, traineeService.validateDate(startDate), traineeService.validateDate(endDate));
-    }
-
-    public List<Training> getTrainingsByTraineeUsernameAndTrainerName(String username, String trainerName) {
-        LOGGER.info("Finding trainings by trainee username: {} and trainer name: {}", username, trainerName);
-        if (username == null || username.isEmpty() || trainerName == null || trainerName.isEmpty()) {
-            LOGGER.error("Username and trainer name are required");
-            throw new MissingAttributes("Username and trainer name are required");
-        }
-        return trainingRepository.findAllByTrainee_User_UsernameAndTrainer_User_FirstName(username, trainerName);
-    }
-
-    public List<Training> getTrainingsByTraineeUsernameAndTrainingTypeName(String username, String trainingType) {
-        LOGGER.info("Finding trainings by trainee username: {} and training type: {}", username, trainingType);
-        if (username == null || username.isEmpty() || trainingType == null || trainingType.isEmpty()) {
-            LOGGER.error("Username and training type are required");
-            throw new MissingAttributes("Username and training type are required");
-        }
-        return trainingRepository.findAllByTrainee_User_UsernameAndTrainingType_name(username, trainingType);
-    }
-
-    public List<Training> getTrainingsByTrainerUsername(String username) {
-        LOGGER.info("Finding trainings by trainer username: {}", username);
-        if (username == null || username.isEmpty()) {
-            LOGGER.error("Username is required");
-            throw new MissingAttributes("Username is required");
-        }
-        return trainingRepository.findAllByTrainer_User_Username(username);
-    }
-
-    public List<Training> getTrainingsByTrainerUsernameAndDateBetween(String username, String startDate, String endDate) {
-        LOGGER.info("Finding trainings by trainer username: {} and date between: {} and {}", username, startDate, endDate);
-        if (username == null || username.isEmpty() || startDate == null || endDate == null) {
-            LOGGER.error("Username is required");
-            throw new MissingAttributes("Username is required");
-        }
-        return trainingRepository.findAllByTrainer_User_UsernameAndDateBetween(username, traineeService.validateDate(startDate), traineeService.validateDate(endDate));
-    }
-
-    public List<Training> getTrainingsByTrainerUsernameAndTraineeName(String username, String traineeName) {
-        LOGGER.info("Finding trainings by trainer username: {} and trainee name: {}", username, traineeName);
-        if (username == null || username.isEmpty() || traineeName == null || traineeName.isEmpty()) {
-            LOGGER.error("Username and trainee name are required");
-            throw new MissingAttributes("Username and trainee name are required");
-        }
-        return trainingRepository.findAllByTrainer_User_UsernameAndTrainee_User_FirstName(username, traineeName);
     }
 
     public Integer validateDuration(String duration) {
