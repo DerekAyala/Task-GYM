@@ -1,7 +1,7 @@
 package com.epam.taskgym.service;
 
 import com.epam.taskgym.dto.TraineeDTO;
-import com.epam.taskgym.dto.TrainerListDTO;
+import com.epam.taskgym.dto.TrainerListItem;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
@@ -71,17 +71,17 @@ public class TraineeService {
         return traineeDTO;
     }
 
-    public ArrayList<TrainerListDTO> convertTrainersToTrainerListDTO(List<Trainer> trainers) {
-        ArrayList<TrainerListDTO> trainerListDTO = new ArrayList<>();
+    public ArrayList<TrainerListItem> convertTrainersToTrainerListDTO(List<Trainer> trainers) {
+        ArrayList<TrainerListItem> trainerListItem = new ArrayList<>();
         trainers.forEach(trainer -> {
-            TrainerListDTO trainerDTO = new TrainerListDTO();
+            TrainerListItem trainerDTO = new TrainerListItem();
             trainerDTO.setFirstName(trainer.getUser().getFirstName());
             trainerDTO.setLastName(trainer.getUser().getLastName());
             trainerDTO.setUsername(trainer.getUser().getUsername());
             trainerDTO.setSpecialization(trainer.getSpecialization().getName());
-            trainerListDTO.add(trainerDTO);
+            trainerListItem.add(trainerDTO);
         });
-        return trainerListDTO;
+        return trainerListItem;
     }
 
     @Transactional

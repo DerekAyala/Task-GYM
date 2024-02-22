@@ -6,8 +6,7 @@ import lombok.*;
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
-public class TrainerListDTO {
+public class TrainerListItem {
     private String username;
     private String FirstName;
     private String LastName;
