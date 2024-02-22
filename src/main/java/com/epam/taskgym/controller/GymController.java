@@ -1,9 +1,6 @@
 package com.epam.taskgym.controller;
 
-import com.epam.taskgym.dto.RegisterResponseDTO;
-import com.epam.taskgym.dto.TraineeDTO;
-import com.epam.taskgym.dto.TrainerDTO;
-import com.epam.taskgym.dto.TrainingDTO;
+import com.epam.taskgym.dto.*;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.TrainingType;
@@ -102,6 +99,13 @@ public class GymController {
     @GetMapping(value = "/trainees/{username}/trainersNotAssigned")
     public ResponseEntity<List<Trainer>> getNotAssignedTrainers(@PathVariable String username) {
         return new ResponseEntity<>(trainerService.getUnassignedTrainers(username), HttpStatus.OK);
+    }
+
+    // 11. update Trainee's Trainer List
+    @PutMapping(value = "/trainees/{username}/trainers")
+    public ResponseEntity<List<TrainerListItem>> updateTraineeTrainers(@PathVariable String username, @RequestParam String password, @RequestBody List<String> trainerUsernames) {
+        List<TrainerListItem> updatedTrainersList = traineeService.updateTrainersList(username, password, trainerUsernames);
+        return new ResponseEntity<>(updatedTrainersList, HttpStatus.OK);
     }
 
     // 14. Add Training

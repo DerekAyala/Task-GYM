@@ -152,6 +152,26 @@ public class TraineeService {
         return user;
     }
 
+    @Transactional
+    public List<TrainerListItem> updateTrainersList(String username, String password, List<String> trainersUsernames) {
+        LOGGER.info("Updating trainers list for trainee: {}", username);
+        authenticateTrainee(username, password);
+        validateList(trainersUsernames);
+        Trainee trainee = getTraineeByUsername(username);
+        List<Trainer> trainers = trainee.getTrainers();
+        trainersUsernames.forEach(trainerUsername -> {
+            Trainer trainer = trainerRepository.findByUserUsername(trainerUsername).orElseThrow(() -> new NotFoundException("Trainer with username {" + trainerUsername + "} not found"));
+            if (!trainers.contains(trainer)) {
+                trainers.add(trainer);
+                trainer.getTrainees().add(trainee);
+                trainerRepository.save(trainer);
+            }
+        });
+        trainee.setTrainers(trainers);
+        saveTrainee(trainee);
+        return convertTrainersToTrainerListItem(trainers);
+    }
+
     public Date validateDate(String StringDate) {
         LOGGER.info("Validating date: {}", StringDate);
         DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
@@ -177,6 +197,14 @@ public class TraineeService {
         if (traineeDTO == null){
             LOGGER.error("Trainee details cannot be null");
             throw new MissingAttributes("Trainee details cannot be null");
+        }
+    }
+
+    private void validateList(List<?> list) {
+        LOGGER.info("Validating list is not null: {}", list);
+        if (list == null || list.isEmpty()) {
+            LOGGER.error("List cannot be null or empty");
+            throw new MissingAttributes("List cannot be null or empty");
         }
     }
 }
