@@ -1,6 +1,6 @@
 package com.epam.taskgym.service;
 
-import com.epam.taskgym.controller.helpers.TraineeDetails;
+import com.epam.taskgym.dto.TraineeDTO;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
@@ -59,29 +59,33 @@ public class TraineeService {
     }
 
     @Transactional
-    public Trainee registerTrainee(TraineeDetails traineeDetails) {
-        validateTraineeDetails(traineeDetails);
-        validateAttributes(traineeDetails.getFirstName(), traineeDetails.getLastName());
-        User user = userService.createUser(traineeDetails.getFirstName(), traineeDetails.getLastName());
+    public Trainee saveTrainee(Trainee trainee) {
+        return traineeRepository.save(trainee);
+    }
+
+    @Transactional
+    public Trainee registerTrainee(TraineeDTO traineeDTO) {
+        validateTraineeDetails(traineeDTO);
+        User user = userService.createUser(traineeDTO.getFirstName(), traineeDTO.getLastName());
         Trainee trainee = new Trainee();
         trainee.setUser(user);
-        addDate(traineeDetails.getDateOfBirth(), trainee);
-        trainee.setAddress((traineeDetails.getAddress() == null || traineeDetails.getAddress().isEmpty()) ? "" : traineeDetails.getAddress());
-        traineeRepository.save(trainee);
+        addDate(traineeDTO.getDateOfBirth(), trainee);
+        trainee.setAddress((traineeDTO.getAddress() == null || traineeDTO.getAddress().isEmpty()) ? "" : traineeDTO.getAddress());
+        saveTrainee(trainee);
         LOGGER.info("Trainee registered: {}", trainee);
         return trainee;
     }
 
     @Transactional
-    public Trainee updateTrainee(TraineeDetails traineeDetails, String username, String password) {
+    public Trainee updateTrainee(TraineeDTO traineeDTO, String username, String password) {
         authenticateTrainee(username, password);
-        validateTraineeDetails(traineeDetails);
+        validateTraineeDetails(traineeDTO);
         Trainee trainee = getTraineeByUsername(username);
-        User user = userService.updateUser(traineeDetails.getFirstName(), traineeDetails.getLastName(), trainee.getUser());
+        User user = userService.updateUser(traineeDTO.getFirstName(), traineeDTO.getLastName(), trainee.getUser());
         trainee.setUser(user);
-        addDate(traineeDetails.getDateOfBirth(), trainee);
-        trainee.setAddress((traineeDetails.getAddress() == null || traineeDetails.getAddress().isEmpty()) ? "" : traineeDetails.getAddress());
-        traineeRepository.save(trainee);
+        addDate(traineeDTO.getDateOfBirth(), trainee);
+        trainee.setAddress((traineeDTO.getAddress() == null || traineeDTO.getAddress().isEmpty()) ? "" : traineeDTO.getAddress());
+        saveTrainee(trainee);
         LOGGER.info("Trainee updated: {}", trainee);
         return trainee;
     }
@@ -116,20 +120,6 @@ public class TraineeService {
         return user;
     }
 
-    public void updateTraineeTrainers(String traineeUsername, List<String> trainerUsernames) {
-        Trainee trainee = getTraineeByUsername(traineeUsername);
-
-        List<Trainer> trainers = trainerRepository.findAllByUserUsernameIn(trainerUsernames);
-
-        if(trainers.size() < trainerUsernames.size()) {
-            throw new NotFoundException("One or more trainers not found.");
-        }
-
-        trainee.setTrainers(trainers);
-
-        traineeRepository.save(trainee);
-    }
-
     public Date validateDate(String StringDate) {
         LOGGER.info("Validating date: {}", StringDate);
         DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
@@ -150,19 +140,11 @@ public class TraineeService {
         }
     }
 
-    private void validateTraineeDetails(TraineeDetails traineeDetails) {
-        LOGGER.info("Validating trainee details is not null: {}", traineeDetails);
-        if (traineeDetails == null){
+    private void validateTraineeDetails(TraineeDTO traineeDTO) {
+        LOGGER.info("Validating trainee details is not null: {}", traineeDTO);
+        if (traineeDTO == null){
             LOGGER.error("Trainee details cannot be null");
             throw new MissingAttributes("Trainee details cannot be null");
-        }
-    }
-
-    private void validateAttributes(String firstName, String lastName) {
-        LOGGER.info("Validating attributes: {} , {}", firstName, lastName);
-        if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty()) {
-            LOGGER.error("First name and last name are required");
-            throw new MissingAttributes("First name and last name are required");
         }
     }
 }

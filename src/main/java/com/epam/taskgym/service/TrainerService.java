@@ -1,6 +1,6 @@
 package com.epam.taskgym.service;
 
-import com.epam.taskgym.controller.helpers.TrainerDetails;
+import com.epam.taskgym.dto.TrainerDTO;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.entity.User;
@@ -56,28 +56,32 @@ public class TrainerService {
     }
 
     @Transactional
-    public Trainer registerTrainer(TrainerDetails trainerDetails) {
-        validateTrainerDetails(trainerDetails);
-        validateAttributes(trainerDetails.getFirstName(), trainerDetails.getLastName());
-        User user = userService.createUser(trainerDetails.getFirstName(), trainerDetails.getLastName());
+    public Trainer registerTrainer(TrainerDTO trainerDTO) {
+        validateTrainerDetails(trainerDTO);
+        User user = userService.createUser(trainerDTO.getFirstName(), trainerDTO.getLastName());
         Trainer trainer = new Trainer();
         trainer.setUser(user);
-        trainer.setSpecialization(validateSpecialization(trainerDetails.getSpecialization()));
-        trainerRepository.save(trainer);
+        trainer.setSpecialization(validateSpecialization(trainerDTO.getSpecialization()));
+        saveTrainer(trainer);
         LOGGER.info("Successfully registered trainer: {}", trainer);
         return trainer;
     }
 
     @Transactional
-    public Trainer updateTrainer(TrainerDetails trainerDetails, String username, String password) {
+    public Trainer saveTrainer(Trainer trainer) {
+        return trainerRepository.save(trainer);
+    }
+
+    @Transactional
+    public Trainer updateTrainer(TrainerDTO trainerDTO, String username, String password) {
         authenticateTrainer(username, password);
-        validateTrainerDetails(trainerDetails);
+        validateTrainerDetails(trainerDTO);
         Trainer trainer = getTrainerByUsername(username);
         System.out.println(trainer);
-        User user = userService.updateUser(trainerDetails.getFirstName(), trainerDetails.getLastName(), trainer.getUser());
+        User user = userService.updateUser(trainerDTO.getFirstName(), trainerDTO.getLastName(), trainer.getUser());
         trainer.setUser(user);
-        trainer.setSpecialization(validateSpecialization(trainerDetails.getSpecialization()));
-        trainerRepository.save(trainer);
+        trainer.setSpecialization(validateSpecialization(trainerDTO.getSpecialization()));
+        saveTrainer(trainer);
         LOGGER.info("Trainer updated: {}", trainer);
         return trainer;
     }
@@ -112,19 +116,11 @@ public class TrainerService {
 
     }
 
-    private void validateTrainerDetails(TrainerDetails trainerDetails) {
-        LOGGER.info("Validating trainer details: {}", trainerDetails);
-        if (trainerDetails == null) {
+    private void validateTrainerDetails(TrainerDTO trainerDTO) {
+        LOGGER.info("Validating trainer details: {}", trainerDTO);
+        if (trainerDTO == null) {
             LOGGER.error("Trainer details cannot be null or empty");
             throw new MissingAttributes("Trainer details cannot be null or empty");
-        }
-    }
-
-    private void validateAttributes(String firstName, String lastName) {
-        LOGGER.info("Validating attributes");
-        if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty()) {
-            LOGGER.error("First name and last name are required");
-            throw new MissingAttributes("First name and last name are required");
         }
     }
 }

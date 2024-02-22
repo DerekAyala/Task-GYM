@@ -1,6 +1,6 @@
 package com.epam.taskgym.service;
 
-import com.epam.taskgym.controller.helpers.TrainingDetails;
+import com.epam.taskgym.dto.TrainingDTO;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.Training;
@@ -21,25 +21,21 @@ public class TrainingService {
 
     private final TraineeService traineeService;
     private final TrainerService trainerService;
-    private final TrainingTypeService trainingTypeService;
     private final TrainingRepository trainingRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainingService.class);
 
-    public TrainingService(TraineeService traineeService, TrainerService trainerService, TrainingTypeService trainingTypeService, TrainingRepository trainingRepository) {
+    public TrainingService(TraineeService traineeService, TrainerService trainerService, TrainingRepository trainingRepository) {
         this.traineeService = traineeService;
         this.trainerService = trainerService;
-        this.trainingTypeService = trainingTypeService;
         this.trainingRepository = trainingRepository;
     }
 
     @Transactional
-    public Training createTraining(TrainingDetails trainingDetails) {
-        validateTrainingDetails(trainingDetails);
-        Trainee trainee = traineeService.getTraineeByUsername(trainingDetails.getTraineeUsername());
-        Trainer trainer = trainerService.getTrainerByUsername(trainingDetails.getTrainerUsername());
-        TrainingType trainingType = trainingTypeService.getTrainingTypeByName(trainingDetails.getTrainingTypeName());
-
-        return buildTraining(trainee, trainer, trainingDetails.getDate(), trainingType, trainingDetails.getDuration(), trainingDetails.getName());
+    public TrainingDTO createTraining(TrainingDTO trainingDTO) {
+        validateTrainingDetails(trainingDTO);
+        Trainee trainee = traineeService.getTraineeByUsername(trainingDTO.getTraineeUsername());
+        Trainer trainer = trainerService.getTrainerByUsername(trainingDTO.getTrainerUsername());
+        return buildTraining(trainee, trainer, trainingDTO.getDate(), trainer.getSpecialization(), trainingDTO.getDuration(), trainingDTO.getName());
     }
 
     public List<Training> getTrainingsByTraineeUsername(String username) {
@@ -115,7 +111,7 @@ public class TrainingService {
         }
     }
 
-    private Training buildTraining(Trainee trainee, Trainer trainer, Date date, TrainingType trainingType, int duration, String name) {
+    private TrainingDTO buildTraining(Trainee trainee, Trainer trainer, Date date, TrainingType trainingType, int duration, String name) {
         Training training = new Training();
         training.setTrainee(trainee);
         training.setTrainer(trainer);
@@ -125,21 +121,20 @@ public class TrainingService {
         training.setDuration(duration);
         trainingRepository.save(training);
         LOGGER.info("Successfully created training: {}", training);
-        return training;
+        return new TrainingDTO(trainee.getUser().getFirstName(), trainer.getUser().getFirstName(), date, duration, name);
     }
 
-    private void validateTrainingDetails(TrainingDetails trainingDetails) {
-        LOGGER.info("Validating training details: {}", trainingDetails);
-        if (trainingDetails == null) {
+    private void validateTrainingDetails(TrainingDTO trainingDTO) {
+        LOGGER.info("Validating training details: {}", trainingDTO);
+        if (trainingDTO == null) {
             LOGGER.error("Training details are required");
             throw new MissingAttributes("Training details are required");
         }
-        if (trainingDetails.getTraineeUsername() == null || trainingDetails.getTraineeUsername().isEmpty() ||
-                trainingDetails.getTrainerUsername() == null || trainingDetails.getTrainerUsername().isEmpty() ||
-                trainingDetails.getDate() == null ||
-                trainingDetails.getTrainingTypeName() == null || trainingDetails.getTrainingTypeName().isEmpty() ||
-                trainingDetails.getName() == null || trainingDetails.getName().isEmpty() ||
-                trainingDetails.getDuration() <= 0) {
+        if (trainingDTO.getTraineeUsername() == null || trainingDTO.getTraineeUsername().isEmpty() ||
+                trainingDTO.getTrainerUsername() == null || trainingDTO.getTrainerUsername().isEmpty() ||
+                trainingDTO.getDate() == null ||
+                trainingDTO.getName() == null || trainingDTO.getName().isEmpty() ||
+                trainingDTO.getDuration() <= 0) {
             LOGGER.error("Trainee username, trainer username, date, training type name, name and duration are required");
             throw new MissingAttributes("Trainee username, trainer username, date, training type name, name and duration are required");
         }
