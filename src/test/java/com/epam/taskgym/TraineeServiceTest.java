@@ -1,6 +1,6 @@
 package com.epam.taskgym;
 
-import com.epam.taskgym.controller.helpers.TraineeDetails;
+import com.epam.taskgym.dto.TraineeDetails;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.exception.*;
