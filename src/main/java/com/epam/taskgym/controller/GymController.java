@@ -108,6 +108,20 @@ public class GymController {
         return new ResponseEntity<>(updatedTrainersList, HttpStatus.OK);
     }
 
+    // 12. Get Trainee Trainings List
+    @GetMapping(value = "/trainees/{username}/trainings")
+    public ResponseEntity<List<TrainingResponse>> getTraineeTrainings(@PathVariable String username, @RequestBody TrainingFilteredDTO trainingFilteredDTO) {
+        trainingFilteredDTO.setUsername(username);
+        return new ResponseEntity<>(trainingService.getTraineeTrainingsFiltered(trainingFilteredDTO), HttpStatus.OK);
+    }
+
+    // 13. Get Trainer Trainings List
+    @GetMapping(value = "/trainers/{username}/trainings")
+    public ResponseEntity<List<TrainingResponse>> getTrainerTrainings(@PathVariable String username, @RequestBody TrainingFilteredDTO trainingFilteredDTO) {
+        trainingFilteredDTO.setUsername(username);
+        return new ResponseEntity<>(trainingService.getTrainerTrainingsFiltered(trainingFilteredDTO), HttpStatus.OK);
+    }
+
     // 14. Add Training
     @PostMapping(value = "/training")
     public ResponseEntity<TrainingDTO> addTraining(@RequestBody TrainingDTO trainingDTO) {

@@ -1,6 +1,8 @@
 package com.epam.taskgym.service;
 
 import com.epam.taskgym.dto.TrainingDTO;
+import com.epam.taskgym.dto.TrainingFilteredDTO;
+import com.epam.taskgym.dto.TrainingResponse;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.Training;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -51,6 +54,44 @@ public class TrainingService {
         if (!trainees.contains(trainee)) {
             trainees.add(trainee);
             traineeService.saveTrainee(trainee);
+        }
+    }
+
+    public List<TrainingResponse> getTraineeTrainingsFiltered(TrainingFilteredDTO trainingFilteredDTO) {
+        LOGGER.info("Getting trainee trainings filtered by: {}", trainingFilteredDTO);
+        validateUsername(trainingFilteredDTO.getUsername());
+        List<Training> trainings = trainingRepository.getTraineeFilteredTrainings(trainingFilteredDTO.getUsername(), trainingFilteredDTO.getDateFrom(), trainingFilteredDTO.getDateTo(), trainingFilteredDTO.getTrainingTypeName(), trainingFilteredDTO.getTrainerOrTraineeName());
+        return convertTrainingsToTrainingResponse(trainings, true);
+
+    }
+
+    public List<TrainingResponse> getTrainerTrainingsFiltered(TrainingFilteredDTO trainingFilteredDTO) {
+        LOGGER.info("Getting trainer trainings filtered by: {}", trainingFilteredDTO);
+        validateUsername(trainingFilteredDTO.getUsername());
+        List<Training> trainings = trainingRepository.getTrainerFilteredTrainings(trainingFilteredDTO.getUsername(), trainingFilteredDTO.getDateFrom(), trainingFilteredDTO.getDateTo(), trainingFilteredDTO.getTrainerOrTraineeName());
+        return convertTrainingsToTrainingResponse(trainings, false);
+    }
+
+    public List<TrainingResponse> convertTrainingsToTrainingResponse(List<Training> trainings, boolean isTrainee) {
+        LOGGER.info("Converting trainings to training response");
+        List<TrainingResponse> trainingResponses = new ArrayList<>();
+        for (Training training : trainings) {
+            TrainingResponse trainingResponse = new TrainingResponse();
+            trainingResponse.setTrainingName(training.getName());
+            trainingResponse.setTrainingDate(training.getDate());
+            trainingResponse.setDuration(training.getDuration());
+            trainingResponse.setTrainingType(training.getTrainingType());
+            trainingResponse.setTraineeOrTrainerName(isTrainee ? training.getTrainer().getUser().getFirstName() : training.getTrainee().getUser().getFirstName());
+            trainingResponses.add(trainingResponse);
+        }
+        return trainingResponses;
+    }
+
+    public void validateUsername(String username) {
+        LOGGER.info("Validating username: {}", username);
+        if (username == null || username.isEmpty()) {
+            LOGGER.error("Username is required");
+            throw new MissingAttributes("Username is required");
         }
     }
 
