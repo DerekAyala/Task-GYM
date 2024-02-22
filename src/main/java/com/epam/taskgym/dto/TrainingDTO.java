@@ -1,4 +1,4 @@
-package com.epam.taskgym.controller.helpers;
+package com.epam.taskgym.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,11 +9,10 @@ import java.util.Date;
 @Getter
 @Setter
 @ToString
-public class TrainingDetails {
+public class TrainingDTO {
     private String traineeUsername;
     private String trainerUsername;
     private Date date;
-    private String trainingTypeName;
     private int duration;
     private String name;
 }

@@ -1,4 +1,4 @@
-package com.epam.taskgym.controller.helpers;
+package com.epam.taskgym.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class TrainerDetails {
+public class TrainerDTO {
     private String firstName;
     private String lastName;
     private String specialization;
