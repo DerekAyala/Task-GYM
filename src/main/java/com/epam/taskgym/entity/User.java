@@ -5,7 +5,6 @@ import lombok.*;
 
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "user")
 @NoArgsConstructor
@@ -54,5 +53,15 @@ public class User {
         result = 31 * result + password.hashCode();
         result = 31 * result + isActive.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "First Name='" + firstName +
+                ", Last Name='" + lastName +
+                ", Username='" + username +
+                ", Is Active=" + isActive +
+                '}';
     }
 }

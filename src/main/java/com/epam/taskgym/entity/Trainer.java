@@ -7,7 +7,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "trainer")
 @NoArgsConstructor
@@ -25,4 +24,14 @@ public class Trainer {
 
     @ManyToMany
     private List<Trainee> trainees;
+
+    @Override
+    public String toString() {
+        return "Trainer{" +
+                "First Name='" + user.getFirstName() +
+                ", Last Name='" + user.getLastName() +
+                ", Specialization=" + specialization +
+                ", Is Active=" + user.getIsActive() +
+                '}';
+    }
 }
