@@ -115,7 +115,7 @@ public class StartupService {
         );
 
         defaultTrainings.forEach(training -> {
-            if (trainingRepository.findByTrainee_User_UsernameAndTrainer_User_UsernameAndDateAndTrainingType_Name(training.get("traineeUsername"), training.get("trainerUsername"), traineeService.validateDate(training.get("date")), training.get("trainingTypeName")).isEmpty()) {
+            if (trainingRepository.findByTrainee_User_UsernameAndTrainer_User_UsernameAndDate(training.get("traineeUsername"), training.get("trainerUsername"), traineeService.validateDate(training.get("date"))).isEmpty()) {
                 TrainingDTO trainingDTO = new TrainingDTO();
                 trainingDTO.setTraineeUsername(training.get("traineeUsername"));
                 trainingDTO.setTrainerUsername(training.get("trainerUsername"));

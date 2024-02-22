@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface TrainingRepository extends JpaRepository<Training, Long> {
-    Optional<Training> findByTrainee_User_UsernameAndTrainer_User_UsernameAndDateAndTrainingType_Name(String traineeUsername, String trainerUsername, Date date, String trainingTypeName);
+    Optional<Training> findByTrainee_User_UsernameAndTrainer_User_UsernameAndDate(String traineeUsername, String trainerUsername, Date date);
     void deleteAllByTrainee_User_Username(String username);
 
     @Query("SELECT DISTINCT t.trainer FROM Training t WHERE t.trainee.user.username = :username")
