@@ -84,14 +84,18 @@ public class GymController {
 
     // 8. Get Trainer Profile by Username
     @GetMapping(value = "/trainers/{username}")
-    public ResponseEntity<Trainer> getTrainerProfile(@PathVariable String username) {
-        return new ResponseEntity<>(trainerService.getTrainerByUsername(username), HttpStatus.OK);
+    public ResponseEntity<TrainerDTO> getTrainerProfile(@PathVariable String username) {
+        Trainer trainer = trainerService.getTrainerByUsername(username);
+        TrainerDTO trainerDTO = trainerService.convertTrainerToTraineeDTO(trainer);
+        return new ResponseEntity<>(trainerDTO, HttpStatus.OK);
     }
 
     // 9. Update Trainer Profile
     @PutMapping(value = "/trainers/{username}")
-    public ResponseEntity<Trainer> updateTrainerProfile(@PathVariable String username, @RequestParam String password, @RequestBody TrainerDTO trainerDTO) {
-        return new ResponseEntity<>(trainerService.updateTrainer(trainerDTO, username, password), HttpStatus.OK);
+    public ResponseEntity<TrainerDTO> updateTrainerProfile(@PathVariable String username, @RequestParam String password, @RequestBody TrainerDTO trainerDTO) {
+        Trainer trainer = trainerService.updateTrainer(trainerDTO, username, password);
+        TrainerDTO trainerDTOResponse = trainerService.convertTrainerToTraineeDTO(trainer);
+        return new ResponseEntity<>(trainerDTOResponse, HttpStatus.OK);
     }
 
     // 10. Get not assigned on trainee active trainers

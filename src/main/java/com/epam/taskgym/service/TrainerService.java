@@ -1,6 +1,8 @@
 package com.epam.taskgym.service;
 
+import com.epam.taskgym.dto.TraineeListItem;
 import com.epam.taskgym.dto.TrainerDTO;
+import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.entity.User;
@@ -44,6 +46,28 @@ public class TrainerService {
             LOGGER.error("Fail to authenticate: Trainer and user do not match");
             throw new FailAuthenticateException("Fail to authenticate: Trainer and user do not match");
         }
+    }
+
+    public TrainerDTO convertTrainerToTraineeDTO(Trainer trainer) {
+        TrainerDTO trainerDTO = new TrainerDTO();
+        trainerDTO.setFirstName(trainer.getUser().getFirstName());
+        trainerDTO.setLastName(trainer.getUser().getLastName());
+        trainerDTO.setSpecialization(trainer.getSpecialization().getName());
+        trainerDTO.setActive(trainer.getUser().getIsActive());
+        trainerDTO.setTrainees(convertTrainerListToTraineeListItem(trainer.getTrainees()));
+        return trainerDTO;
+    }
+
+    public List<TraineeListItem> convertTrainerListToTraineeListItem(List<Trainee> trainees) {
+        List<TraineeListItem> traineeListItems = new ArrayList<>();
+        for (Trainee trainee : trainees) {
+            TraineeListItem traineeListItem = new TraineeListItem();
+            traineeListItem.setFirstName(trainee.getUser().getFirstName());
+            traineeListItem.setLastName(trainee.getUser().getLastName());
+            traineeListItem.setUsername(trainee.getUser().getUsername());
+            traineeListItems.add(traineeListItem);
+        }
+        return traineeListItems;
     }
 
     public Trainer getTrainerByUsername(String username) {

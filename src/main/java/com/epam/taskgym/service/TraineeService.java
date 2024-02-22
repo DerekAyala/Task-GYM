@@ -67,11 +67,11 @@ public class TraineeService {
         traineeDTO.setDateOfBirth(trainee.getDateOfBirth());
         traineeDTO.setAddress(trainee.getAddress());
         traineeDTO.setIsActive(trainee.getUser().getIsActive());
-        traineeDTO.setTrainers(convertTrainersToTrainerListDTO(trainee.getTrainers()));
+        traineeDTO.setTrainers(convertTrainersToTrainerListItem(trainee.getTrainers()));
         return traineeDTO;
     }
 
-    public ArrayList<TrainerListItem> convertTrainersToTrainerListDTO(List<Trainer> trainers) {
+    public ArrayList<TrainerListItem> convertTrainersToTrainerListItem(List<Trainer> trainers) {
         ArrayList<TrainerListItem> trainerListItem = new ArrayList<>();
         trainers.forEach(trainer -> {
             TrainerListItem trainerDTO = new TrainerListItem();
