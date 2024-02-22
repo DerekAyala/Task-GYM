@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,14 +63,15 @@ public class TrainerService {
         Trainer trainer = new Trainer();
         trainer.setUser(user);
         trainer.setSpecialization(validateSpecialization(trainerDTO.getSpecialization()));
+        trainer.setTrainees(new ArrayList<>());
         saveTrainer(trainer);
-        LOGGER.info("Successfully registered trainer: {}", trainer);
+        LOGGER.info("Successfully registered trainer: {}", trainer.getUser().getUsername());
         return trainer;
     }
 
     @Transactional
-    public Trainer saveTrainer(Trainer trainer) {
-        return trainerRepository.save(trainer);
+    public void saveTrainer(Trainer trainer) {
+        trainerRepository.save(trainer);
     }
 
     @Transactional
@@ -82,7 +84,7 @@ public class TrainerService {
         trainer.setUser(user);
         trainer.setSpecialization(validateSpecialization(trainerDTO.getSpecialization()));
         saveTrainer(trainer);
-        LOGGER.info("Trainer updated: {}", trainer);
+        LOGGER.info("Trainer updated: {}", trainer.getUser().getUsername());
         return trainer;
     }
 
@@ -94,16 +96,14 @@ public class TrainerService {
         User user = trainer.getUser();
         user.setIsActive(isActive);
         userService.saveUser(user);
-        LOGGER.info("Trainer {} isActive: {}", trainer, user.getIsActive());
+        LOGGER.info("Trainer {} isActive: {}", username, user.getIsActive());
         return user;
     }
 
     public List<Trainer> getUnassignedTrainers(String traineeUsername) {
         List<Trainer> allTrainers = trainerRepository.findAll();
         List<Trainer> trainersAssignedToTrainee = trainingRepository.findAllTrainersByTraineeUsername(traineeUsername);
-
         allTrainers.removeAll(trainersAssignedToTrainee);
-
         return allTrainers;
     }
 

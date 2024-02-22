@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -59,8 +60,8 @@ public class TraineeService {
     }
 
     @Transactional
-    public Trainee saveTrainee(Trainee trainee) {
-        return traineeRepository.save(trainee);
+    public void saveTrainee(Trainee trainee) {
+        traineeRepository.save(trainee);
     }
 
     @Transactional
@@ -71,8 +72,9 @@ public class TraineeService {
         trainee.setUser(user);
         addDate(traineeDTO.getDateOfBirth(), trainee);
         trainee.setAddress((traineeDTO.getAddress() == null || traineeDTO.getAddress().isEmpty()) ? "" : traineeDTO.getAddress());
+        trainee.setTrainers(new ArrayList<>());
         saveTrainee(trainee);
-        LOGGER.info("Trainee registered: {}", trainee);
+        LOGGER.info("Trainee registered: {}", trainee.getUser().getUsername());
         return trainee;
     }
 
@@ -86,7 +88,7 @@ public class TraineeService {
         addDate(traineeDTO.getDateOfBirth(), trainee);
         trainee.setAddress((traineeDTO.getAddress() == null || traineeDTO.getAddress().isEmpty()) ? "" : traineeDTO.getAddress());
         saveTrainee(trainee);
-        LOGGER.info("Trainee updated: {}", trainee);
+        LOGGER.info("Trainee updated: {}", trainee.getUser().getUsername());
         return trainee;
     }
 
@@ -96,11 +98,16 @@ public class TraineeService {
         Trainee trainee = getTraineeByUsername(username);
         LOGGER.info("Hard Deleting trainee with username: {}", username);
         try {
+            List<Trainer> trainersAssignedToTrainee = trainingRepository.findAllTrainersByTraineeUsername(username);
+            trainersAssignedToTrainee.forEach(trainer -> {
+                trainer.getTrainees().remove(trainee);
+                trainerRepository.save(trainer);
+            });
             trainingRepository.deleteAllByTrainee_User_Username(username);
             LOGGER.info("Trainings deleted for trainee with username: {}", username);
             User user = trainee.getUser();
             traineeRepository.delete(trainee);
-            LOGGER.info("Trainee deleted: {}", trainee);
+            LOGGER.info("Trainee deleted: {}", trainee.getUser().getUsername());
             userService.deleteUser(user);
         } catch (DataAccessException e) {
             LOGGER.error("An error occurred while deleting trainee with username:" + username, e);

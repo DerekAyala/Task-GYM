@@ -41,6 +41,7 @@ public class TrainingService {
 
     @Transactional
     public void manyToManyTrainerAndTrainee(Trainee trainee, Trainer trainer){
+        LOGGER.info("Creating many to many relationship between trainee: {} and trainer: {}", trainee.getUser().getUsername(), trainer.getUser().getUsername());
         List<Trainer> trainers = trainee.getTrainers();
         List<Trainee> trainees = trainer.getTrainees();
         if (!trainers.contains(trainer)) {
@@ -72,7 +73,7 @@ public class TrainingService {
         training.setTrainingType(trainingType);
         training.setDuration(duration);
         trainingRepository.save(training);
-        LOGGER.info("Successfully created training: {}", training);
+        LOGGER.info("Successfully created training: {}", training.getName());
         return new TrainingDTO(trainee.getUser().getFirstName(), trainer.getUser().getFirstName(), date, duration, name);
     }
 

@@ -35,7 +35,7 @@ public class TrainingTypeService {
         TrainingType trainingType = new TrainingType();
         trainingType.setName(name);
         trainingTypeRepository.save(trainingType);
-        LOGGER.info("Successfully registered training type: {}", trainingType);
+        LOGGER.info("Successfully registered training type: {}", trainingType.getName());
         return trainingType;
     }
 
