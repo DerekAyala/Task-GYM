@@ -72,6 +72,7 @@ public class TraineeService {
     }
 
     public ArrayList<TrainerListItem> convertTrainersToTrainerListItem(List<Trainer> trainers) {
+        validateList(trainers);
         ArrayList<TrainerListItem> trainerListItem = new ArrayList<>();
         trainers.forEach(trainer -> {
             TrainerListItem trainerDTO = new TrainerListItem();
