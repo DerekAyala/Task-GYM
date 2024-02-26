@@ -1,6 +1,7 @@
 package com.epam.taskgym;
 
 import com.epam.taskgym.dto.TraineeDTO;
+import com.epam.taskgym.dto.TrainerListItem;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
@@ -17,9 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -53,6 +52,7 @@ class TraineeServiceTest {
 
         trainee = new Trainee();
         trainee.setUser(user);
+        trainee.setTrainers(new ArrayList<Trainer>());
     }
 
     @Test
@@ -149,6 +149,21 @@ class TraineeServiceTest {
         verify(trainingRepository, times(1)).deleteAllByTrainee_User_Username(username);
         verify(traineeRepository, times(1)).delete(trainee);
         verify(userService, times(1)).deleteUser(user);
+    }
+
+    @Test
+    void testActivateDeactivateTrainee() {
+        String username = "username";
+        String password = "password";
+
+        when(userService.authenticateUser(username, password)).thenReturn(user);
+        when(traineeRepository.findByUserUsername(username)).thenReturn(Optional.of(trainee));
+
+        User result = traineeService.ActivateDeactivateTrainee(username, password, true);
+
+        assertTrue(result.getIsActive());
+        verify(userService, times(1)).authenticateUser(username, password);
+        verify(traineeRepository, times(2)).findByUserUsername(username);
     }
 
 }
