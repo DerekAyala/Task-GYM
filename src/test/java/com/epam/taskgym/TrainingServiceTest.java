@@ -1,5 +1,8 @@
 package com.epam.taskgym;
 
+import com.epam.taskgym.dto.TrainingDTO;
+import com.epam.taskgym.dto.TrainingFilteredDTO;
+import com.epam.taskgym.dto.TrainingResponse;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.Training;
@@ -10,6 +13,7 @@ import com.epam.taskgym.service.TrainerService;
 import com.epam.taskgym.service.TrainingService;
 import com.epam.taskgym.service.TrainingTypeService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -17,9 +21,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TrainingServiceTest {
@@ -54,5 +58,40 @@ class TrainingServiceTest {
         training.setTrainingType(trainingType);
         training.setDate(date);
         training.setDuration(1);
+    }
+
+    @Test
+    void testAddTraining(){
+        TrainingDTO trainingDTO = new TrainingDTO();
+        trainingDTO.setDate(date);
+        trainingDTO.setDuration(1);
+        trainingDTO.setTraineeUsername("trainee");
+        trainingDTO.setTrainerUsername("trainer");
+
+        when(traineeService.getTraineeByUsername(any())).thenReturn(trainee);
+        when(trainerService.getTrainerByUsername(any())).thenReturn(trainer);
+        when(trainingTypeService.getTrainingTypeByName(any())).thenReturn(trainingType);
+        when(trainingRepository.save(any(Training.class))).thenReturn(training);
+
+        TrainingDTO result = trainingService.createTraining(trainingDTO);
+
+        assertEquals(training.getTrainee(), trainee);
+        assertEquals(training.getTrainer(), trainer);
+        verify(traineeService, times(1)).getTraineeByUsername(any());
+        verify(trainerService, times(1)).getTrainerByUsername(any());
+        verify(trainingRepository, times(1)).save(any(Training.class));
+    }
+
+    @Test
+    void testGetTrainingsByTrainee() {
+        String username = "username";
+        TrainingFilteredDTO trainingFilteredDTO = new TrainingFilteredDTO();
+        trainingFilteredDTO.setUsername(username);
+
+        when(trainingRepository.getTraineeFilteredTrainings(username, null,null,null,null)).thenReturn(new ArrayList<>());
+
+        List<TrainingResponse> result = trainingService.getTraineeTrainingsFiltered(trainingFilteredDTO);
+
+        assertEquals(0, result.size());
     }
 }
