@@ -55,4 +55,84 @@ class TrainerServiceTest {
         trainer.setUser(user);
         trainer.setSpecialization(trainingType);
     }
+
+    @Test
+    void testRegisterTrainer() {
+        TrainerDTO trainerDTO = new TrainerDTO();
+        trainerDTO.setFirstName("John");
+        trainerDTO.setLastName("Doe");
+        trainerDTO.setSpecialization("TrainingType1");
+
+        when(userService.createUser(trainerDTO.getFirstName(), trainerDTO.getLastName())).thenReturn(user);
+        when(trainingTypeService.getTrainingTypeByName(trainerDTO.getSpecialization())).thenReturn(trainingType);
+        when(trainerRepository.save(any(Trainer.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        Trainer newTrainer = trainerService.registerTrainer(trainerDTO);
+
+        assertEquals(trainerDTO.getFirstName(), newTrainer.getUser().getFirstName());
+        assertEquals(trainerDTO.getLastName(), newTrainer.getUser().getLastName());
+        assertEquals(trainerDTO.getSpecialization(), newTrainer.getSpecialization().getName());
+
+        verify(userService, times(1)).createUser(trainerDTO.getFirstName(), trainerDTO.getLastName());
+        verify(trainingTypeService, times(1)).getTrainingTypeByName(trainerDTO.getSpecialization());
+        verify(trainerRepository, times(1)).save(any(Trainer.class));
+    }
+
+    @Test
+    void testActivateDeactivateTrainer() {
+        String username = "username";
+        String password = "password";
+
+        when(userService.authenticateUser(username, password)).thenReturn(user);
+        when(trainerRepository.findByUserUsername(username)).thenReturn(Optional.of(trainer));
+
+        User result = trainerService.ActivateDeactivateTrainer(username, password, true);
+
+        assertTrue(result.getIsActive());
+        verify(userService, times(1)).authenticateUser(username, password);
+        verify(trainerRepository, times(2)).findByUserUsername(username);
+    }
+
+    @Test
+    void testGetTrainerByUsername() {
+        when(trainerRepository.findByUserUsername(user.getUsername())).thenReturn(Optional.of(trainer));
+
+        Trainer result = trainerService.getTrainerByUsername(user.getUsername());
+
+        assertEquals(trainer, result);
+    }
+
+    @Test
+    void testGetTrainerByUsername_NotFound() {
+        when(trainerRepository.findByUserUsername("unknown.username")).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> trainerService.getTrainerByUsername("unknown.username"));
+    }
+
+    @Test
+    void testUpdateTrainer() {
+        TrainerDTO trainerDTO = new TrainerDTO();
+        trainerDTO.setFirstName("NewName");
+        trainerDTO.setLastName("NewSurname");
+        trainerDTO.setSpecialization("NewTrainingType");
+
+        user.setFirstName("NewName");
+        user.setLastName("NewSurname");
+
+        when(userService.authenticateUser(any(String.class), any(String.class))).thenReturn(user);
+        when(trainerRepository.findByUserUsername(user.getUsername())).thenReturn(Optional.of(trainer));
+        when(trainingTypeService.getTrainingTypeByName(trainerDTO.getSpecialization())).thenReturn(trainingType);
+        when(userService.updateUser(any(String.class), any(String.class), any(User.class))).thenReturn(user);
+        when(trainerRepository.save(any(Trainer.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        Trainer updatedTrainer = trainerService.updateTrainer(trainerDTO, user.getUsername(), user.getPassword());
+
+        assertEquals("NewName", updatedTrainer.getUser().getFirstName());
+        assertEquals("NewSurname", updatedTrainer.getUser().getLastName());
+        verify(userService, times(1)).authenticateUser(any(String.class), any(String.class));
+        verify(userService, times(1)).updateUser(any(String.class), any(String.class), any(User.class));
+        verify(trainerRepository, times(2)).findByUserUsername(user.getUsername());
+        verify(trainerRepository, times(1)).save(any(Trainer.class));
+    }
 }
