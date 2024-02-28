@@ -121,7 +121,7 @@ public class StartupService {
                 trainingDTO.setTraineeUsername(training.get("traineeUsername"));
                 trainingDTO.setTrainerUsername(training.get("trainerUsername"));
                 trainingDTO.setDate(Validations.validateDate(training.get("date")));
-                trainingDTO.setDuration(trainingService.validateDuration(training.get("duration")));
+                trainingDTO.setDuration(Validations.validateDuration(training.get("duration")));
                 trainingDTO.setName(training.get("name"));
                 trainingService.createTraining(trainingDTO);
             }

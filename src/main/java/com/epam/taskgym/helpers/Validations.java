@@ -41,6 +41,14 @@ public class Validations {
         }
     }
 
+    public static void validateTrainingTypeDetails(String name) {
+        LOGGER.info("Validating training type details: {}", name);
+        if (name == null || name.isEmpty()) {
+            LOGGER.error("Name is required");
+            throw new MissingAttributes("Name is required");
+        }
+    }
+
     public static void validateSpecialization(String specialization) {
         if (specialization == null || specialization.isEmpty()) {
             LOGGER.error("specialization is required");
