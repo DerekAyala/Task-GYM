@@ -1,16 +1,12 @@
 package com.epam.taskgym.helpers;
 
-import com.epam.taskgym.dto.TraineeDTO;
-import com.epam.taskgym.dto.TraineeListItem;
-import com.epam.taskgym.dto.TrainerDTO;
-import com.epam.taskgym.dto.TrainerListItem;
-import com.epam.taskgym.entity.Trainee;
-import com.epam.taskgym.entity.Trainer;
-import com.epam.taskgym.entity.User;
+import com.epam.taskgym.dto.*;
+import com.epam.taskgym.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -25,6 +21,17 @@ public class Builders {
         user.setIsActive(true);
         LOGGER.info("User successfully built: {}", username);
         return user;
+    }
+
+    public static Training buildTraining(Trainee trainee, Trainer trainer, Date date, TrainingType trainingType, int duration, String name) {
+        Training training = new Training();
+        training.setTrainee(trainee);
+        training.setTrainer(trainer);
+        training.setName(name);
+        training.setDate(date);
+        training.setTrainingType(trainingType);
+        training.setDuration(duration);
+        return training;
     }
 
     public static String generateRandomPassword() {
@@ -83,5 +90,20 @@ public class Builders {
             traineeListItems.add(traineeListItem);
         }
         return traineeListItems;
+    }
+
+    public static List<TrainingResponse> convertTrainingsToTrainingResponse(List<Training> trainings, boolean isTrainee) {
+        LOGGER.info("Converting trainings to training response");
+        List<TrainingResponse> trainingResponses = new ArrayList<>();
+        for (Training training : trainings) {
+            TrainingResponse trainingResponse = new TrainingResponse();
+            trainingResponse.setTrainingName(training.getName());
+            trainingResponse.setTrainingDate(training.getDate());
+            trainingResponse.setDuration(training.getDuration());
+            trainingResponse.setTrainingType(training.getTrainingType());
+            trainingResponse.setTraineeOrTrainerName(isTrainee ? training.getTrainer().getUser().getFirstName() : training.getTrainee().getUser().getFirstName());
+            trainingResponses.add(trainingResponse);
+        }
+        return trainingResponses;
     }
 }

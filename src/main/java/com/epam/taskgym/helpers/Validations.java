@@ -2,6 +2,7 @@ package com.epam.taskgym.helpers;
 
 import com.epam.taskgym.dto.TraineeDTO;
 import com.epam.taskgym.dto.TrainerDTO;
+import com.epam.taskgym.dto.TrainingDTO;
 import com.epam.taskgym.exception.BadRequestException;
 import com.epam.taskgym.exception.InvalidPasswordException;
 import com.epam.taskgym.exception.MissingAttributes;
@@ -49,6 +50,22 @@ public class Validations {
         }
     }
 
+    public static void validateTrainingDetails(TrainingDTO trainingDTO) {
+        LOGGER.info("Validating training details: {}", trainingDTO);
+        if (trainingDTO == null) {
+            LOGGER.error("Training details are required");
+            throw new MissingAttributes("Training details are required");
+        }
+        if (trainingDTO.getTraineeUsername() == null || trainingDTO.getTraineeUsername().isEmpty() ||
+                trainingDTO.getTrainerUsername() == null || trainingDTO.getTrainerUsername().isEmpty() ||
+                trainingDTO.getDate() == null ||
+                trainingDTO.getName() == null || trainingDTO.getName().isEmpty() ||
+                trainingDTO.getDuration() <= 0) {
+            LOGGER.error("Trainee username, trainer username, date, training type name, name and duration are required");
+            throw new MissingAttributes("Trainee username, trainer username, date, training type name, name and duration are required");
+        }
+    }
+
     public static void validateSpecialization(String specialization) {
         if (specialization == null || specialization.isEmpty()) {
             LOGGER.error("specialization is required");
@@ -73,6 +90,24 @@ public class Validations {
         if (list == null || list.isEmpty()) {
             LOGGER.error("List cannot be null or empty");
             throw new MissingAttributes("List cannot be null or empty");
+        }
+    }
+
+    public static void validateUsername(String username) {
+        LOGGER.info("Validating username: {}", username);
+        if (username == null || username.isEmpty()) {
+            LOGGER.error("Username is required");
+            throw new MissingAttributes("Username is required");
+        }
+    }
+
+    public static Integer validateDuration(String duration) {
+        LOGGER.info("Validating duration: {}", duration);
+        try {
+            return Integer.parseInt(duration);
+        } catch (NumberFormatException e) {
+            LOGGER.error("Duration must be a number: " + e);
+            throw new BadRequestException("Duration must be a number");
         }
     }
 
