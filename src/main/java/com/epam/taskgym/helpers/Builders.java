@@ -1,9 +1,15 @@
 package com.epam.taskgym.helpers;
 
+import com.epam.taskgym.dto.TraineeDTO;
+import com.epam.taskgym.dto.TrainerListItem;
+import com.epam.taskgym.entity.Trainee;
+import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Builders {
@@ -29,5 +35,29 @@ public class Builders {
                 .toString();
         LOGGER.info("Random password generated successfully");
         return password;
+    }
+
+    public static TraineeDTO convertTraineeToTraineeDTO(Trainee trainee) {
+        TraineeDTO traineeDTO = new TraineeDTO();
+        traineeDTO.setFirstName(trainee.getUser().getFirstName());
+        traineeDTO.setLastName(trainee.getUser().getLastName());
+        traineeDTO.setDateOfBirth(trainee.getDateOfBirth());
+        traineeDTO.setAddress(trainee.getAddress());
+        traineeDTO.setIsActive(trainee.getUser().getIsActive());
+        traineeDTO.setTrainers(convertTrainersToTrainerListItem(trainee.getTrainers()));
+        return traineeDTO;
+    }
+
+    public static ArrayList<TrainerListItem> convertTrainersToTrainerListItem(List<Trainer> trainers) {
+        ArrayList<TrainerListItem> trainerListItem = new ArrayList<>();
+        trainers.forEach(trainer -> {
+            TrainerListItem trainerDTO = new TrainerListItem();
+            trainerDTO.setFirstName(trainer.getUser().getFirstName());
+            trainerDTO.setLastName(trainer.getUser().getLastName());
+            trainerDTO.setUsername(trainer.getUser().getUsername());
+            trainerDTO.setSpecialization(trainer.getSpecialization().getName());
+            trainerListItem.add(trainerDTO);
+        });
+        return trainerListItem;
     }
 }

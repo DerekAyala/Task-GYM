@@ -5,6 +5,7 @@ import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.entity.User;
+import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -75,7 +76,7 @@ public class GymController {
     public ResponseEntity<TraineeDTO> getTraineeProfile(
             @ApiParam(value = "Username", required = true) @PathVariable String username) {
         Trainee trainee = traineeService.getTraineeByUsername(username);
-        TraineeDTO traineeDTO = traineeService.convertTraineeToTraineeDTO(trainee);
+        TraineeDTO traineeDTO = Builders.convertTraineeToTraineeDTO(trainee);
         return new ResponseEntity<>(traineeDTO, HttpStatus.OK);
     }
 
@@ -87,7 +88,7 @@ public class GymController {
             @ApiParam(value = "Password", required = true) @RequestParam String password,
             @ApiParam(value = "Trainee details", required = true) @RequestBody TraineeDTO traineeDTO) {
         Trainee trainee = traineeService.updateTrainee(traineeDTO, username, password);
-        TraineeDTO traineeDTOResponse = traineeService.convertTraineeToTraineeDTO(trainee);
+        TraineeDTO traineeDTOResponse = Builders.convertTraineeToTraineeDTO(trainee);
         return new ResponseEntity<>(traineeDTOResponse, HttpStatus.OK);
     }
 
