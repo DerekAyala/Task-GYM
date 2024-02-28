@@ -174,7 +174,7 @@ public class GymController {
     // 15. Activate/Deactivate Trainee
     @PatchMapping(value = "/trainees/{username}/status")
     @ApiOperation(value = "Activate or deactivate trainee", response = ResponseEntity.class)
-    public ResponseEntity<User> activateDeactivateTrainee(
+    public ResponseEntity<TraineeDTO> activateDeactivateTrainee(
             @ApiParam(value = "Username", required = true) @PathVariable String username,
             @ApiParam(value = "Password", required = true) @RequestParam String password,
             @ApiParam(value = "Active status", required = true) @RequestParam boolean isActive) {

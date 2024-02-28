@@ -116,15 +116,16 @@ public class TraineeService {
     }
 
     @Transactional
-    public User ActivateDeactivateTrainee(String username, String password, boolean isActive) {
+    public TraineeDTO ActivateDeactivateTrainee(String username, String password, boolean isActive) {
         LOGGER.info("Activating/Deactivating trainee: {}", username);
         authenticateTrainee(username, password);
         Trainee trainee = getTraineeByUsername(username);
         User user = trainee.getUser();
         user.setIsActive(isActive);
         userService.saveUser(user);
+        trainee.setUser(user);
         LOGGER.info("Trainee {} isActive: {}", username, user.getIsActive());
-        return user;
+        return Builders.convertTraineeToTraineeDTO(trainee);
     }
 
     @Transactional
