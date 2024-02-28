@@ -1,15 +1,12 @@
 package com.epam.taskgym.service;
 
-import com.epam.taskgym.dto.TraineeListItem;
 import com.epam.taskgym.dto.TrainerDTO;
-import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
-import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.entity.User;
+import com.epam.taskgym.helpers.Validations;
 import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
 import com.epam.taskgym.exception.FailAuthenticateException;
-import com.epam.taskgym.exception.MissingAttributes;
 import com.epam.taskgym.exception.NotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -48,28 +45,6 @@ public class TrainerService {
         }
     }
 
-    public TrainerDTO convertTrainerToTraineeDTO(Trainer trainer) {
-        TrainerDTO trainerDTO = new TrainerDTO();
-        trainerDTO.setFirstName(trainer.getUser().getFirstName());
-        trainerDTO.setLastName(trainer.getUser().getLastName());
-        trainerDTO.setSpecialization(trainer.getSpecialization().getName());
-        trainerDTO.setActive(trainer.getUser().getIsActive());
-        trainerDTO.setTrainees(convertTrainerListToTraineeListItem(trainer.getTrainees()));
-        return trainerDTO;
-    }
-
-    public List<TraineeListItem> convertTrainerListToTraineeListItem(List<Trainee> trainees) {
-        List<TraineeListItem> traineeListItems = new ArrayList<>();
-        for (Trainee trainee : trainees) {
-            TraineeListItem traineeListItem = new TraineeListItem();
-            traineeListItem.setFirstName(trainee.getUser().getFirstName());
-            traineeListItem.setLastName(trainee.getUser().getLastName());
-            traineeListItem.setUsername(trainee.getUser().getUsername());
-            traineeListItems.add(traineeListItem);
-        }
-        return traineeListItems;
-    }
-
     public Trainer getTrainerByUsername(String username) {
         LOGGER.info("Finding trainer by username: {}", username);
         Optional<Trainer> trainer = trainerRepository.findByUserUsername(username);
@@ -82,11 +57,12 @@ public class TrainerService {
 
     @Transactional
     public Trainer registerTrainer(TrainerDTO trainerDTO) {
-        validateTrainerDetails(trainerDTO);
+        Validations.validateTrainerDetails(trainerDTO);
         User user = userService.createUser(trainerDTO.getFirstName(), trainerDTO.getLastName());
         Trainer trainer = new Trainer();
         trainer.setUser(user);
-        trainer.setSpecialization(validateSpecialization(trainerDTO.getSpecialization()));
+        Validations.validateSpecialization(trainerDTO.getSpecialization());
+        trainer.setSpecialization(trainingTypeService.getTrainingTypeByName(trainerDTO.getSpecialization()));
         trainer.setTrainees(new ArrayList<>());
         saveTrainer(trainer);
         LOGGER.info("Successfully registered trainer: {}", trainer.getUser().getUsername());
@@ -101,12 +77,13 @@ public class TrainerService {
     @Transactional
     public Trainer updateTrainer(TrainerDTO trainerDTO, String username, String password) {
         authenticateTrainer(username, password);
-        validateTrainerDetails(trainerDTO);
+        Validations.validateTrainerDetails(trainerDTO);
         Trainer trainer = getTrainerByUsername(username);
         System.out.println(trainer);
         User user = userService.updateUser(trainerDTO.getFirstName(), trainerDTO.getLastName(), trainer.getUser());
         trainer.setUser(user);
-        trainer.setSpecialization(validateSpecialization(trainerDTO.getSpecialization()));
+        Validations.validateSpecialization(trainerDTO.getSpecialization());
+        trainer.setSpecialization(trainingTypeService.getTrainingTypeByName(trainerDTO.getSpecialization()));
         saveTrainer(trainer);
         LOGGER.info("Trainer updated: {}", trainer.getUser().getUsername());
         return trainer;
@@ -129,22 +106,5 @@ public class TrainerService {
         List<Trainer> trainersAssignedToTrainee = trainingRepository.findAllTrainersByTraineeUsername(traineeUsername);
         allTrainers.removeAll(trainersAssignedToTrainee);
         return allTrainers;
-    }
-
-    private TrainingType validateSpecialization(String specialization) {
-        if (specialization == null || specialization.isEmpty()) {
-            LOGGER.error("specialization is required");
-            throw new MissingAttributes("specialization is required");
-        }
-        return trainingTypeService.getTrainingTypeByName(specialization);
-
-    }
-
-    private void validateTrainerDetails(TrainerDTO trainerDTO) {
-        LOGGER.info("Validating trainer details: {}", trainerDTO);
-        if (trainerDTO == null) {
-            LOGGER.error("Trainer details cannot be null or empty");
-            throw new MissingAttributes("Trainer details cannot be null or empty");
-        }
     }
 }

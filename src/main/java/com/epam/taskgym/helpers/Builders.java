@@ -1,6 +1,8 @@
 package com.epam.taskgym.helpers;
 
 import com.epam.taskgym.dto.TraineeDTO;
+import com.epam.taskgym.dto.TraineeListItem;
+import com.epam.taskgym.dto.TrainerDTO;
 import com.epam.taskgym.dto.TrainerListItem;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
@@ -59,5 +61,27 @@ public class Builders {
             trainerListItem.add(trainerDTO);
         });
         return trainerListItem;
+    }
+
+    public static TrainerDTO convertTrainerToTraineeDTO(Trainer trainer) {
+        TrainerDTO trainerDTO = new TrainerDTO();
+        trainerDTO.setFirstName(trainer.getUser().getFirstName());
+        trainerDTO.setLastName(trainer.getUser().getLastName());
+        trainerDTO.setSpecialization(trainer.getSpecialization().getName());
+        trainerDTO.setActive(trainer.getUser().getIsActive());
+        trainerDTO.setTrainees(convertTrainerListToTraineeListItem(trainer.getTrainees()));
+        return trainerDTO;
+    }
+
+    public static List<TraineeListItem> convertTrainerListToTraineeListItem(List<Trainee> trainees) {
+        List<TraineeListItem> traineeListItems = new ArrayList<>();
+        for (Trainee trainee : trainees) {
+            TraineeListItem traineeListItem = new TraineeListItem();
+            traineeListItem.setFirstName(trainee.getUser().getFirstName());
+            traineeListItem.setLastName(trainee.getUser().getLastName());
+            traineeListItem.setUsername(trainee.getUser().getUsername());
+            traineeListItems.add(traineeListItem);
+        }
+        return traineeListItems;
     }
 }

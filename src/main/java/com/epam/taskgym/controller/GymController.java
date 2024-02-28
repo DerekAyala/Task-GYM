@@ -108,7 +108,7 @@ public class GymController {
     public ResponseEntity<TrainerDTO> getTrainerProfile(
             @ApiParam(value = "Username", required = true) @PathVariable String username) {
         Trainer trainer = trainerService.getTrainerByUsername(username);
-        TrainerDTO trainerDTO = trainerService.convertTrainerToTraineeDTO(trainer);
+        TrainerDTO trainerDTO = Builders.convertTrainerToTraineeDTO(trainer);
         return new ResponseEntity<>(trainerDTO, HttpStatus.OK);
     }
 
@@ -120,7 +120,7 @@ public class GymController {
             @ApiParam(value = "Password", required = true) @RequestParam String password,
             @ApiParam(value = "Trainer details", required = true) @RequestBody TrainerDTO trainerDTO) {
         Trainer trainer = trainerService.updateTrainer(trainerDTO, username, password);
-        TrainerDTO trainerDTOResponse = trainerService.convertTrainerToTraineeDTO(trainer);
+        TrainerDTO trainerDTOResponse = Builders.convertTrainerToTraineeDTO(trainer);
         return new ResponseEntity<>(trainerDTOResponse, HttpStatus.OK);
     }
 

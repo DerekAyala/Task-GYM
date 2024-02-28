@@ -1,6 +1,7 @@
 package com.epam.taskgym.helpers;
 
 import com.epam.taskgym.dto.TraineeDTO;
+import com.epam.taskgym.dto.TrainerDTO;
 import com.epam.taskgym.exception.BadRequestException;
 import com.epam.taskgym.exception.InvalidPasswordException;
 import com.epam.taskgym.exception.MissingAttributes;
@@ -29,6 +30,21 @@ public class Validations {
         if (traineeDTO == null){
             LOGGER.error("Trainee details cannot be null");
             throw new MissingAttributes("Trainee details cannot be null");
+        }
+    }
+
+    public static void validateTrainerDetails(TrainerDTO trainerDTO) {
+        LOGGER.info("Validating trainer details: {}", trainerDTO);
+        if (trainerDTO == null) {
+            LOGGER.error("Trainer details cannot be null or empty");
+            throw new MissingAttributes("Trainer details cannot be null or empty");
+        }
+    }
+
+    public static void validateSpecialization(String specialization) {
+        if (specialization == null || specialization.isEmpty()) {
+            LOGGER.error("specialization is required");
+            throw new MissingAttributes("specialization is required");
         }
     }
 
