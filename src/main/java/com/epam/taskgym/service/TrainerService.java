@@ -1,8 +1,10 @@
 package com.epam.taskgym.service;
 
 import com.epam.taskgym.dto.TrainerDTO;
+import com.epam.taskgym.dto.TrainerListItem;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
+import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.helpers.Validations;
 import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
@@ -101,10 +103,10 @@ public class TrainerService {
         return user;
     }
 
-    public List<Trainer> getUnassignedTrainers(String traineeUsername) {
+    public List<TrainerListItem> getUnassignedTrainers(String traineeUsername) {
         List<Trainer> allTrainers = trainerRepository.findAll();
         List<Trainer> trainersAssignedToTrainee = trainingRepository.findAllTrainersByTraineeUsername(traineeUsername);
         allTrainers.removeAll(trainersAssignedToTrainee);
-        return allTrainers;
+        return Builders.convertTrainersToTrainerListItem(allTrainers);
     }
 }

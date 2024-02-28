@@ -127,7 +127,7 @@ public class GymController {
     // 10. Get not assigned on trainee active trainers
     @GetMapping(value = "/trainees/{username}/trainersNotAssigned")
     @ApiOperation(value = "Get trainers not assigned to the trainee", response = ResponseEntity.class)
-    public ResponseEntity<List<Trainer>> getNotAssignedTrainers(
+    public ResponseEntity<List<TrainerListItem>> getNotAssignedTrainers(
             @ApiParam(value = "Username", required = true) @PathVariable String username) {
         return new ResponseEntity<>(trainerService.getUnassignedTrainers(username), HttpStatus.OK);
     }
