@@ -2,10 +2,9 @@ package com.epam.taskgym.service;
 
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.repository.TrainingTypeRepository;
-import com.epam.taskgym.service.exception.MissingAttributes;
-import com.epam.taskgym.service.exception.NotFoundException;
+import com.epam.taskgym.exception.MissingAttributes;
+import com.epam.taskgym.exception.NotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +15,12 @@ import java.util.Optional;
 @Service
 public class TrainingTypeService {
 
-    @Autowired
-    private TrainingTypeRepository trainingTypeRepository;
-
+    private final TrainingTypeRepository trainingTypeRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainingTypeService.class);
+
+    public TrainingTypeService(TrainingTypeRepository trainingTypeRepository) {
+        this.trainingTypeRepository = trainingTypeRepository;
+    }
 
     public List<TrainingType> getAllTrainingTypes() {
         return trainingTypeRepository.findAll();
@@ -34,7 +35,7 @@ public class TrainingTypeService {
         TrainingType trainingType = new TrainingType();
         trainingType.setName(name);
         trainingTypeRepository.save(trainingType);
-        LOGGER.info("Successfully registered training type: {}", trainingType);
+        LOGGER.info("Successfully registered training type: {}", trainingType.getName());
         return trainingType;
     }
 

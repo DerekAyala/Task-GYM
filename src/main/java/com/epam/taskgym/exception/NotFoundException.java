@@ -1,4 +1,4 @@
-package com.epam.taskgym.service.exception;
+package com.epam.taskgym.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

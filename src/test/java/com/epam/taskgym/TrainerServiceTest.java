@@ -8,10 +8,8 @@ import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.service.TrainerService;
 import com.epam.taskgym.service.TrainingTypeService;
 import com.epam.taskgym.service.UserService;
-import com.epam.taskgym.service.exception.FailAuthenticateException;
-import com.epam.taskgym.service.exception.InvalidPasswordException;
-import com.epam.taskgym.service.exception.MissingAttributes;
-import com.epam.taskgym.service.exception.NotFoundException;
+import com.epam.taskgym.exception.MissingAttributes;
+import com.epam.taskgym.exception.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,8 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -61,113 +57,82 @@ class TrainerServiceTest {
     }
 
     @Test
-    void getTrainerByUsername_whenTrainerExists_shouldReturnTrainer() {
-        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
-        Trainer result = trainerService.getTrainerByUsername("john.doe");
+    void testRegisterTrainer() {
+        TrainerDTO trainerDTO = new TrainerDTO();
+        trainerDTO.setFirstName("John");
+        trainerDTO.setLastName("Doe");
+        trainerDTO.setSpecialization("TrainingType1");
+
+        when(userService.createUser(trainerDTO.getFirstName(), trainerDTO.getLastName())).thenReturn(user);
+        when(trainingTypeService.getTrainingTypeByName(trainerDTO.getSpecialization())).thenReturn(trainingType);
+        when(trainerRepository.save(any(Trainer.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        Trainer newTrainer = trainerService.registerTrainer(trainerDTO);
+
+        assertEquals(trainerDTO.getFirstName(), newTrainer.getUser().getFirstName());
+        assertEquals(trainerDTO.getLastName(), newTrainer.getUser().getLastName());
+        assertEquals(trainerDTO.getSpecialization(), newTrainer.getSpecialization().getName());
+
+        verify(userService, times(1)).createUser(trainerDTO.getFirstName(), trainerDTO.getLastName());
+        verify(trainingTypeService, times(1)).getTrainingTypeByName(trainerDTO.getSpecialization());
+        verify(trainerRepository, times(1)).save(any(Trainer.class));
+    }
+
+    @Test
+    void testActivateDeactivateTrainer() {
+        String username = "username";
+        String password = "password";
+
+        when(userService.authenticateUser(username, password)).thenReturn(user);
+        when(trainerRepository.findByUserUsername(username)).thenReturn(Optional.of(trainer));
+
+        User result = trainerService.ActivateDeactivateTrainer(username, password, true);
+
+        assertTrue(result.getIsActive());
+        verify(userService, times(1)).authenticateUser(username, password);
+        verify(trainerRepository, times(2)).findByUserUsername(username);
+    }
+
+    @Test
+    void testGetTrainerByUsername() {
+        when(trainerRepository.findByUserUsername(user.getUsername())).thenReturn(Optional.of(trainer));
+
+        Trainer result = trainerService.getTrainerByUsername(user.getUsername());
+
         assertEquals(trainer, result);
     }
 
     @Test
-    void getTrainerByUsername_whenTrainerDoesNotExist_shouldThrowException() {
-        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.empty());
+    void testGetTrainerByUsername_NotFound() {
+        when(trainerRepository.findByUserUsername("unknown.username")).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> {
-            trainerService.getTrainerByUsername("john.doe");
-        });
+        assertThrows(NotFoundException.class,
+                () -> trainerService.getTrainerByUsername("unknown.username"));
     }
 
     @Test
-    void registerTrainer_whenDetailsAreValid_shouldReturnRegisteredTrainer() {
-        Map<String, String> trainerDetails = new HashMap<>();
-        trainerDetails.put("firstName", "John");
-        trainerDetails.put("lastName", "Doe");
-        trainerDetails.put("specialization", "TrainingType1");
+    void testUpdateTrainer() {
+        TrainerDTO trainerDTO = new TrainerDTO();
+        trainerDTO.setFirstName("NewName");
+        trainerDTO.setLastName("NewSurname");
+        trainerDTO.setSpecialization("NewTrainingType");
 
-        when(userService.createUser(trainerDetails)).thenReturn(user);
-        when(trainingTypeService.getTrainingTypeByName(anyString())).thenReturn(trainingType);
-        when(trainerRepository.save(any(Trainer.class))).thenReturn(trainer);
+        user.setFirstName("NewName");
+        user.setLastName("NewSurname");
 
-        TrainerDTO result = trainerService.registerTrainer(trainerDetails);
+        when(userService.authenticateUser(any(String.class), any(String.class))).thenReturn(user);
+        when(trainerRepository.findByUserUsername(user.getUsername())).thenReturn(Optional.of(trainer));
+        when(trainingTypeService.getTrainingTypeByName(trainerDTO.getSpecialization())).thenReturn(trainingType);
+        when(userService.updateUser(any(String.class), any(String.class), any(User.class))).thenReturn(user);
+        when(trainerRepository.save(any(Trainer.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        assertEquals("John", result.getFirstName());
-        assertEquals("Doe", result.getLastName());
-        assertEquals("TrainingType1", result.getSpecialization().getName());
-    }
+        Trainer updatedTrainer = trainerService.updateTrainer(trainerDTO, user.getUsername(), user.getPassword());
 
-    @Test
-    void registerTrainer_whenDetailsAreInvalid_shouldThrowException() {
-        Map<String, String> invalidTrainerDetails = new HashMap<>();
-
-        assertThrows(MissingAttributes.class, () -> {
-            trainerService.registerTrainer(invalidTrainerDetails);
-        });
-    }
-
-    @Test
-    void updateTrainer_whenDetailsAreValid_shouldUpdateTrainer() {
-        Map<String, String> trainerDetails = new HashMap<>();
-        trainerDetails.put("firstName", "Jack");
-        trainerDetails.put("lastName", "Daniel");
-        trainerDetails.put("specialization", "TrainingType2");
-
-        user.setFirstName("Jack");
-        user.setLastName("Daniel");
-
-        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
-        when(userService.updateUser(trainerDetails, user)).thenReturn(user);
-        when(trainingTypeService.getTrainingTypeByName(anyString())).thenReturn(new TrainingType());
-        when(trainerRepository.save(any(Trainer.class))).thenReturn(trainer);
-
-        TrainerDTO result = trainerService.updateTrainer(trainerDetails, "john.doe", "password");
-
-        assertEquals("Jack", result.getFirstName());
-        assertEquals("Daniel", result.getLastName());
-    }
-
-    @Test
-    void updateTrainer_whenDetailsAreInvalid_shouldThrowException() {
-        Map<String, String> invalidTrainerDetails = new HashMap<>();
-        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
-
-        assertThrows(MissingAttributes.class, () -> {
-            trainerService.updateTrainer(invalidTrainerDetails, "john.doe", "password");
-        });
-    }
-
-    @Test
-    void updatePassword_whenCurrentPasswordIsCorrect_shouldUpdatePassword() {
-        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
-
-        assertDoesNotThrow(() -> {
-            trainerService.updatePasssword("john.doe", "password", "newPassword");
-        });
-
-        verify(userService, times(1)).saveUser(user);
-        verify(trainerRepository, times(1)).save(trainer);
-    }
-
-    @Test
-    void updatePassword_whenCurrentPasswordIsIncorrect_shouldThrowException() {
-        Trainer incorrectPasswordTrainer = new Trainer();
-        User incorrectPasswordUser = new User();
-        incorrectPasswordUser.setPassword("not the right password");
-        incorrectPasswordTrainer.setUser(incorrectPasswordUser);
-
-        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(incorrectPasswordTrainer));
-
-        assertThrows(FailAuthenticateException.class, () -> {
-            trainerService.updatePasssword("john.doe", "password", "newPassword");
-        });
-    }
-
-    @Test
-    void updatePassword_whenNewPasswordIsInvalid_shouldThrowException() {
-        String invalidNewPassword = "abc";
-
-        when(trainerRepository.findByUserUsername(anyString())).thenReturn(Optional.of(trainer));
-
-        assertThrows(InvalidPasswordException.class, () -> {
-            trainerService.updatePasssword("john.doe", "password", invalidNewPassword);
-        });
+        assertEquals("NewName", updatedTrainer.getUser().getFirstName());
+        assertEquals("NewSurname", updatedTrainer.getUser().getLastName());
+        verify(userService, times(1)).authenticateUser(any(String.class), any(String.class));
+        verify(userService, times(1)).updateUser(any(String.class), any(String.class), any(User.class));
+        verify(trainerRepository, times(2)).findByUserUsername(user.getUsername());
+        verify(trainerRepository, times(1)).save(any(Trainer.class));
     }
 }

@@ -1,18 +1,17 @@
 package com.epam.taskgym.dto;
 
-import com.epam.taskgym.entity.TrainingType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
+
+import java.util.List;
 
 @Getter
-@AllArgsConstructor
+@Setter
 @ToString
+@NoArgsConstructor
 public class TrainerDTO {
-    private String username;
-    private String password;
     private String firstName;
     private String lastName;
-
-    private TrainingType specialization;
+    private String specialization;
+    private boolean isActive;
+    private List<TraineeListItem> trainees;
 }

@@ -1,15 +1,15 @@
 package com.epam.taskgym.service;
 
 import com.epam.taskgym.dto.TraineeDTO;
+import com.epam.taskgym.dto.TrainerListItem;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
+import com.epam.taskgym.exception.*;
 import com.epam.taskgym.repository.TraineeRepository;
 import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
-import com.epam.taskgym.service.exception.*;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -18,35 +18,35 @@ import org.slf4j.LoggerFactory;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class TraineeService {
 
-    @Autowired
-    private TraineeRepository traineeRepository;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private TrainingRepository trainingRepository;
-    @Autowired
-    private TrainerRepository trainerRepository;
-
+    private final TraineeRepository traineeRepository;
+    private final UserService userService;
+    private final TrainingRepository trainingRepository;
+    private final TrainerRepository trainerRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(TraineeService.class);
 
+    public TraineeService(TraineeRepository traineeRepository, UserService userService, TrainingRepository trainingRepository, TrainerRepository trainerRepository) {
+        this.traineeRepository = traineeRepository;
+        this.userService = userService;
+        this.trainingRepository = trainingRepository;
+        this.trainerRepository = trainerRepository;
+    }
+
     private void authenticateTrainee(String username, String password) {
-        LOGGER.info("Authenticating trainee with username: {}", username);
-        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
-            LOGGER.error("Username and password are required");
-            throw new MissingAttributes("Username and password are required");
-        }
+        User user = userService.authenticateUser(username, password);
         Trainee trainee = getTraineeByUsername(username);
-        if (!trainee.getUser().getPassword().equals(password)) {
-            LOGGER.error("Fail to authenticate: Password and username do not match");
-            throw new FailAuthenticateException("Fail to authenticate: Password and username do not match");
+        if (trainee.getUser().equals(user)) {
+            LOGGER.info("Trainee authenticated: {}", username);
+        } else {
+            LOGGER.error("Fail to authenticate: Trainee and user do not match");
+            throw new FailAuthenticateException("Fail to authenticate: Trainee and user do not match");
         }
     }
 
@@ -60,31 +60,62 @@ public class TraineeService {
         return trainee.get();
     }
 
-    @Transactional
-    public TraineeDTO registerTrainee(Map<String, String> traineeDetails) {
-        validateTraineeDetails(traineeDetails);
-        User user = userService.createUser(traineeDetails);
-        Trainee trainee = new Trainee();
-        trainee.setUser(user);
-        addDate(traineeDetails, trainee);
-        trainee.setAddress(traineeDetails.getOrDefault("address", ""));
-        traineeRepository.save(trainee);
-        LOGGER.info("Trainee registered: {}", trainee);
-        return fillTraineeDTO(user, trainee);
+    public TraineeDTO convertTraineeToTraineeDTO(Trainee trainee) {
+        TraineeDTO traineeDTO = new TraineeDTO();
+        traineeDTO.setFirstName(trainee.getUser().getFirstName());
+        traineeDTO.setLastName(trainee.getUser().getLastName());
+        traineeDTO.setDateOfBirth(trainee.getDateOfBirth());
+        traineeDTO.setAddress(trainee.getAddress());
+        traineeDTO.setIsActive(trainee.getUser().getIsActive());
+        traineeDTO.setTrainers(convertTrainersToTrainerListItem(trainee.getTrainers()));
+        return traineeDTO;
+    }
+
+    public ArrayList<TrainerListItem> convertTrainersToTrainerListItem(List<Trainer> trainers) {
+        validateList(trainers);
+        ArrayList<TrainerListItem> trainerListItem = new ArrayList<>();
+        trainers.forEach(trainer -> {
+            TrainerListItem trainerDTO = new TrainerListItem();
+            trainerDTO.setFirstName(trainer.getUser().getFirstName());
+            trainerDTO.setLastName(trainer.getUser().getLastName());
+            trainerDTO.setUsername(trainer.getUser().getUsername());
+            trainerDTO.setSpecialization(trainer.getSpecialization().getName());
+            trainerListItem.add(trainerDTO);
+        });
+        return trainerListItem;
     }
 
     @Transactional
-    public TraineeDTO updateTrainee(Map<String, String> traineeDetails, String username, String password) {
-        authenticateTrainee(username, password);
-        validateTraineeDetails(traineeDetails);
-        Trainee trainee = getTraineeByUsername(username);
-        User user = userService.updateUser(traineeDetails, trainee.getUser());
-        trainee.setUser(user);
-        addDate(traineeDetails, trainee);
-        trainee.setAddress(traineeDetails.getOrDefault("address", ""));
+    public void saveTrainee(Trainee trainee) {
         traineeRepository.save(trainee);
-        LOGGER.info("Trainee updated: {}", trainee);
-        return fillTraineeDTO(user, trainee);
+    }
+
+    @Transactional
+    public Trainee registerTrainee(TraineeDTO traineeDTO) {
+        validateTraineeDetails(traineeDTO);
+        User user = userService.createUser(traineeDTO.getFirstName(), traineeDTO.getLastName());
+        Trainee trainee = new Trainee();
+        trainee.setUser(user);
+        addDate(traineeDTO.getDateOfBirth(), trainee);
+        trainee.setAddress((traineeDTO.getAddress() == null || traineeDTO.getAddress().isEmpty()) ? "" : traineeDTO.getAddress());
+        trainee.setTrainers(new ArrayList<>());
+        saveTrainee(trainee);
+        LOGGER.info("Trainee registered: {}", trainee.getUser().getUsername());
+        return trainee;
+    }
+
+    @Transactional
+    public Trainee updateTrainee(TraineeDTO traineeDTO, String username, String password) {
+        authenticateTrainee(username, password);
+        validateTraineeDetails(traineeDTO);
+        Trainee trainee = getTraineeByUsername(username);
+        User user = userService.updateUser(traineeDTO.getFirstName(), traineeDTO.getLastName(), trainee.getUser());
+        trainee.setUser(user);
+        addDate(traineeDTO.getDateOfBirth(), trainee);
+        trainee.setAddress((traineeDTO.getAddress() == null || traineeDTO.getAddress().isEmpty()) ? "" : traineeDTO.getAddress());
+        saveTrainee(trainee);
+        LOGGER.info("Trainee updated: {}", trainee.getUser().getUsername());
+        return trainee;
     }
 
     @Transactional
@@ -93,11 +124,16 @@ public class TraineeService {
         Trainee trainee = getTraineeByUsername(username);
         LOGGER.info("Hard Deleting trainee with username: {}", username);
         try {
+            List<Trainer> trainersAssignedToTrainee = trainingRepository.findAllTrainersByTraineeUsername(username);
+            trainersAssignedToTrainee.forEach(trainer -> {
+                trainer.getTrainees().remove(trainee);
+                trainerRepository.save(trainer);
+            });
             trainingRepository.deleteAllByTrainee_User_Username(username);
             LOGGER.info("Trainings deleted for trainee with username: {}", username);
             User user = trainee.getUser();
             traineeRepository.delete(trainee);
-            LOGGER.info("Trainee deleted: {}", trainee);
+            LOGGER.info("Trainee deleted: {}", trainee.getUser().getUsername());
             userService.deleteUser(user);
         } catch (DataAccessException e) {
             LOGGER.error("An error occurred while deleting trainee with username:" + username, e);
@@ -106,39 +142,41 @@ public class TraineeService {
     }
 
     @Transactional
-    public void updatePasssword(String username, String password, String newPassword) {
+    public User ActivateDeactivateTrainee(String username, String password, boolean isActive) {
+        LOGGER.info("Activating/Deactivating trainee: {}", username);
         authenticateTrainee(username, password);
-        validatePassword(newPassword);
         Trainee trainee = getTraineeByUsername(username);
         User user = trainee.getUser();
-        user.setPassword(newPassword);
+        user.setIsActive(isActive);
         userService.saveUser(user);
-        trainee.setUser(user);
-        traineeRepository.save(trainee);
-        LOGGER.info("Password updated for user {}", username);
+        LOGGER.info("Trainee {} isActive: {}", username, user.getIsActive());
+        return user;
     }
 
-    public void updateTraineeTrainers(String traineeUsername, List<String> trainerUsernames) {
-        Trainee trainee = getTraineeByUsername(traineeUsername);
-        if(trainee == null) {
-            throw new NotFoundException("Trainee with username " + traineeUsername + " not found.");
-        }
-
-        List<Trainer> trainers = trainerRepository.findAllByUserUsernameIn(trainerUsernames);
-
-        if(trainers.size() < trainerUsernames.size()) {
-            throw new NotFoundException("One or more trainers not found.");
-        }
-
+    @Transactional
+    public List<TrainerListItem> updateTrainersList(String username, String password, List<String> trainersUsernames) {
+        LOGGER.info("Updating trainers list for trainee: {}", username);
+        authenticateTrainee(username, password);
+        validateList(trainersUsernames);
+        Trainee trainee = getTraineeByUsername(username);
+        List<Trainer> trainers = trainee.getTrainers();
+        trainersUsernames.forEach(trainerUsername -> {
+            Trainer trainer = trainerRepository.findByUserUsername(trainerUsername).orElseThrow(() -> new NotFoundException("Trainer with username {" + trainerUsername + "} not found"));
+            if (!trainers.contains(trainer)) {
+                trainers.add(trainer);
+                trainer.getTrainees().add(trainee);
+                trainerRepository.save(trainer);
+            }
+        });
         trainee.setTrainers(trainers);
-
-        traineeRepository.save(trainee);
+        saveTrainee(trainee);
+        return convertTrainersToTrainerListItem(trainers);
     }
 
     public Date validateDate(String StringDate) {
         LOGGER.info("Validating date: {}", StringDate);
         DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
-        Date date = null;
+        Date date;
         try {
             date = df.parse(StringDate);
         } catch (ParseException e) {
@@ -148,38 +186,26 @@ public class TraineeService {
         return date;
     }
 
-    private TraineeDTO fillTraineeDTO(User user, Trainee trainee) {
-        TraineeDTO trainerDTO = new TraineeDTO(user.getUsername(), user.getPassword(), user.getFirstName(), user.getLastName(), trainee.getDateOfBirth(), trainee.getAddress());
-        LOGGER.info("TraineeDTO filled: {}", trainerDTO);
-        return trainerDTO;
-    }
-
-    private void addDate(Map<String, String> traineeDetails, Trainee trainee) {
-        if (traineeDetails.containsKey("dateOfBirth") && !traineeDetails.get("dateOfBirth").isEmpty()) {
-            Date dateOfBirth = validateDate(traineeDetails.get("dateOfBirth"));
+    private void addDate(Date dateOfBirth, Trainee trainee) {
+        if (dateOfBirth != null) {
             trainee.setDateOfBirth(dateOfBirth);
             LOGGER.info("Date of birth added: {}", dateOfBirth);
         }
     }
 
-    private void validateTraineeDetails(Map<String, String> traineeDetails) {
-        LOGGER.info("Validating trainee details: {}", traineeDetails);
-        if (traineeDetails == null || traineeDetails.isEmpty()) {
-            LOGGER.error("Trainee details cannot be null or empty");
-            throw new MissingAttributes("Trainee details cannot be null or empty");
+    private void validateTraineeDetails(TraineeDTO traineeDTO) {
+        LOGGER.info("Validating trainee details is not null: {}", traineeDTO);
+        if (traineeDTO == null){
+            LOGGER.error("Trainee details cannot be null");
+            throw new MissingAttributes("Trainee details cannot be null");
         }
     }
 
-    public static void validatePassword(String newPassword) {
-        LOGGER.info("Validating password");
-        if(newPassword == null || newPassword.isEmpty()){
-            LOGGER.error("Password cannot be null or empty.");
-            throw new InvalidPasswordException("Password cannot be null or empty.");
-        }
-
-        if(newPassword.length() < 8){
-            LOGGER.error("Password must be at least 8 characters long.");
-            throw new InvalidPasswordException("Password must be at least 8 characters long.");
+    private void validateList(List<?> list) {
+        LOGGER.info("Validating list is not null: {}", list);
+        if (list == null || list.isEmpty()) {
+            LOGGER.error("List cannot be null or empty");
+            throw new MissingAttributes("List cannot be null or empty");
         }
     }
 }
