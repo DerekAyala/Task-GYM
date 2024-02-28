@@ -92,15 +92,16 @@ public class TrainerService {
     }
 
     @Transactional
-    public User ActivateDeactivateTrainer(String username, String password, boolean isActive) {
+    public TrainerDTO ActivateDeactivateTrainer(String username, String password, boolean isActive) {
         LOGGER.info("Activating/Deactivating trainer: {}", username);
         authenticateTrainer(username, password);
         Trainer trainer = getTrainerByUsername(username);
         User user = trainer.getUser();
         user.setIsActive(isActive);
         userService.saveUser(user);
+        trainer.setUser(user);
         LOGGER.info("Trainer {} isActive: {}", username, user.getIsActive());
-        return user;
+        return Builders.convertTrainerToTraineeDTO(trainer);
     }
 
     public List<TrainerListItem> getUnassignedTrainers(String traineeUsername) {
