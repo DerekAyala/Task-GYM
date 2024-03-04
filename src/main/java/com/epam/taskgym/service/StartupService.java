@@ -3,6 +3,7 @@ package com.epam.taskgym.service;
 import com.epam.taskgym.dto.TraineeDTO;
 import com.epam.taskgym.dto.TrainerDTO;
 import com.epam.taskgym.dto.TrainingDTO;
+import com.epam.taskgym.helpers.Validations;
 import com.epam.taskgym.repository.TraineeRepository;
 import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
@@ -73,7 +74,7 @@ public class StartupService {
                 TraineeDTO traineeDTO = new TraineeDTO();
                 traineeDTO.setFirstName(trainee.get("firstName"));
                 traineeDTO.setLastName(trainee.get("lastName"));
-                traineeDTO.setDateOfBirth(traineeService.validateDate(trainee.get("dateOfBirth")));
+                traineeDTO.setDateOfBirth(Validations.validateDate(trainee.get("dateOfBirth")));
                 traineeDTO.setAddress(trainee.get("address"));
                 traineeService.registerTrainee(traineeDTO);
             }
@@ -115,12 +116,12 @@ public class StartupService {
         );
 
         defaultTrainings.forEach(training -> {
-            if (trainingRepository.findByTrainee_User_UsernameAndTrainer_User_UsernameAndDate(training.get("traineeUsername"), training.get("trainerUsername"), traineeService.validateDate(training.get("date"))).isEmpty()) {
+            if (trainingRepository.findByTrainee_User_UsernameAndTrainer_User_UsernameAndDate(training.get("traineeUsername"), training.get("trainerUsername"), Validations.validateDate(training.get("date"))).isEmpty()) {
                 TrainingDTO trainingDTO = new TrainingDTO();
                 trainingDTO.setTraineeUsername(training.get("traineeUsername"));
                 trainingDTO.setTrainerUsername(training.get("trainerUsername"));
-                trainingDTO.setDate(traineeService.validateDate(training.get("date")));
-                trainingDTO.setDuration(trainingService.validateDuration(training.get("duration")));
+                trainingDTO.setDate(Validations.validateDate(training.get("date")));
+                trainingDTO.setDuration(Validations.validateDuration(training.get("duration")));
                 trainingDTO.setName(training.get("name"));
                 trainingService.createTraining(trainingDTO);
             }

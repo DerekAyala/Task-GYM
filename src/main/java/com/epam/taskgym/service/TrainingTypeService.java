@@ -1,6 +1,7 @@
 package com.epam.taskgym.service;
 
 import com.epam.taskgym.entity.TrainingType;
+import com.epam.taskgym.helpers.Validations;
 import com.epam.taskgym.repository.TrainingTypeRepository;
 import com.epam.taskgym.exception.MissingAttributes;
 import com.epam.taskgym.exception.NotFoundException;
@@ -28,10 +29,7 @@ public class TrainingTypeService {
 
     @Transactional
     public TrainingType RegisterTrainingType(String name) {
-        if (name == null || name.isEmpty()) {
-            LOGGER.error("Name is required");
-            throw new MissingAttributes("Name is required");
-        }
+        Validations.validateTrainingTypeDetails(name);
         TrainingType trainingType = new TrainingType();
         trainingType.setName(name);
         trainingTypeRepository.save(trainingType);

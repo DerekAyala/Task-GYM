@@ -3,10 +3,7 @@ package com.epam.taskgym;
 import com.epam.taskgym.dto.TrainingDTO;
 import com.epam.taskgym.dto.TrainingFilteredDTO;
 import com.epam.taskgym.dto.TrainingResponse;
-import com.epam.taskgym.entity.Trainee;
-import com.epam.taskgym.entity.Trainer;
-import com.epam.taskgym.entity.Training;
-import com.epam.taskgym.entity.TrainingType;
+import com.epam.taskgym.entity.*;
 import com.epam.taskgym.repository.TrainingRepository;
 import com.epam.taskgym.service.TraineeService;
 import com.epam.taskgym.service.TrainerService;
@@ -50,6 +47,11 @@ class TrainingServiceTest {
     public void setup() {
         trainee = new Trainee();
         trainer = new Trainer();
+        trainee.setUser(new User());
+        trainer.setUser(new User());
+        trainee.setTrainers(new ArrayList<>());
+        trainer.setTrainees(new ArrayList<>());
+        trainer.setSpecialization(new TrainingType());
         trainingType = new TrainingType();
         date = new Date();
         training = new Training();
@@ -67,10 +69,10 @@ class TrainingServiceTest {
         trainingDTO.setDuration(1);
         trainingDTO.setTraineeUsername("trainee");
         trainingDTO.setTrainerUsername("trainer");
+        trainingDTO.setName("name");
 
         when(traineeService.getTraineeByUsername(any())).thenReturn(trainee);
         when(trainerService.getTrainerByUsername(any())).thenReturn(trainer);
-        when(trainingTypeService.getTrainingTypeByName(any())).thenReturn(trainingType);
         when(trainingRepository.save(any(Training.class))).thenReturn(training);
 
         TrainingDTO result = trainingService.createTraining(trainingDTO);

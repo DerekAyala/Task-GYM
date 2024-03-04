@@ -6,6 +6,8 @@ import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.exception.*;
+import com.epam.taskgym.helpers.Builders;
+import com.epam.taskgym.helpers.Validations;
 import com.epam.taskgym.repository.TraineeRepository;
 import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
@@ -15,9 +17,6 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -60,31 +59,6 @@ public class TraineeService {
         return trainee.get();
     }
 
-    public TraineeDTO convertTraineeToTraineeDTO(Trainee trainee) {
-        TraineeDTO traineeDTO = new TraineeDTO();
-        traineeDTO.setFirstName(trainee.getUser().getFirstName());
-        traineeDTO.setLastName(trainee.getUser().getLastName());
-        traineeDTO.setDateOfBirth(trainee.getDateOfBirth());
-        traineeDTO.setAddress(trainee.getAddress());
-        traineeDTO.setIsActive(trainee.getUser().getIsActive());
-        traineeDTO.setTrainers(convertTrainersToTrainerListItem(trainee.getTrainers()));
-        return traineeDTO;
-    }
-
-    public ArrayList<TrainerListItem> convertTrainersToTrainerListItem(List<Trainer> trainers) {
-        validateList(trainers);
-        ArrayList<TrainerListItem> trainerListItem = new ArrayList<>();
-        trainers.forEach(trainer -> {
-            TrainerListItem trainerDTO = new TrainerListItem();
-            trainerDTO.setFirstName(trainer.getUser().getFirstName());
-            trainerDTO.setLastName(trainer.getUser().getLastName());
-            trainerDTO.setUsername(trainer.getUser().getUsername());
-            trainerDTO.setSpecialization(trainer.getSpecialization().getName());
-            trainerListItem.add(trainerDTO);
-        });
-        return trainerListItem;
-    }
-
     @Transactional
     public void saveTrainee(Trainee trainee) {
         traineeRepository.save(trainee);
@@ -92,12 +66,12 @@ public class TraineeService {
 
     @Transactional
     public Trainee registerTrainee(TraineeDTO traineeDTO) {
-        validateTraineeDetails(traineeDTO);
+        Validations.validateTraineeDetails(traineeDTO);
         User user = userService.createUser(traineeDTO.getFirstName(), traineeDTO.getLastName());
         Trainee trainee = new Trainee();
         trainee.setUser(user);
         addDate(traineeDTO.getDateOfBirth(), trainee);
-        trainee.setAddress((traineeDTO.getAddress() == null || traineeDTO.getAddress().isEmpty()) ? "" : traineeDTO.getAddress());
+        trainee.setAddress((traineeDTO.getAddress() == null || traineeDTO.getAddress().isEmpty()) ? null : traineeDTO.getAddress());
         trainee.setTrainers(new ArrayList<>());
         saveTrainee(trainee);
         LOGGER.info("Trainee registered: {}", trainee.getUser().getUsername());
@@ -107,12 +81,12 @@ public class TraineeService {
     @Transactional
     public Trainee updateTrainee(TraineeDTO traineeDTO, String username, String password) {
         authenticateTrainee(username, password);
-        validateTraineeDetails(traineeDTO);
+        Validations.validateTraineeDetails(traineeDTO);
         Trainee trainee = getTraineeByUsername(username);
         User user = userService.updateUser(traineeDTO.getFirstName(), traineeDTO.getLastName(), trainee.getUser());
         trainee.setUser(user);
         addDate(traineeDTO.getDateOfBirth(), trainee);
-        trainee.setAddress((traineeDTO.getAddress() == null || traineeDTO.getAddress().isEmpty()) ? "" : traineeDTO.getAddress());
+        trainee.setAddress((traineeDTO.getAddress() == null || traineeDTO.getAddress().isEmpty()) ? null : traineeDTO.getAddress());
         saveTrainee(trainee);
         LOGGER.info("Trainee updated: {}", trainee.getUser().getUsername());
         return trainee;
@@ -142,22 +116,24 @@ public class TraineeService {
     }
 
     @Transactional
-    public User ActivateDeactivateTrainee(String username, String password, boolean isActive) {
+    public TraineeDTO ActivateDeactivateTrainee(String username, String password, boolean isActive) {
         LOGGER.info("Activating/Deactivating trainee: {}", username);
         authenticateTrainee(username, password);
         Trainee trainee = getTraineeByUsername(username);
         User user = trainee.getUser();
         user.setIsActive(isActive);
         userService.saveUser(user);
+        trainee.setUser(user);
         LOGGER.info("Trainee {} isActive: {}", username, user.getIsActive());
-        return user;
+        return Builders.convertTraineeToTraineeDTO(trainee);
     }
 
     @Transactional
     public List<TrainerListItem> updateTrainersList(String username, String password, List<String> trainersUsernames) {
         LOGGER.info("Updating trainers list for trainee: {}", username);
         authenticateTrainee(username, password);
-        validateList(trainersUsernames);
+        LOGGER.info("Validating trainers list: {}", trainersUsernames);
+        Validations.validateList(trainersUsernames);
         Trainee trainee = getTraineeByUsername(username);
         List<Trainer> trainers = trainee.getTrainers();
         trainersUsernames.forEach(trainerUsername -> {
@@ -170,42 +146,13 @@ public class TraineeService {
         });
         trainee.setTrainers(trainers);
         saveTrainee(trainee);
-        return convertTrainersToTrainerListItem(trainers);
-    }
-
-    public Date validateDate(String StringDate) {
-        LOGGER.info("Validating date: {}", StringDate);
-        DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
-        Date date;
-        try {
-            date = df.parse(StringDate);
-        } catch (ParseException e) {
-            LOGGER.error("Invalid date format {DD-MM-YYYY}");
-            throw new BadRequestException("Invalid date format {DD-MM-YYYY}");
-        }
-        return date;
+        return Builders.convertTrainersToTrainerListItem(trainers);
     }
 
     private void addDate(Date dateOfBirth, Trainee trainee) {
         if (dateOfBirth != null) {
             trainee.setDateOfBirth(dateOfBirth);
             LOGGER.info("Date of birth added: {}", dateOfBirth);
-        }
-    }
-
-    private void validateTraineeDetails(TraineeDTO traineeDTO) {
-        LOGGER.info("Validating trainee details is not null: {}", traineeDTO);
-        if (traineeDTO == null){
-            LOGGER.error("Trainee details cannot be null");
-            throw new MissingAttributes("Trainee details cannot be null");
-        }
-    }
-
-    private void validateList(List<?> list) {
-        LOGGER.info("Validating list is not null: {}", list);
-        if (list == null || list.isEmpty()) {
-            LOGGER.error("List cannot be null or empty");
-            throw new MissingAttributes("List cannot be null or empty");
         }
     }
 }

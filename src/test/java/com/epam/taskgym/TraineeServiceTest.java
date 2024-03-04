@@ -159,7 +159,7 @@ class TraineeServiceTest {
         when(userService.authenticateUser(username, password)).thenReturn(user);
         when(traineeRepository.findByUserUsername(username)).thenReturn(Optional.of(trainee));
 
-        User result = traineeService.ActivateDeactivateTrainee(username, password, true);
+        TraineeDTO result = traineeService.ActivateDeactivateTrainee(username, password, true);
 
         assertTrue(result.getIsActive());
         verify(userService, times(1)).authenticateUser(username, password);

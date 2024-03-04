@@ -2,8 +2,9 @@ package com.epam.taskgym.service;
 
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.exception.FailAuthenticateException;
-import com.epam.taskgym.exception.InvalidPasswordException;
 import com.epam.taskgym.exception.NotFoundException;
+import com.epam.taskgym.helpers.Builders;
+import com.epam.taskgym.helpers.Validations;
 import com.epam.taskgym.repository.UserRepository;
 import com.epam.taskgym.exception.MissingAttributes;
 import jakarta.transaction.Transactional;
@@ -12,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 public class UserService {
@@ -30,10 +30,10 @@ public class UserService {
     @Transactional
     public User createUser(String firstName, String lastName) {
         LOGGER.info("Creating user with: {}, {}", firstName, lastName);
-        validateUserDetails(firstName, lastName);
+        Validations.validateUserDetails(firstName, lastName);
         String username = generateUniqueUsername(firstName.toLowerCase(), lastName.toLowerCase());
-        String password = generateRandomPassword();
-        User user = buildUser(firstName, lastName, username, password);
+        String password = Builders.generateRandomPassword();
+        User user = Builders.buildUser(firstName, lastName, username, password);
         saveUser(user);
         LOGGER.info("Successfully created user: {}", user);
         return user;
@@ -68,7 +68,7 @@ public class UserService {
     public User updatePassword(String username, String password, String newPassword) {
         LOGGER.info("Updating password for user with username: {}", username);
         User user = authenticateUser(username, password);
-        validatePassword(newPassword);
+        Validations.validatePassword(newPassword);
         user.setPassword(newPassword);
         return saveUser(user);
     }
@@ -88,49 +88,6 @@ public class UserService {
             throw new FailAuthenticateException("Fail to authenticate: Password and username do not match");
         }
         return user;
-    }
-
-    private void validatePassword(String newPassword) {
-        LOGGER.info("Validating password");
-        if (newPassword == null || newPassword.isEmpty()) {
-            LOGGER.error("Password cannot be null or empty.");
-            throw new InvalidPasswordException("Password cannot be null or empty.");
-        }
-        if (newPassword.length() < 8) {
-            LOGGER.error("Password must be at least 8 characters long.");
-            throw new InvalidPasswordException("Password must be at least 8 characters long.");
-        }
-    }
-
-    private void validateUserDetails(String firstName, String lastName) {
-        LOGGER.info("Validating user details: {} , {}", firstName, lastName);
-        if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty()) {
-            LOGGER.error("First name and last name are required");
-            throw new MissingAttributes("First name and last name are required");
-        }
-    }
-
-    private User buildUser(String firstName, String lastName, String username, String password) {
-        User user = new User();
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setIsActive(true);
-        LOGGER.info("User successfully built: {}", username);
-        return user;
-    }
-
-    private String generateRandomPassword() {
-        LOGGER.info("Generating random password");
-        String password = new Random().ints(48, 122)
-                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-                .mapToObj(i -> (char) i)
-                .limit(10)
-                .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
-                .toString();
-        LOGGER.info("Random password generated successfully");
-        return password;
     }
 
     private String generateUniqueUsername(String firstName, String lastName) {

@@ -50,7 +50,7 @@ class UserServiceTest {
             userService.createUser("", "Smith");
         });
 
-        String expectedMessage = "First name and last name are required";
+        String expectedMessage = "First name and last name are required.";
         String actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));

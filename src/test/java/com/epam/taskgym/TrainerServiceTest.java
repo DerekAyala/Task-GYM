@@ -86,9 +86,9 @@ class TrainerServiceTest {
         when(userService.authenticateUser(username, password)).thenReturn(user);
         when(trainerRepository.findByUserUsername(username)).thenReturn(Optional.of(trainer));
 
-        User result = trainerService.ActivateDeactivateTrainer(username, password, true);
+        TrainerDTO result = trainerService.ActivateDeactivateTrainer(username, password, true);
 
-        assertTrue(result.getIsActive());
+        assertTrue(result.isActive());
         verify(userService, times(1)).authenticateUser(username, password);
         verify(trainerRepository, times(2)).findByUserUsername(username);
     }
