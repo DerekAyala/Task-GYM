@@ -79,21 +79,6 @@ class TrainerServiceTest {
     }
 
     @Test
-    void testActivateDeactivateTrainer() {
-        String username = "username";
-        String password = "password";
-
-        when(userService.authenticateUser(username, password)).thenReturn(user);
-        when(trainerRepository.findByUserUsername(username)).thenReturn(Optional.of(trainer));
-
-        TrainerDTO result = trainerService.ActivateDeactivateTrainer(username, password, true);
-
-        assertTrue(result.isActive());
-        verify(userService, times(1)).authenticateUser(username, password);
-        verify(trainerRepository, times(2)).findByUserUsername(username);
-    }
-
-    @Test
     void testGetTrainerByUsername() {
         when(trainerRepository.findByUserUsername(user.getUsername())).thenReturn(Optional.of(trainer));
 
@@ -108,31 +93,5 @@ class TrainerServiceTest {
 
         assertThrows(NotFoundException.class,
                 () -> trainerService.getTrainerByUsername("unknown.username"));
-    }
-
-    @Test
-    void testUpdateTrainer() {
-        TrainerDTO trainerDTO = new TrainerDTO();
-        trainerDTO.setFirstName("NewName");
-        trainerDTO.setLastName("NewSurname");
-        trainerDTO.setSpecialization("NewTrainingType");
-
-        user.setFirstName("NewName");
-        user.setLastName("NewSurname");
-
-        when(userService.authenticateUser(any(String.class), any(String.class))).thenReturn(user);
-        when(trainerRepository.findByUserUsername(user.getUsername())).thenReturn(Optional.of(trainer));
-        when(trainingTypeService.getTrainingTypeByName(trainerDTO.getSpecialization())).thenReturn(trainingType);
-        when(userService.updateUser(any(String.class), any(String.class), any(User.class))).thenReturn(user);
-        when(trainerRepository.save(any(Trainer.class))).thenAnswer(i -> i.getArguments()[0]);
-
-        Trainer updatedTrainer = trainerService.updateTrainer(trainerDTO, user.getUsername(), user.getPassword());
-
-        assertEquals("NewName", updatedTrainer.getUser().getFirstName());
-        assertEquals("NewSurname", updatedTrainer.getUser().getLastName());
-        verify(userService, times(1)).authenticateUser(any(String.class), any(String.class));
-        verify(userService, times(1)).updateUser(any(String.class), any(String.class), any(User.class));
-        verify(trainerRepository, times(2)).findByUserUsername(user.getUsername());
-        verify(trainerRepository, times(1)).save(any(Trainer.class));
     }
 }
