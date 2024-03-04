@@ -8,6 +8,7 @@ import com.epam.taskgym.helpers.Validations;
 import com.epam.taskgym.repository.UserRepository;
 import com.epam.taskgym.exception.MissingAttributes;
 import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +18,11 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
     private final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     private Optional<User> findByUsername(String username) {
@@ -32,7 +35,7 @@ public class UserService {
         LOGGER.info("Creating user with: {}, {}", firstName, lastName);
         Validations.validateUserDetails(firstName, lastName);
         String username = generateUniqueUsername(firstName.toLowerCase(), lastName.toLowerCase());
-        String password = Builders.generateRandomPassword();
+        String password = passwordEncoder.encode(Builders.generateRandomPassword());
         User user = Builders.buildUser(firstName, lastName, username, password);
         saveUser(user);
         LOGGER.info("Successfully created user: {}", user);
@@ -69,7 +72,7 @@ public class UserService {
         LOGGER.info("Updating password for user with username: {}", username);
         User user = authenticateUser(username, password);
         Validations.validatePassword(newPassword);
-        user.setPassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
         return saveUser(user);
     }
 
@@ -83,7 +86,7 @@ public class UserService {
             LOGGER.error("User with username {} not found", username);
             return new NotFoundException("User with username {" + username + "} not found");
         });
-        if (!user.getPassword().equals(password)) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             LOGGER.error("Fail to authenticate: Password and username do not match");
             throw new FailAuthenticateException("Fail to authenticate: Password and username do not match");
         }
