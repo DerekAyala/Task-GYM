@@ -9,7 +9,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @AllArgsConstructor
-public class RegisterResponseDTO {
+public class RegisterResponse {
     private String username;
     private String password;
 }

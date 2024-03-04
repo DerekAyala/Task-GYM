@@ -38,16 +38,16 @@ public class GymController {
 
     // 1. Add a new trainee
     @PostMapping(value = "/trainee")
-    public ResponseEntity<RegisterResponseDTO> registerTrainee(@RequestBody TraineeDTO traineeDTO) {
+    public ResponseEntity<RegisterResponse> registerTrainee(@RequestBody TraineeDTO traineeDTO) {
         Trainee trainee = traineeService.registerTrainee(traineeDTO);
-        return new ResponseEntity<>(new RegisterResponseDTO(trainee.getUser().getUsername(), trainee.getUser().getPassword()), HttpStatus.CREATED);
+        return new ResponseEntity<>(new RegisterResponse(trainee.getUser().getUsername(), trainee.getUser().getPassword()), HttpStatus.CREATED);
     }
 
     // 2. Add a new trainer
     @PostMapping(value = "/trainer")
-    public ResponseEntity<RegisterResponseDTO> registerTrainer(@RequestBody TrainerDTO trainerDTO) {
+    public ResponseEntity<RegisterResponse> registerTrainer(@RequestBody TrainerDTO trainerDTO) {
         Trainer trainer = trainerService.registerTrainer(trainerDTO);
-        return new ResponseEntity<>(new RegisterResponseDTO(trainer.getUser().getUsername(), trainer.getUser().getPassword()), HttpStatus.CREATED);
+        return new ResponseEntity<>(new RegisterResponse(trainer.getUser().getUsername(), trainer.getUser().getPassword()), HttpStatus.CREATED);
     }
 
     // 3. Login
