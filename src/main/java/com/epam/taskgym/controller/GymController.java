@@ -82,7 +82,7 @@ public class GymController {
             @PathVariable String username,
             @RequestParam String password,
             @RequestBody TraineeDTO traineeDTO) {
-        Trainee trainee = traineeService.updateTrainee(traineeDTO, username, password);
+        Trainee trainee = traineeService.updateTrainee(traineeDTO, username);
         TraineeDTO traineeDTOResponse = Builders.convertTraineeToTraineeDTO(trainee);
         return new ResponseEntity<>(traineeDTOResponse, HttpStatus.OK);
     }
@@ -92,7 +92,7 @@ public class GymController {
     public ResponseEntity<String> deleteTraineeProfile(
             @PathVariable String username,
             @RequestParam String password) {
-        traineeService.deleteTrainee(username, password);
+        traineeService.deleteTrainee(username);
         return new ResponseEntity<>("Trainee profile deleted successfully", HttpStatus.OK);
     }
 
@@ -111,7 +111,7 @@ public class GymController {
             @PathVariable String username,
             @RequestParam String password,
             @RequestBody TrainerDTO trainerDTO) {
-        Trainer trainer = trainerService.updateTrainer(trainerDTO, username, password);
+        Trainer trainer = trainerService.updateTrainer(trainerDTO, username);
         TrainerDTO trainerDTOResponse = Builders.convertTrainerToTraineeDTO(trainer);
         return new ResponseEntity<>(trainerDTOResponse, HttpStatus.OK);
     }
@@ -129,7 +129,7 @@ public class GymController {
             @PathVariable String username,
             @RequestParam String password,
             @RequestBody List<String> trainerUsernames) {
-        List<TrainerListItem> updatedTrainersList = traineeService.updateTrainersList(username, password, trainerUsernames);
+        List<TrainerListItem> updatedTrainersList = traineeService.updateTrainersList(username, trainerUsernames);
         return new ResponseEntity<>(updatedTrainersList, HttpStatus.OK);
     }
 
@@ -164,7 +164,7 @@ public class GymController {
             @PathVariable String username,
             @RequestParam String password,
             @RequestParam boolean isActive) {
-        return new ResponseEntity<>(traineeService.ActivateDeactivateTrainee(username, password, isActive), HttpStatus.OK);
+        return new ResponseEntity<>(traineeService.ActivateDeactivateTrainee(username, isActive), HttpStatus.OK);
     }
 
     // 16. Activate/Deactivate Trainer
@@ -173,7 +173,7 @@ public class GymController {
             @PathVariable String username,
             @RequestParam String password,
             @RequestParam boolean isActive) {
-        return new ResponseEntity<>(trainerService.ActivateDeactivateTrainer(username, password, isActive), HttpStatus.OK);
+        return new ResponseEntity<>(trainerService.ActivateDeactivateTrainer(username, isActive), HttpStatus.OK);
     }
 
     // 17. Get Training Types

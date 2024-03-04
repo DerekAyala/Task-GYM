@@ -36,17 +36,6 @@ public class TrainerService {
         this.trainingRepository = trainingRepository;
     }
 
-    private void authenticateTrainer(String username, String password) {
-        User user = userService.authenticateUser(username, password);
-        Trainer trainer = getTrainerByUsername(username);
-        if (trainer.getUser().equals(user)) {
-            LOGGER.info("Trainer authenticated: {}", username);
-        } else {
-            LOGGER.error("Fail to authenticate: Trainer and user do not match");
-            throw new FailAuthenticateException("Fail to authenticate: Trainer and user do not match");
-        }
-    }
-
     public Trainer getTrainerByUsername(String username) {
         LOGGER.info("Finding trainer by username: {}", username);
         Optional<Trainer> trainer = trainerRepository.findByUserUsername(username);
@@ -77,8 +66,7 @@ public class TrainerService {
     }
 
     @Transactional
-    public Trainer updateTrainer(TrainerDTO trainerDTO, String username, String password) {
-        authenticateTrainer(username, password);
+    public Trainer updateTrainer(TrainerDTO trainerDTO, String username) {
         Validations.validateTrainerDetails(trainerDTO);
         Trainer trainer = getTrainerByUsername(username);
         System.out.println(trainer);
@@ -92,9 +80,8 @@ public class TrainerService {
     }
 
     @Transactional
-    public TrainerDTO ActivateDeactivateTrainer(String username, String password, boolean isActive) {
+    public TrainerDTO ActivateDeactivateTrainer(String username, boolean isActive) {
         LOGGER.info("Activating/Deactivating trainer: {}", username);
-        authenticateTrainer(username, password);
         Trainer trainer = getTrainerByUsername(username);
         User user = trainer.getUser();
         user.setIsActive(isActive);
