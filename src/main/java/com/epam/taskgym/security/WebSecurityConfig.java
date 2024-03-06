@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,17 +32,29 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors().disable()
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .formLogin().disable()
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("api/trainee").permitAll()
-                        .requestMatchers("api/user/login").permitAll()
-                        .requestMatchers("api/trainer").permitAll()
-                        .anyRequest().authenticated());
+                .cors((cors) -> cors.configurationSource(apiConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .formLogin(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests((authorize) -> {
+                            try {
+                                authorize
+                                        .requestMatchers("api/trainee").permitAll()
+                                        .requestMatchers("api/user/login").permitAll()
+                                        .requestMatchers("api/trainer").permitAll()
+                                        .anyRequest().authenticated()
+                                        .and()
+                                        .logout()
+                                        .logoutUrl("/api/user/logout")
+                                        .invalidateHttpSession(true)
+                                        .deleteCookies("JSESSIONID");
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                );
         return http.build();
     }
 
