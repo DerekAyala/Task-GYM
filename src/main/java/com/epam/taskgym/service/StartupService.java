@@ -9,6 +9,7 @@ import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
 import com.epam.taskgym.repository.TrainingTypeRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class StartupService {
 
     private final TrainingTypeRepository trainingTypeRepository;
@@ -26,17 +28,6 @@ public class StartupService {
     private final TrainerRepository trainerRepository;
     private final TrainingService trainingService;
     private final TrainingRepository trainingRepository;
-
-    public StartupService(TrainingTypeRepository trainingTypeRepository, TrainingTypeService trainingTypeService, TraineeService traineeService, TraineeRepository traineeRepository, TrainerService trainerService, TrainerRepository trainerRepository, TrainingService trainingService, TrainingRepository trainingRepository) {
-        this.trainingTypeRepository = trainingTypeRepository;
-        this.trainingTypeService = trainingTypeService;
-        this.traineeService = traineeService;
-        this.traineeRepository = traineeRepository;
-        this.trainerService = trainerService;
-        this.trainerRepository = trainerRepository;
-        this.trainingService = trainingService;
-        this.trainingRepository = trainingRepository;
-    }
 
     @PostConstruct
     public void init() {

@@ -9,7 +9,7 @@ import com.epam.taskgym.models.UserResponse;
 import com.epam.taskgym.repository.UserRepository;
 import com.epam.taskgym.exception.MissingAttributes;
 import jakarta.transaction.Transactional;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -18,14 +18,11 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     private Optional<User> findByUsername(String username) {
         LOGGER.info("Finding user by username: {}", username);

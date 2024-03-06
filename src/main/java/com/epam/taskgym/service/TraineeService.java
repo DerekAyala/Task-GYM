@@ -14,6 +14,7 @@ import com.epam.taskgym.repository.TraineeRepository;
 import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class TraineeService {
 
     private final TraineeRepository traineeRepository;
@@ -32,13 +34,6 @@ public class TraineeService {
     private final TrainingRepository trainingRepository;
     private final TrainerRepository trainerRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(TraineeService.class);
-
-    public TraineeService(TraineeRepository traineeRepository, UserService userService, TrainingRepository trainingRepository, TrainerRepository trainerRepository) {
-        this.traineeRepository = traineeRepository;
-        this.userService = userService;
-        this.trainingRepository = trainingRepository;
-        this.trainerRepository = trainerRepository;
-    }
 
     public Trainee getTraineeByUsername(String username) {
         LOGGER.info("Finding trainee by username: {}", username);

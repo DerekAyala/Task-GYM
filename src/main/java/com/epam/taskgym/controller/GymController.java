@@ -7,6 +7,7 @@ import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.service.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class GymController {
 
     private final TraineeService traineeService;
@@ -22,19 +24,6 @@ public class GymController {
     private final TrainingTypeService trainingTypeService;
     private final TrainingService trainingService;
     private final UserService userService;
-
-    public GymController(
-            TraineeService traineeService,
-            TrainerService trainerService,
-            TrainingTypeService trainingTypeService,
-            TrainingService trainingService,
-            UserService userService) {
-        this.traineeService = traineeService;
-        this.trainerService = trainerService;
-        this.trainingTypeService = trainingTypeService;
-        this.trainingService = trainingService;
-        this.userService = userService;
-    }
 
     // 1. Add a new trainee
     @PostMapping(value = "/trainee")

@@ -10,6 +10,7 @@ import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.helpers.Validations;
 import com.epam.taskgym.repository.TrainingRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,18 +18,13 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class TrainingService {
 
     private final TraineeService traineeService;
     private final TrainerService trainerService;
     private final TrainingRepository trainingRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainingService.class);
-
-    public TrainingService(TraineeService traineeService, TrainerService trainerService, TrainingRepository trainingRepository) {
-        this.traineeService = traineeService;
-        this.trainerService = trainerService;
-        this.trainingRepository = trainingRepository;
-    }
 
     @Transactional
     public TrainingDTO createTraining(TrainingDTO trainingDTO) {
@@ -43,7 +39,7 @@ public class TrainingService {
     }
 
     @Transactional
-    public void manyToManyTrainerAndTrainee(Trainee trainee, Trainer trainer){
+    public void manyToManyTrainerAndTrainee(Trainee trainee, Trainer trainer) {
         LOGGER.info("Creating many to many relationship between trainee: {} and trainer: {}", trainee.getUser().getUsername(), trainer.getUser().getUsername());
         List<Trainer> trainers = trainee.getTrainers();
         List<Trainee> trainees = trainer.getTrainees();

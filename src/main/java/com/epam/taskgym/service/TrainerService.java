@@ -12,6 +12,7 @@ import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
 import com.epam.taskgym.exception.NotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import java.util.Optional;
 
 
 @Service
+@RequiredArgsConstructor
 public class TrainerService {
 
     private final TrainerRepository trainerRepository;
@@ -29,13 +31,6 @@ public class TrainerService {
     private final TrainingTypeService trainingTypeService;
     private final TrainingRepository trainingRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainerService.class);
-
-    public TrainerService(TrainerRepository trainerRepository, UserService userService, TrainingTypeService trainingTypeService, TrainingRepository trainingRepository) {
-        this.trainerRepository = trainerRepository;
-        this.userService = userService;
-        this.trainingTypeService = trainingTypeService;
-        this.trainingRepository = trainingRepository;
-    }
 
     public Trainer getTrainerByUsername(String username) {
         LOGGER.info("Finding trainer by username: {}", username);
