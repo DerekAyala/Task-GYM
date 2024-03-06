@@ -10,6 +10,7 @@ import com.epam.taskgym.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class GymController {
     private final TrainingTypeService trainingTypeService;
     private final TrainingService trainingService;
     private final UserService userService;
+    private final AuthService authService;
 
     // 1. Add a new trainee
     @PostMapping(value = "/trainee")
@@ -39,10 +41,8 @@ public class GymController {
 
     // 3. Login
     @GetMapping(value = "/user/login")
-    public ResponseEntity<User> loginUser(
-            @RequestParam String username,
-            @RequestParam String password) {
-        return new ResponseEntity<>(userService.authenticateUser(username, password), HttpStatus.OK);
+    public ResponseEntity<LoginResponse> loginUser(@RequestBody @Validated LoginRequest loginRequest) {
+        return new ResponseEntity<>(authService.attemptLogin(loginRequest.getUsername(), loginRequest.getPassword()), HttpStatus.OK);
     }
 
     // 4. Update Password
