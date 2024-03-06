@@ -1,4 +1,4 @@
-package com.epam.taskgym;
+package com.epam.taskgym.helpers;
 
 import com.epam.taskgym.exception.BadRequestException;
 import com.epam.taskgym.exception.InvalidPasswordException;

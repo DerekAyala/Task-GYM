@@ -1,4 +1,4 @@
-package com.epam.taskgym;
+package com.epam.taskgym.services;
 
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.repository.TrainingTypeRepository;
