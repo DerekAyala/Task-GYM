@@ -8,7 +8,6 @@ import com.epam.taskgym.repository.TrainingRepository;
 import com.epam.taskgym.service.TraineeService;
 import com.epam.taskgym.service.TrainerService;
 import com.epam.taskgym.service.TrainingService;
-import com.epam.taskgym.service.TrainingTypeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,8 +33,6 @@ class TrainingServiceTest {
     private TraineeService traineeService;
     @Mock
     private TrainerService trainerService;
-    @Mock
-    private TrainingTypeService trainingTypeService;
 
     Trainee trainee;
     Trainer trainer;
