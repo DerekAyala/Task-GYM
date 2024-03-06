@@ -1,6 +1,6 @@
 package com.epam.taskgym.helpers;
 
-import com.epam.taskgym.dto.*;
+import com.epam.taskgym.models.*;
 import com.epam.taskgym.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,14 +1,13 @@
 package com.epam.taskgym.service;
 
-import com.epam.taskgym.dto.TrainerDTO;
-import com.epam.taskgym.dto.TrainerListItem;
+import com.epam.taskgym.models.TrainerDTO;
+import com.epam.taskgym.models.TrainerListItem;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.helpers.Validations;
 import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
-import com.epam.taskgym.exception.FailAuthenticateException;
 import com.epam.taskgym.exception.NotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;

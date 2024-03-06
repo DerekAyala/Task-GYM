@@ -1,7 +1,6 @@
 package com.epam.taskgym;
 
-import com.epam.taskgym.dto.TraineeDTO;
-import com.epam.taskgym.dto.TrainerListItem;
+import com.epam.taskgym.models.TraineeDTO;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
@@ -22,7 +21,6 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

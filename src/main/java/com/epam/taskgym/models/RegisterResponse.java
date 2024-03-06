@@ -1,4 +1,4 @@
-package com.epam.taskgym.dto;
+package com.epam.taskgym.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

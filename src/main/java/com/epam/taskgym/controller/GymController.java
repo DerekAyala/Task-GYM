@@ -1,6 +1,6 @@
 package com.epam.taskgym.controller;
 
-import com.epam.taskgym.dto.*;
+import com.epam.taskgym.models.*;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.TrainingType;

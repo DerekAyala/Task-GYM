@@ -1,8 +1,8 @@
 package com.epam.taskgym;
 
-import com.epam.taskgym.dto.TrainingDTO;
-import com.epam.taskgym.dto.TrainingFilteredDTO;
-import com.epam.taskgym.dto.TrainingResponse;
+import com.epam.taskgym.models.TrainingDTO;
+import com.epam.taskgym.models.TrainingFilteredDTO;
+import com.epam.taskgym.models.TrainingResponse;
 import com.epam.taskgym.entity.*;
 import com.epam.taskgym.repository.TrainingRepository;
 import com.epam.taskgym.service.TraineeService;
