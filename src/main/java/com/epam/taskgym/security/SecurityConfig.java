@@ -1,4 +1,4 @@
-package com.epam.taskgym.configuration;
+package com.epam.taskgym.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
