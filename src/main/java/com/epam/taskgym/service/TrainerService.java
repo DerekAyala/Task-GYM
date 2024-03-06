@@ -1,11 +1,13 @@
 package com.epam.taskgym.service;
 
+import com.epam.taskgym.models.RegisterResponse;
 import com.epam.taskgym.models.TrainerDTO;
 import com.epam.taskgym.models.TrainerListItem;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.helpers.Validations;
+import com.epam.taskgym.models.UserResponse;
 import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
 import com.epam.taskgym.exception.NotFoundException;
@@ -46,17 +48,17 @@ public class TrainerService {
     }
 
     @Transactional
-    public Trainer registerTrainer(TrainerDTO trainerDTO) {
+    public RegisterResponse registerTrainer(TrainerDTO trainerDTO) {
         Validations.validateTrainerDetails(trainerDTO);
-        User user = userService.createUser(trainerDTO.getFirstName(), trainerDTO.getLastName(), "ROLE_TRAINER");
+        UserResponse user = userService.createUser(trainerDTO.getFirstName(), trainerDTO.getLastName(), "ROLE_TRAINER");
         Trainer trainer = new Trainer();
-        trainer.setUser(user);
+        trainer.setUser(user.getUser());
         Validations.validateSpecialization(trainerDTO.getSpecialization());
         trainer.setSpecialization(trainingTypeService.getTrainingTypeByName(trainerDTO.getSpecialization()));
         trainer.setTrainees(new ArrayList<>());
         saveTrainer(trainer);
         LOGGER.info("Successfully registered trainer: {}", trainer.getUser().getUsername());
-        return trainer;
+        return new RegisterResponse(user.getUser().getUsername(), user.getPassword());
     }
 
     @Transactional

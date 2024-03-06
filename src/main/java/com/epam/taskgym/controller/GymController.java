@@ -39,15 +39,13 @@ public class GymController {
     // 1. Add a new trainee
     @PostMapping(value = "/trainee")
     public ResponseEntity<RegisterResponse> registerTrainee(@RequestBody TraineeDTO traineeDTO) {
-        Trainee trainee = traineeService.registerTrainee(traineeDTO);
-        return new ResponseEntity<>(new RegisterResponse(trainee.getUser().getUsername(), trainee.getUser().getPassword()), HttpStatus.CREATED);
+        return new ResponseEntity<>(traineeService.registerTrainee(traineeDTO), HttpStatus.CREATED);
     }
 
     // 2. Add a new trainer
     @PostMapping(value = "/trainer")
     public ResponseEntity<RegisterResponse> registerTrainer(@RequestBody TrainerDTO trainerDTO) {
-        Trainer trainer = trainerService.registerTrainer(trainerDTO);
-        return new ResponseEntity<>(new RegisterResponse(trainer.getUser().getUsername(), trainer.getUser().getPassword()), HttpStatus.CREATED);
+        return new ResponseEntity<>(trainerService.registerTrainer(trainerDTO), HttpStatus.CREATED);
     }
 
     // 3. Login
@@ -80,7 +78,6 @@ public class GymController {
     @PutMapping(value = "/trainees/{username}")
     public ResponseEntity<TraineeDTO> updateTraineeProfile(
             @PathVariable String username,
-            @RequestParam String password,
             @RequestBody TraineeDTO traineeDTO) {
         Trainee trainee = traineeService.updateTrainee(traineeDTO, username);
         TraineeDTO traineeDTOResponse = Builders.convertTraineeToTraineeDTO(trainee);
@@ -90,8 +87,7 @@ public class GymController {
     // 7. Delete Trainee Profile
     @DeleteMapping(value = "/trainees/{username}")
     public ResponseEntity<String> deleteTraineeProfile(
-            @PathVariable String username,
-            @RequestParam String password) {
+            @PathVariable String username) {
         traineeService.deleteTrainee(username);
         return new ResponseEntity<>("Trainee profile deleted successfully", HttpStatus.OK);
     }
@@ -109,7 +105,6 @@ public class GymController {
     @PutMapping(value = "/trainers/{username}")
     public ResponseEntity<TrainerDTO> updateTrainerProfile(
             @PathVariable String username,
-            @RequestParam String password,
             @RequestBody TrainerDTO trainerDTO) {
         Trainer trainer = trainerService.updateTrainer(trainerDTO, username);
         TrainerDTO trainerDTOResponse = Builders.convertTrainerToTraineeDTO(trainer);
@@ -127,7 +122,6 @@ public class GymController {
     @PutMapping(value = "/trainees/{username}/trainers")
     public ResponseEntity<List<TrainerListItem>> updateTraineeTrainers(
             @PathVariable String username,
-            @RequestParam String password,
             @RequestBody List<String> trainerUsernames) {
         List<TrainerListItem> updatedTrainersList = traineeService.updateTrainersList(username, trainerUsernames);
         return new ResponseEntity<>(updatedTrainersList, HttpStatus.OK);
@@ -162,7 +156,6 @@ public class GymController {
     @PatchMapping(value = "/trainees/{username}/status")
     public ResponseEntity<TraineeDTO> activateDeactivateTrainee(
             @PathVariable String username,
-            @RequestParam String password,
             @RequestParam boolean isActive) {
         return new ResponseEntity<>(traineeService.ActivateDeactivateTrainee(username, isActive), HttpStatus.OK);
     }
@@ -171,7 +164,6 @@ public class GymController {
     @PatchMapping(value = "/trainers/{username}/status")
     public ResponseEntity<TrainerDTO> activateDeactivateTrainer(
             @PathVariable String username,
-            @RequestParam String password,
             @RequestParam boolean isActive) {
         return new ResponseEntity<>(trainerService.ActivateDeactivateTrainer(username, isActive), HttpStatus.OK);
     }

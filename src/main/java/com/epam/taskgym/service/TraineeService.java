@@ -1,5 +1,6 @@
 package com.epam.taskgym.service;
 
+import com.epam.taskgym.models.RegisterResponse;
 import com.epam.taskgym.models.TraineeDTO;
 import com.epam.taskgym.models.TrainerListItem;
 import com.epam.taskgym.entity.Trainee;
@@ -8,6 +9,7 @@ import com.epam.taskgym.entity.User;
 import com.epam.taskgym.exception.*;
 import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.helpers.Validations;
+import com.epam.taskgym.models.UserResponse;
 import com.epam.taskgym.repository.TraineeRepository;
 import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
@@ -54,17 +56,17 @@ public class TraineeService {
     }
 
     @Transactional
-    public Trainee registerTrainee(TraineeDTO traineeDTO) {
+    public RegisterResponse registerTrainee(TraineeDTO traineeDTO) {
         Validations.validateTraineeDetails(traineeDTO);
-        User user = userService.createUser(traineeDTO.getFirstName(), traineeDTO.getLastName(), "ROLE_TRAINEE");
+        UserResponse user = userService.createUser(traineeDTO.getFirstName(), traineeDTO.getLastName(), "ROLE_TRAINEE");
         Trainee trainee = new Trainee();
-        trainee.setUser(user);
+        trainee.setUser(user.getUser());
         addDate(traineeDTO.getDateOfBirth(), trainee);
         trainee.setAddress((traineeDTO.getAddress() == null || traineeDTO.getAddress().isEmpty()) ? null : traineeDTO.getAddress());
         trainee.setTrainers(new ArrayList<>());
         saveTrainee(trainee);
         LOGGER.info("Trainee registered: {}", trainee.getUser().getUsername());
-        return trainee;
+        return new RegisterResponse(user.getUser().getUsername(), user.getPassword());
     }
 
     @Transactional

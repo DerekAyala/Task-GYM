@@ -5,6 +5,7 @@ import com.epam.taskgym.exception.FailAuthenticateException;
 import com.epam.taskgym.exception.NotFoundException;
 import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.helpers.Validations;
+import com.epam.taskgym.models.UserResponse;
 import com.epam.taskgym.repository.UserRepository;
 import com.epam.taskgym.exception.MissingAttributes;
 import jakarta.transaction.Transactional;
@@ -32,15 +33,15 @@ public class UserService {
     }
 
     @Transactional
-    public User createUser(String firstName, String lastName, String role) {
+    public UserResponse createUser(String firstName, String lastName, String role) {
         LOGGER.info("Creating user with: {}, {}", firstName, lastName);
         Validations.validateUserDetails(firstName, lastName);
         String username = generateUniqueUsername(firstName.toLowerCase(), lastName.toLowerCase());
-        String password = passwordEncoder.encode(Builders.generateRandomPassword());
-        User user = Builders.buildUser(firstName, lastName, username, password, role);
+        String password = Builders.generateRandomPassword();
+        User user = Builders.buildUser(firstName, lastName, username, passwordEncoder.encode(password), role);
         saveUser(user);
         LOGGER.info("Successfully created user: {}", user);
-        return user;
+        return new UserResponse(user,password);
     }
 
     @Transactional
