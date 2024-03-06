@@ -1,6 +1,6 @@
 package com.epam.taskgym.security;
 
-import com.epam.taskgym.service.UserService;
+import com.epam.taskgym.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,12 +13,12 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class CustomUserDetailService implements UserDetailsService {
-    private final UserService userService;
+    private final UserRepository userRepository;
 
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        var user = userService.findByUsername(username).orElseThrow();
+        var user = userRepository.findByUsername(username).orElseThrow();
         return UserPrincipal.builder()
                 .userId(user.getId())
                 .username(user.getUsername())

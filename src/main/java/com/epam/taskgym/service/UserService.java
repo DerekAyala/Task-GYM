@@ -24,7 +24,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
-    public Optional<User> findByUsername(String username) {
+    private Optional<User> findByUsername(String username) {
         LOGGER.info("Finding user by username: {}", username);
         return userRepository.findByUsername(username);
     }
