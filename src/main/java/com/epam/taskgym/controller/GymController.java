@@ -49,9 +49,8 @@ public class GymController {
     @PutMapping(value = "/user/{username}/password")
     public ResponseEntity<User> updatePassword(
             @PathVariable String username,
-            @RequestParam String oldPassword,
             @RequestParam String newPassword) {
-        return new ResponseEntity<>(userService.updatePassword(username, oldPassword, newPassword), HttpStatus.OK);
+        return new ResponseEntity<>(userService.updatePassword(username, newPassword), HttpStatus.OK);
     }
 
     // 5. Get Trainee Profile by Username

@@ -1,13 +1,11 @@
 package com.epam.taskgym.service;
 
 import com.epam.taskgym.entity.User;
-import com.epam.taskgym.exception.FailAuthenticateException;
 import com.epam.taskgym.exception.NotFoundException;
 import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.helpers.Validations;
 import com.epam.taskgym.models.UserResponse;
 import com.epam.taskgym.repository.UserRepository;
-import com.epam.taskgym.exception.MissingAttributes;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -67,29 +65,12 @@ public class UserService {
     }
 
     @Transactional
-    public User updatePassword(String username, String password, String newPassword) {
+    public User updatePassword(String username, String newPassword) {
         LOGGER.info("Updating password for user with username: {}", username);
-        User user = authenticateUser(username, password);
+        User user = findByUsername(username).orElseThrow(() -> new NotFoundException("User not found"));
         Validations.validatePassword(newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
         return saveUser(user);
-    }
-
-    public User authenticateUser(String username, String password) {
-        LOGGER.info("Authenticating user with username: {}", username);
-        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
-            LOGGER.error("Username and password are required");
-            throw new MissingAttributes("Username and password are required");
-        }
-        User user = findByUsername(username).orElseThrow(() -> {
-            LOGGER.error("User with username {} not found", username);
-            return new NotFoundException("User with username {" + username + "} not found");
-        });
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            LOGGER.error("Fail to authenticate: Password and username do not match");
-            throw new FailAuthenticateException("Fail to authenticate: Password and username do not match");
-        }
-        return user;
     }
 
     private String generateUniqueUsername(String firstName, String lastName) {
