@@ -30,6 +30,8 @@ public class User {
     @Column(name = "is_active", nullable=false)
     @NonNull
     private Boolean isActive;
+    @JsonIgnore
+    private String role;
 
     @Override
     public boolean equals(Object o) {

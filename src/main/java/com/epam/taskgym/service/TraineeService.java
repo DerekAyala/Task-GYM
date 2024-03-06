@@ -56,7 +56,7 @@ public class TraineeService {
     @Transactional
     public Trainee registerTrainee(TraineeDTO traineeDTO) {
         Validations.validateTraineeDetails(traineeDTO);
-        User user = userService.createUser(traineeDTO.getFirstName(), traineeDTO.getLastName());
+        User user = userService.createUser(traineeDTO.getFirstName(), traineeDTO.getLastName(), "ROLE_TRAINEE");
         Trainee trainee = new Trainee();
         trainee.setUser(user);
         addDate(traineeDTO.getDateOfBirth(), trainee);

@@ -49,7 +49,7 @@ public class TrainerService {
     @Transactional
     public Trainer registerTrainer(TrainerDTO trainerDTO) {
         Validations.validateTrainerDetails(trainerDTO);
-        User user = userService.createUser(trainerDTO.getFirstName(), trainerDTO.getLastName());
+        User user = userService.createUser(trainerDTO.getFirstName(), trainerDTO.getLastName(), "ROLE_TRAINER");
         Trainer trainer = new Trainer();
         trainer.setUser(user);
         Validations.validateSpecialization(trainerDTO.getSpecialization());

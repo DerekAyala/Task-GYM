@@ -44,7 +44,7 @@ class UserServiceTest {
     @Test
     void whenFirstNameIsEmpty_thenThrowsMissingAttributesException() {
         Exception exception = assertThrows(MissingAttributes.class, () -> {
-            userService.createUser("", "Smith");
+            userService.createUser("", "Smith", "ROLE");
         });
 
         String expectedMessage = "First name and last name are required.";
@@ -58,7 +58,7 @@ class UserServiceTest {
     @Test
     void whenLastNameIsNull_thenThrowsMissingAttributesException() {
         Exception exception = assertThrows(MissingAttributes.class, () -> {
-            userService.createUser("John", null);
+            userService.createUser("John", null, "ROLE");
         });
 
         String expectedMessage = "First name and last name are required";

@@ -32,12 +32,12 @@ public class UserService {
     }
 
     @Transactional
-    public User createUser(String firstName, String lastName) {
+    public User createUser(String firstName, String lastName, String role) {
         LOGGER.info("Creating user with: {}, {}", firstName, lastName);
         Validations.validateUserDetails(firstName, lastName);
         String username = generateUniqueUsername(firstName.toLowerCase(), lastName.toLowerCase());
         String password = passwordEncoder.encode(Builders.generateRandomPassword());
-        User user = Builders.buildUser(firstName, lastName, username, password);
+        User user = Builders.buildUser(firstName, lastName, username, password, role);
         saveUser(user);
         LOGGER.info("Successfully created user: {}", user);
         return user;
