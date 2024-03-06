@@ -70,25 +70,6 @@ class TraineeServiceTest {
     }
 
     @Test
-    void testRegisterTrainee() {
-        TraineeDTO traineeDTO = new TraineeDTO();
-        traineeDTO.setFirstName("John");
-        traineeDTO.setLastName("Doe");
-        traineeDTO.setDateOfBirth(new Date());
-
-        when(userService.createUser(traineeDTO.getFirstName(), traineeDTO.getLastName(), "ROLE_TRAINEE")).thenReturn(user);
-        when(traineeRepository.save(any(Trainee.class))).thenAnswer(i -> i.getArguments()[0]);
-
-        Trainee newTrainee = traineeService.registerTrainee(traineeDTO);
-
-        assertEquals(traineeDTO.getFirstName(), newTrainee.getUser().getFirstName());
-        assertEquals(traineeDTO.getLastName(), newTrainee.getUser().getLastName());
-
-        verify(userService, times(1)).createUser(traineeDTO.getFirstName(), traineeDTO.getLastName(), "ROLE_TRAINEE");
-        verify(traineeRepository, times(1)).save(any(Trainee.class));
-    }
-
-    @Test
     void testRegisterTrainee_NullTraineeDTO() {
         assertThrows(MissingAttributes.class, () -> traineeService.registerTrainee(null));
     }

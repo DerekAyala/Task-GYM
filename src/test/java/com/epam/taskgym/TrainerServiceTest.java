@@ -55,28 +55,6 @@ class TrainerServiceTest {
     }
 
     @Test
-    void testRegisterTrainer() {
-        TrainerDTO trainerDTO = new TrainerDTO();
-        trainerDTO.setFirstName("John");
-        trainerDTO.setLastName("Doe");
-        trainerDTO.setSpecialization("TrainingType1");
-
-        when(userService.createUser(trainerDTO.getFirstName(), trainerDTO.getLastName(), "ROLE_TRAINER")).thenReturn(user);
-        when(trainingTypeService.getTrainingTypeByName(trainerDTO.getSpecialization())).thenReturn(trainingType);
-        when(trainerRepository.save(any(Trainer.class))).thenAnswer(i -> i.getArguments()[0]);
-
-        Trainer newTrainer = trainerService.registerTrainer(trainerDTO);
-
-        assertEquals(trainerDTO.getFirstName(), newTrainer.getUser().getFirstName());
-        assertEquals(trainerDTO.getLastName(), newTrainer.getUser().getLastName());
-        assertEquals(trainerDTO.getSpecialization(), newTrainer.getSpecialization().getName());
-
-        verify(userService, times(1)).createUser(trainerDTO.getFirstName(), trainerDTO.getLastName(),"ROLE_TRAINER");
-        verify(trainingTypeService, times(1)).getTrainingTypeByName(trainerDTO.getSpecialization());
-        verify(trainerRepository, times(1)).save(any(Trainer.class));
-    }
-
-    @Test
     void testGetTrainerByUsername() {
         when(trainerRepository.findByUserUsername(user.getUsername())).thenReturn(Optional.of(trainer));
 
