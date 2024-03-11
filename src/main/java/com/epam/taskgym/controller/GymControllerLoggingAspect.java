@@ -1,10 +1,13 @@
 package com.epam.taskgym.controller;
 
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -14,15 +17,23 @@ import java.util.UUID;
 @Component
 public class GymControllerLoggingAspect {
 
-    private static final Logger transactionLogger = LoggerFactory.getLogger("TransactionLogger");
-    private static final Logger restCallLogger = LoggerFactory.getLogger("RestCallLogger");
+    private static final Logger LOGGER = LoggerFactory.getLogger(GymControllerLoggingAspect.class);
 
-    // Aspect for transaction level logging
-    @AfterReturning("execution(* com.epam.taskgym.controller.GymController.*(..))")
-    public void logTransaction(JoinPoint joinPoint) {
-        String methodName = joinPoint.getSignature().getName();
-        String transactionId = generateTransactionId(); // You need to implement this method
-        transactionLogger.info("Transaction ID: {}, Method: {}", transactionId, methodName);
+    //Aspect for transaction level logging
+    @Around("execution(* com.epam.taskgym.controller.GymController.*(..))")
+    public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
+        // Start the transaction
+        String transactionId = UUID.randomUUID().toString();
+        // Put transactionId into MDC
+        MDC.put("transactionId", transactionId);
+        try {
+            String methodName = joinPoint.getSignature().getName();
+            LOGGER.info("Starting method: {}", methodName);
+            return joinPoint.proceed();
+        } finally {
+            // At the end of the transaction, remove transactionId from MDC
+            MDC.remove("transactionId");
+        }
     }
 
     // Aspect for specific REST call details logging
@@ -32,11 +43,6 @@ public class GymControllerLoggingAspect {
         String requestDetails = Arrays.toString(joinPoint.getArgs());
         String responseDetails = result != null ? result.toString() : "No response";
 
-        restCallLogger.info("Method: {}, Request: {}, Response: {}", methodName, requestDetails, responseDetails);
-    }
-
-    // Method to generate transaction ID (you can use any logic you prefer)
-    private String generateTransactionId() {
-        return UUID.randomUUID().toString();
+        LOGGER.info("Method: {}, Request: {}, Response: {}", methodName, requestDetails, responseDetails);
     }
 }
