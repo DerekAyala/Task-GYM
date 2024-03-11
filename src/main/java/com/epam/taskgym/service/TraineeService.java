@@ -1,17 +1,20 @@
 package com.epam.taskgym.service;
 
-import com.epam.taskgym.dto.TraineeDTO;
-import com.epam.taskgym.dto.TrainerListItem;
+import com.epam.taskgym.models.RegisterResponse;
+import com.epam.taskgym.models.TraineeDTO;
+import com.epam.taskgym.models.TrainerListItem;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.exception.*;
 import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.helpers.Validations;
+import com.epam.taskgym.models.UserResponse;
 import com.epam.taskgym.repository.TraineeRepository;
 import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -23,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class TraineeService {
 
     private final TraineeRepository traineeRepository;
@@ -30,24 +34,6 @@ public class TraineeService {
     private final TrainingRepository trainingRepository;
     private final TrainerRepository trainerRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(TraineeService.class);
-
-    public TraineeService(TraineeRepository traineeRepository, UserService userService, TrainingRepository trainingRepository, TrainerRepository trainerRepository) {
-        this.traineeRepository = traineeRepository;
-        this.userService = userService;
-        this.trainingRepository = trainingRepository;
-        this.trainerRepository = trainerRepository;
-    }
-
-    private void authenticateTrainee(String username, String password) {
-        User user = userService.authenticateUser(username, password);
-        Trainee trainee = getTraineeByUsername(username);
-        if (trainee.getUser().equals(user)) {
-            LOGGER.info("Trainee authenticated: {}", username);
-        } else {
-            LOGGER.error("Fail to authenticate: Trainee and user do not match");
-            throw new FailAuthenticateException("Fail to authenticate: Trainee and user do not match");
-        }
-    }
 
     public Trainee getTraineeByUsername(String username) {
         LOGGER.info("Finding trainee by username: {}", username);
@@ -65,22 +51,21 @@ public class TraineeService {
     }
 
     @Transactional
-    public Trainee registerTrainee(TraineeDTO traineeDTO) {
+    public RegisterResponse registerTrainee(TraineeDTO traineeDTO) {
         Validations.validateTraineeDetails(traineeDTO);
-        User user = userService.createUser(traineeDTO.getFirstName(), traineeDTO.getLastName());
+        UserResponse user = userService.createUser(traineeDTO.getFirstName(), traineeDTO.getLastName(), "ROLE_TRAINEE");
         Trainee trainee = new Trainee();
-        trainee.setUser(user);
+        trainee.setUser(user.getUser());
         addDate(traineeDTO.getDateOfBirth(), trainee);
         trainee.setAddress((traineeDTO.getAddress() == null || traineeDTO.getAddress().isEmpty()) ? null : traineeDTO.getAddress());
         trainee.setTrainers(new ArrayList<>());
         saveTrainee(trainee);
         LOGGER.info("Trainee registered: {}", trainee.getUser().getUsername());
-        return trainee;
+        return new RegisterResponse(user.getUser().getUsername(), user.getPassword());
     }
 
     @Transactional
-    public Trainee updateTrainee(TraineeDTO traineeDTO, String username, String password) {
-        authenticateTrainee(username, password);
+    public Trainee updateTrainee(TraineeDTO traineeDTO, String username) {
         Validations.validateTraineeDetails(traineeDTO);
         Trainee trainee = getTraineeByUsername(username);
         User user = userService.updateUser(traineeDTO.getFirstName(), traineeDTO.getLastName(), trainee.getUser());
@@ -93,8 +78,7 @@ public class TraineeService {
     }
 
     @Transactional
-    public void deleteTrainee(String username, String password) {
-        authenticateTrainee(username, password);
+    public void deleteTrainee(String username) {
         Trainee trainee = getTraineeByUsername(username);
         LOGGER.info("Hard Deleting trainee with username: {}", username);
         try {
@@ -116,9 +100,8 @@ public class TraineeService {
     }
 
     @Transactional
-    public TraineeDTO ActivateDeactivateTrainee(String username, String password, boolean isActive) {
+    public TraineeDTO ActivateDeactivateTrainee(String username, boolean isActive) {
         LOGGER.info("Activating/Deactivating trainee: {}", username);
-        authenticateTrainee(username, password);
         Trainee trainee = getTraineeByUsername(username);
         User user = trainee.getUser();
         user.setIsActive(isActive);
@@ -129,9 +112,8 @@ public class TraineeService {
     }
 
     @Transactional
-    public List<TrainerListItem> updateTrainersList(String username, String password, List<String> trainersUsernames) {
+    public List<TrainerListItem> updateTrainersList(String username, List<String> trainersUsernames) {
         LOGGER.info("Updating trainers list for trainee: {}", username);
-        authenticateTrainee(username, password);
         LOGGER.info("Validating trainers list: {}", trainersUsernames);
         Validations.validateList(trainersUsernames);
         Trainee trainee = getTraineeByUsername(username);

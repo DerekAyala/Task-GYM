@@ -1,8 +1,8 @@
 package com.epam.taskgym.helpers;
 
-import com.epam.taskgym.dto.TraineeDTO;
-import com.epam.taskgym.dto.TrainerDTO;
-import com.epam.taskgym.dto.TrainingDTO;
+import com.epam.taskgym.models.TraineeDTO;
+import com.epam.taskgym.models.TrainerDTO;
+import com.epam.taskgym.models.TrainingDTO;
 import com.epam.taskgym.exception.BadRequestException;
 import com.epam.taskgym.exception.InvalidPasswordException;
 import com.epam.taskgym.exception.MissingAttributes;

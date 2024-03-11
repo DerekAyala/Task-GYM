@@ -3,9 +3,9 @@ package com.epam.taskgym.service;
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.helpers.Validations;
 import com.epam.taskgym.repository.TrainingTypeRepository;
-import com.epam.taskgym.exception.MissingAttributes;
 import com.epam.taskgym.exception.NotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,14 +14,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class TrainingTypeService {
 
     private final TrainingTypeRepository trainingTypeRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainingTypeService.class);
-
-    public TrainingTypeService(TrainingTypeRepository trainingTypeRepository) {
-        this.trainingTypeRepository = trainingTypeRepository;
-    }
 
     public List<TrainingType> getAllTrainingTypes() {
         return trainingTypeRepository.findAll();

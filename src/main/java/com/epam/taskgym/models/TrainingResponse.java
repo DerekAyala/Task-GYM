@@ -1,4 +1,4 @@
-package com.epam.taskgym.dto;
+package com.epam.taskgym.models;
 
 import com.epam.taskgym.entity.TrainingType;
 import lombok.Getter;

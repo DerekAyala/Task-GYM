@@ -1,5 +1,6 @@
 package com.epam.taskgym.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,10 +25,13 @@ public class User {
     private String username;
     @Column(name = "password", nullable=false)
     @NonNull
+    @JsonIgnore
     private String password;
     @Column(name = "is_active", nullable=false)
     @NonNull
     private Boolean isActive;
+    @JsonIgnore
+    private String role;
 
     @Override
     public boolean equals(Object o) {

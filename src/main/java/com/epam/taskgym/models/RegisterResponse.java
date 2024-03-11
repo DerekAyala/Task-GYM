@@ -1,4 +1,4 @@
-package com.epam.taskgym.dto;
+package com.epam.taskgym.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @AllArgsConstructor
-public class RegisterResponseDTO {
+public class RegisterResponse {
     private String username;
     private String password;
 }

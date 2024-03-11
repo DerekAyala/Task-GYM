@@ -1,6 +1,6 @@
 package com.epam.taskgym.helpers;
 
-import com.epam.taskgym.dto.*;
+import com.epam.taskgym.models.*;
 import com.epam.taskgym.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,13 +12,14 @@ import java.util.Random;
 
 public class Builders {
     private static final Logger LOGGER = LoggerFactory.getLogger(Builders.class);
-    public static User buildUser(String firstName, String lastName, String username, String password) {
+    public static User buildUser(String firstName, String lastName, String username, String password, String role) {
         User user = new User();
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setUsername(username);
         user.setPassword(password);
         user.setIsActive(true);
+        user.setRole(role);
         LOGGER.info("User successfully built: {}", username);
         return user;
     }

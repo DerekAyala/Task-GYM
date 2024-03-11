@@ -1,16 +1,18 @@
 package com.epam.taskgym.service;
 
-import com.epam.taskgym.dto.TrainerDTO;
-import com.epam.taskgym.dto.TrainerListItem;
+import com.epam.taskgym.models.RegisterResponse;
+import com.epam.taskgym.models.TrainerDTO;
+import com.epam.taskgym.models.TrainerListItem;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.helpers.Validations;
+import com.epam.taskgym.models.UserResponse;
 import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
-import com.epam.taskgym.exception.FailAuthenticateException;
 import com.epam.taskgym.exception.NotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ import java.util.Optional;
 
 
 @Service
+@RequiredArgsConstructor
 public class TrainerService {
 
     private final TrainerRepository trainerRepository;
@@ -28,24 +31,6 @@ public class TrainerService {
     private final TrainingTypeService trainingTypeService;
     private final TrainingRepository trainingRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainerService.class);
-
-    public TrainerService(TrainerRepository trainerRepository, UserService userService, TrainingTypeService trainingTypeService, TrainingRepository trainingRepository) {
-        this.trainerRepository = trainerRepository;
-        this.userService = userService;
-        this.trainingTypeService = trainingTypeService;
-        this.trainingRepository = trainingRepository;
-    }
-
-    private void authenticateTrainer(String username, String password) {
-        User user = userService.authenticateUser(username, password);
-        Trainer trainer = getTrainerByUsername(username);
-        if (trainer.getUser().equals(user)) {
-            LOGGER.info("Trainer authenticated: {}", username);
-        } else {
-            LOGGER.error("Fail to authenticate: Trainer and user do not match");
-            throw new FailAuthenticateException("Fail to authenticate: Trainer and user do not match");
-        }
-    }
 
     public Trainer getTrainerByUsername(String username) {
         LOGGER.info("Finding trainer by username: {}", username);
@@ -58,17 +43,17 @@ public class TrainerService {
     }
 
     @Transactional
-    public Trainer registerTrainer(TrainerDTO trainerDTO) {
+    public RegisterResponse registerTrainer(TrainerDTO trainerDTO) {
         Validations.validateTrainerDetails(trainerDTO);
-        User user = userService.createUser(trainerDTO.getFirstName(), trainerDTO.getLastName());
+        UserResponse user = userService.createUser(trainerDTO.getFirstName(), trainerDTO.getLastName(), "ROLE_TRAINER");
         Trainer trainer = new Trainer();
-        trainer.setUser(user);
+        trainer.setUser(user.getUser());
         Validations.validateSpecialization(trainerDTO.getSpecialization());
         trainer.setSpecialization(trainingTypeService.getTrainingTypeByName(trainerDTO.getSpecialization()));
         trainer.setTrainees(new ArrayList<>());
         saveTrainer(trainer);
         LOGGER.info("Successfully registered trainer: {}", trainer.getUser().getUsername());
-        return trainer;
+        return new RegisterResponse(user.getUser().getUsername(), user.getPassword());
     }
 
     @Transactional
@@ -77,8 +62,7 @@ public class TrainerService {
     }
 
     @Transactional
-    public Trainer updateTrainer(TrainerDTO trainerDTO, String username, String password) {
-        authenticateTrainer(username, password);
+    public Trainer updateTrainer(TrainerDTO trainerDTO, String username) {
         Validations.validateTrainerDetails(trainerDTO);
         Trainer trainer = getTrainerByUsername(username);
         System.out.println(trainer);
@@ -92,9 +76,8 @@ public class TrainerService {
     }
 
     @Transactional
-    public TrainerDTO ActivateDeactivateTrainer(String username, String password, boolean isActive) {
+    public TrainerDTO ActivateDeactivateTrainer(String username, boolean isActive) {
         LOGGER.info("Activating/Deactivating trainer: {}", username);
-        authenticateTrainer(username, password);
         Trainer trainer = getTrainerByUsername(username);
         User user = trainer.getUser();
         user.setIsActive(isActive);

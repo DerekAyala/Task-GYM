@@ -1,13 +1,14 @@
 package com.epam.taskgym.service;
 
 import com.epam.taskgym.entity.User;
-import com.epam.taskgym.exception.FailAuthenticateException;
 import com.epam.taskgym.exception.NotFoundException;
 import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.helpers.Validations;
+import com.epam.taskgym.models.UserResponse;
 import com.epam.taskgym.repository.UserRepository;
-import com.epam.taskgym.exception.MissingAttributes;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,12 +16,11 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     private Optional<User> findByUsername(String username) {
         LOGGER.info("Finding user by username: {}", username);
@@ -28,15 +28,15 @@ public class UserService {
     }
 
     @Transactional
-    public User createUser(String firstName, String lastName) {
+    public UserResponse createUser(String firstName, String lastName, String role) {
         LOGGER.info("Creating user with: {}, {}", firstName, lastName);
         Validations.validateUserDetails(firstName, lastName);
         String username = generateUniqueUsername(firstName.toLowerCase(), lastName.toLowerCase());
         String password = Builders.generateRandomPassword();
-        User user = Builders.buildUser(firstName, lastName, username, password);
+        User user = Builders.buildUser(firstName, lastName, username, passwordEncoder.encode(password), role);
         saveUser(user);
         LOGGER.info("Successfully created user: {}", user);
-        return user;
+        return new UserResponse(user,password);
     }
 
     @Transactional
@@ -65,29 +65,12 @@ public class UserService {
     }
 
     @Transactional
-    public User updatePassword(String username, String password, String newPassword) {
+    public User updatePassword(String username, String newPassword) {
         LOGGER.info("Updating password for user with username: {}", username);
-        User user = authenticateUser(username, password);
+        User user = findByUsername(username).orElseThrow(() -> new NotFoundException("User not found"));
         Validations.validatePassword(newPassword);
-        user.setPassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
         return saveUser(user);
-    }
-
-    public User authenticateUser(String username, String password) {
-        LOGGER.info("Authenticating user with username: {}", username);
-        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
-            LOGGER.error("Username and password are required");
-            throw new MissingAttributes("Username and password are required");
-        }
-        User user = findByUsername(username).orElseThrow(() -> {
-            LOGGER.error("User with username {} not found", username);
-            return new NotFoundException("User with username {" + username + "} not found");
-        });
-        if (!user.getPassword().equals(password)) {
-            LOGGER.error("Fail to authenticate: Password and username do not match");
-            throw new FailAuthenticateException("Fail to authenticate: Password and username do not match");
-        }
-        return user;
     }
 
     private String generateUniqueUsername(String firstName, String lastName) {

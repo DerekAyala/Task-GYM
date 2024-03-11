@@ -1,20 +1,23 @@
 package com.epam.taskgym.controller;
 
-import com.epam.taskgym.dto.*;
+import com.epam.taskgym.models.*;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.service.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class GymController {
 
     private final TraineeService traineeService;
@@ -22,49 +25,32 @@ public class GymController {
     private final TrainingTypeService trainingTypeService;
     private final TrainingService trainingService;
     private final UserService userService;
-
-    public GymController(
-            TraineeService traineeService,
-            TrainerService trainerService,
-            TrainingTypeService trainingTypeService,
-            TrainingService trainingService,
-            UserService userService) {
-        this.traineeService = traineeService;
-        this.trainerService = trainerService;
-        this.trainingTypeService = trainingTypeService;
-        this.trainingService = trainingService;
-        this.userService = userService;
-    }
+    private final AuthService authService;
 
     // 1. Add a new trainee
     @PostMapping(value = "/trainee")
-    public ResponseEntity<RegisterResponseDTO> registerTrainee(@RequestBody TraineeDTO traineeDTO) {
-        Trainee trainee = traineeService.registerTrainee(traineeDTO);
-        return new ResponseEntity<>(new RegisterResponseDTO(trainee.getUser().getUsername(), trainee.getUser().getPassword()), HttpStatus.CREATED);
+    public ResponseEntity<RegisterResponse> registerTrainee(@RequestBody TraineeDTO traineeDTO) {
+        return new ResponseEntity<>(traineeService.registerTrainee(traineeDTO), HttpStatus.CREATED);
     }
 
     // 2. Add a new trainer
     @PostMapping(value = "/trainer")
-    public ResponseEntity<RegisterResponseDTO> registerTrainer(@RequestBody TrainerDTO trainerDTO) {
-        Trainer trainer = trainerService.registerTrainer(trainerDTO);
-        return new ResponseEntity<>(new RegisterResponseDTO(trainer.getUser().getUsername(), trainer.getUser().getPassword()), HttpStatus.CREATED);
+    public ResponseEntity<RegisterResponse> registerTrainer(@RequestBody TrainerDTO trainerDTO) {
+        return new ResponseEntity<>(trainerService.registerTrainer(trainerDTO), HttpStatus.CREATED);
     }
 
     // 3. Login
     @GetMapping(value = "/user/login")
-    public ResponseEntity<User> loginUser(
-            @RequestParam String username,
-            @RequestParam String password) {
-        return new ResponseEntity<>(userService.authenticateUser(username, password), HttpStatus.OK);
+    public ResponseEntity<LoginResponse> loginUser(@RequestBody @Validated LoginRequest loginRequest) {
+        return new ResponseEntity<>(authService.attemptLogin(loginRequest.getUsername(), loginRequest.getPassword()), HttpStatus.OK);
     }
 
     // 4. Update Password
     @PutMapping(value = "/user/{username}/password")
     public ResponseEntity<User> updatePassword(
             @PathVariable String username,
-            @RequestParam String oldPassword,
             @RequestParam String newPassword) {
-        return new ResponseEntity<>(userService.updatePassword(username, oldPassword, newPassword), HttpStatus.OK);
+        return new ResponseEntity<>(userService.updatePassword(username, newPassword), HttpStatus.OK);
     }
 
     // 5. Get Trainee Profile by Username
@@ -80,9 +66,8 @@ public class GymController {
     @PutMapping(value = "/trainees/{username}")
     public ResponseEntity<TraineeDTO> updateTraineeProfile(
             @PathVariable String username,
-            @RequestParam String password,
             @RequestBody TraineeDTO traineeDTO) {
-        Trainee trainee = traineeService.updateTrainee(traineeDTO, username, password);
+        Trainee trainee = traineeService.updateTrainee(traineeDTO, username);
         TraineeDTO traineeDTOResponse = Builders.convertTraineeToTraineeDTO(trainee);
         return new ResponseEntity<>(traineeDTOResponse, HttpStatus.OK);
     }
@@ -90,9 +75,8 @@ public class GymController {
     // 7. Delete Trainee Profile
     @DeleteMapping(value = "/trainees/{username}")
     public ResponseEntity<String> deleteTraineeProfile(
-            @PathVariable String username,
-            @RequestParam String password) {
-        traineeService.deleteTrainee(username, password);
+            @PathVariable String username) {
+        traineeService.deleteTrainee(username);
         return new ResponseEntity<>("Trainee profile deleted successfully", HttpStatus.OK);
     }
 
@@ -109,9 +93,8 @@ public class GymController {
     @PutMapping(value = "/trainers/{username}")
     public ResponseEntity<TrainerDTO> updateTrainerProfile(
             @PathVariable String username,
-            @RequestParam String password,
             @RequestBody TrainerDTO trainerDTO) {
-        Trainer trainer = trainerService.updateTrainer(trainerDTO, username, password);
+        Trainer trainer = trainerService.updateTrainer(trainerDTO, username);
         TrainerDTO trainerDTOResponse = Builders.convertTrainerToTraineeDTO(trainer);
         return new ResponseEntity<>(trainerDTOResponse, HttpStatus.OK);
     }
@@ -127,9 +110,8 @@ public class GymController {
     @PutMapping(value = "/trainees/{username}/trainers")
     public ResponseEntity<List<TrainerListItem>> updateTraineeTrainers(
             @PathVariable String username,
-            @RequestParam String password,
             @RequestBody List<String> trainerUsernames) {
-        List<TrainerListItem> updatedTrainersList = traineeService.updateTrainersList(username, password, trainerUsernames);
+        List<TrainerListItem> updatedTrainersList = traineeService.updateTrainersList(username, trainerUsernames);
         return new ResponseEntity<>(updatedTrainersList, HttpStatus.OK);
     }
 
@@ -162,18 +144,16 @@ public class GymController {
     @PatchMapping(value = "/trainees/{username}/status")
     public ResponseEntity<TraineeDTO> activateDeactivateTrainee(
             @PathVariable String username,
-            @RequestParam String password,
             @RequestParam boolean isActive) {
-        return new ResponseEntity<>(traineeService.ActivateDeactivateTrainee(username, password, isActive), HttpStatus.OK);
+        return new ResponseEntity<>(traineeService.ActivateDeactivateTrainee(username, isActive), HttpStatus.OK);
     }
 
     // 16. Activate/Deactivate Trainer
     @PatchMapping(value = "/trainers/{username}/status")
     public ResponseEntity<TrainerDTO> activateDeactivateTrainer(
             @PathVariable String username,
-            @RequestParam String password,
             @RequestParam boolean isActive) {
-        return new ResponseEntity<>(trainerService.ActivateDeactivateTrainer(username, password, isActive), HttpStatus.OK);
+        return new ResponseEntity<>(trainerService.ActivateDeactivateTrainer(username, isActive), HttpStatus.OK);
     }
 
     // 17. Get Training Types
