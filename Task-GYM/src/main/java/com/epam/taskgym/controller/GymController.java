@@ -7,7 +7,9 @@ import com.epam.taskgym.entity.TrainingType;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.service.*;
+import com.netflix.discovery.EurekaClient;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,6 +28,8 @@ public class GymController {
     private final TrainingService trainingService;
     private final UserService userService;
     private final AuthService authService;
+    @Lazy
+    private final EurekaClient eurekaClient;
 
     // 1. Add a new trainee
     @PostMapping(value = "/trainee")
