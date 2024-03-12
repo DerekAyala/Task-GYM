@@ -9,7 +9,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-public class TrainingHours {
+public class TrainingWork {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
