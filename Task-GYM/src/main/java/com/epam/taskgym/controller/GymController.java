@@ -1,10 +1,7 @@
 package com.epam.taskgym.controller;
 
+import com.epam.taskgym.entity.*;
 import com.epam.taskgym.models.*;
-import com.epam.taskgym.entity.Trainee;
-import com.epam.taskgym.entity.Trainer;
-import com.epam.taskgym.entity.TrainingType;
-import com.epam.taskgym.entity.User;
 import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.service.*;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +23,7 @@ public class GymController {
     private final TrainingService trainingService;
     private final UserService userService;
     private final AuthService authService;
+    private final microserviceClient microserviceClient;
 
     // 1. Add a new trainee
     @PostMapping(value = "/trainee")
@@ -137,7 +135,19 @@ public class GymController {
     @PostMapping(value = "/training")
     public ResponseEntity<TrainingDTO> addTraining(
             @RequestBody TrainingDTO trainingDTO) {
-        return new ResponseEntity<>(trainingService.createTraining(trainingDTO), HttpStatus.CREATED);
+        TrainingDTO trainingDTOResponse = trainingService.createTraining(trainingDTO);
+        Trainer trainer = trainerService.getTrainerByUsername(trainingDTO.getTrainerUsername());
+        TrainingRequest trainingRequest = TrainingRequest.builder()
+                .username(trainingDTO.getTrainerUsername())
+                .firstName(trainer.getUser().getFirstName())
+                .lastName(trainer.getUser().getLastName())
+                .isActive(trainer.getUser().getIsActive())
+                .date(trainingDTO.getDate())
+                .duration(trainingDTO.getDuration())
+                .action("ADD")
+                .build();
+        microserviceClient.actionTraining(trainingRequest);
+        return new ResponseEntity<>(trainingDTOResponse, HttpStatus.CREATED);
     }
 
     // 15. Activate/Deactivate Trainee
