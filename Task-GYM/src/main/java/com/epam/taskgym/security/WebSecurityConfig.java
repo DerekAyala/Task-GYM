@@ -44,7 +44,7 @@ public class WebSecurityConfig {
                                         .requestMatchers("api/trainee").permitAll()
                                         .requestMatchers("api/user/login").permitAll()
                                         .requestMatchers("api/trainer").permitAll()
-                                        .anyRequest().authenticated()
+                                        .anyRequest().permitAll()
                                         .and()
                                         .logout()
                                         .logoutUrl("/api/user/logout")
