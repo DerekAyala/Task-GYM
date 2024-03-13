@@ -10,6 +10,8 @@ import com.epam.microservice.repository.TrainingWorkRepository;
 import com.epam.microservice.repository.TrainingYearsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +24,8 @@ public class TrainingWorkService {
     private final TrainingWorkRepository trainingWorkRepository;
     private final TrainingYearsRepository trainingYearsRepository;
     private final TrainingMonthRepository trainingMonthRepository;
+
+    private final Logger LOGGER = LoggerFactory.getLogger(TrainingWorkService.class);
 
     public void acceptTrainerWork(TrainingRequest trainingRequest) {
         validateTrainingRequest(trainingRequest);
@@ -61,12 +65,14 @@ public class TrainingWorkService {
         trainingWork.setUsername(trainingRequest.getUsername());
         trainingWork.setYears(List.of(createTrainingYears(trainingRequest)));
         trainingWorkRepository.save(trainingWork);
+        LOGGER.info("Successfully created training work: {}", trainingWork);
     }
 
     private void updateTrainingWork(TrainingRequest trainingRequest) {
         TrainingWork trainingWork = trainingWorkRepository.findByUsername(trainingRequest.getUsername()).get();
         trainingWork.setYears(updateTrainingYears(trainingWork, trainingRequest));
         trainingWorkRepository.save(trainingWork);
+        LOGGER.info("Successfully updated training work: {}", trainingWork);
     }
 
     private TrainingYears createTrainingYears(TrainingRequest trainingRequest) {
