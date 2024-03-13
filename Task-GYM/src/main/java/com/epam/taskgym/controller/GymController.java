@@ -23,7 +23,6 @@ public class GymController {
     private final TrainingService trainingService;
     private final UserService userService;
     private final AuthService authService;
-    private final MicroserviceClient microserviceClient;
 
     // 1. Add a new trainee
     @PostMapping(value = "/trainee")
@@ -136,17 +135,6 @@ public class GymController {
     public ResponseEntity<TrainingDTO> addTraining(
             @RequestBody TrainingDTO trainingDTO) {
         TrainingDTO trainingDTOResponse = trainingService.createTraining(trainingDTO);
-        Trainer trainer = trainerService.getTrainerByUsername(trainingDTO.getTrainerUsername());
-        TrainingRequest trainingRequest = TrainingRequest.builder()
-                .username(trainingDTO.getTrainerUsername())
-                .firstName(trainer.getUser().getFirstName())
-                .lastName(trainer.getUser().getLastName())
-                .isActive(trainer.getUser().getIsActive())
-                .date(trainingDTO.getDate())
-                .duration(trainingDTO.getDuration())
-                .action("ADD")
-                .build();
-        microserviceClient.actionTraining(trainingRequest);
         return new ResponseEntity<>(trainingDTOResponse, HttpStatus.CREATED);
     }
 
