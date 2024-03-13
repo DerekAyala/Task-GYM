@@ -40,8 +40,8 @@ public class TrainingService {
         LOGGER.info("Successfully created training: {}", training);
         TrainingRequest trainingRequest = TrainingRequest.builder()
                 .username(trainer.getUser().getUsername())
-                .firstName(trainee.getUser().getFirstName())
-                .lastName(trainee.getUser().getLastName())
+                .firstName(trainer.getUser().getFirstName())
+                .lastName(trainer.getUser().getLastName())
                 .isActive(trainer.getUser().getIsActive())
                 .date(training.getDate())
                 .duration(training.getDuration())
