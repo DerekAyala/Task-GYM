@@ -23,7 +23,7 @@ public class GymController {
     private final TrainingService trainingService;
     private final UserService userService;
     private final AuthService authService;
-    private final microserviceClient microserviceClient;
+    private final MicroserviceClient microserviceClient;
 
     // 1. Add a new trainee
     @PostMapping(value = "/trainee")

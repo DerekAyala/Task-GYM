@@ -5,8 +5,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "MICROSERVICE")
-public interface microserviceClient {
+@FeignClient(name = "MICROSERVICE", fallback = MicroserviceFallback.class)
+public interface MicroserviceClient {
 
     @PostMapping("/Workloads")
     void actionTraining(@RequestBody TrainingRequest trainingRequest);
