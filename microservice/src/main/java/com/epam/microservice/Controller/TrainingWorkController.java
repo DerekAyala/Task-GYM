@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/Workloads")
 @RequiredArgsConstructor
 public class TrainingWorkController {
     private final TrainingWorkService trainingWorkService;
 
-    @PostMapping(value = "/training")
-    public ResponseEntity<String> addTraining(@RequestBody TrainingRequest trainingRequest) {
-        trainingWorkService.addTrainingWork(trainingRequest);
+    @PostMapping
+    public ResponseEntity<String> actionTraining(@RequestBody TrainingRequest trainingRequest) {
+        trainingWorkService.acceptTrainerWork(trainingRequest);
         return new ResponseEntity<>(trainingRequest.getAction() + "Action Completed successfully", HttpStatus.OK);
     }
 }
