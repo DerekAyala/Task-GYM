@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface TrainingRepository extends JpaRepository<Training, Long> {
     Optional<Training> findByTrainee_User_UsernameAndTrainer_User_UsernameAndDate(String traineeUsername, String trainerUsername, Date date);
 
-    void deleteAllByTrainee_User_Username(String username);
+    List<Training> findAllByTrainee_User_Username(String username);
 
     @Query("SELECT DISTINCT t.trainer FROM Training t WHERE t.trainee.user.username = :username")
     List<Trainer> findAllTrainersByTraineeUsername(@Param("username") String username);

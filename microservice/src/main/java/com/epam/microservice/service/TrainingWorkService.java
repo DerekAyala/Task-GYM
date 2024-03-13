@@ -53,14 +53,48 @@ public class TrainingWorkService {
     }
 
     public void deleteTrainingWork(TrainingRequest trainingRequest) {
+        LOGGER.info("Deleting training work");
         validateTrainingRequestForDelete(trainingRequest);
-        Optional<TrainingWork> OPtrainingWork = trainingWorkRepository.findByUsername(trainingRequest.getUsername());
-        if(OPtrainingWork.isEmpty()) {
+        Optional<TrainingWork> OptionalTrainingWork = trainingWorkRepository.findByUsername(trainingRequest.getUsername());
+        if(OptionalTrainingWork.isEmpty()) {
             throw new NotFoundException("Training work not found");
         }
-        TrainingWork trainingWork = OPtrainingWork.get();
-        deleteTrainingYears(trainingWork.getYears());
-        trainingWorkRepository.delete(trainingWork);
+        TrainingWork trainingWork = OptionalTrainingWork.get();
+        List<TrainingYears> trainingYears = trainingWork.getYears();
+        for (TrainingYears year : trainingYears) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(trainingRequest.getDate());
+            if (year.getYearNumber().equals(String.valueOf(calendar.get(Calendar.YEAR)))) {
+                List<TrainingMonth> trainingMonths = year.getMonths();
+                for (TrainingMonth month : trainingMonths) {
+                    if (month.getMonthName().equals(String.valueOf(calendar.get(Calendar.MONTH)))) {
+                        int result = month.getHours() - trainingRequest.getDuration();
+                        if (result == 0){
+                            trainingMonths.remove(month);
+                            trainingMonthRepository.delete(month);
+                        } else {
+                            month.setHours(result);
+                            trainingMonthRepository.save(month);
+                        }
+                        break;
+                    }
+                }
+                if (trainingMonths.isEmpty()) {
+                    trainingYears.remove(year);
+                    trainingYearsRepository.delete(year);
+                } else {
+                    year.setMonths(trainingMonths);
+                    trainingYearsRepository.save(year);
+                }
+                break;
+            }
+        }
+        if (trainingYears.isEmpty()) {
+            trainingWorkRepository.delete(trainingWork);
+        } else {
+            trainingWork.setYears(trainingYears);
+            trainingWorkRepository.save(trainingWork);
+        }
     }
 
     private void createTrainingWork(TrainingRequest trainingRequest) {
@@ -110,13 +144,6 @@ public class TrainingWorkService {
         return trainingYears;
     }
 
-    private void deleteTrainingYears(List<TrainingYears> trainingYears) {
-        for (TrainingYears year : trainingYears) {
-            deleteTrainingMonth(year.getMonths());
-        }
-        trainingYearsRepository.deleteAll(trainingYears);
-    }
-
     private TrainingMonth createTrainingMonth(TrainingRequest trainingRequest) {
         TrainingMonth trainingMonth = new TrainingMonth();
         Calendar calendar = Calendar.getInstance();
@@ -144,9 +171,5 @@ public class TrainingWorkService {
             trainingMonths.add(createTrainingMonth(trainingRequest));
         }
         return trainingMonths;
-    }
-
-    private void deleteTrainingMonth(List<TrainingMonth> trainingMonths) {
-        trainingMonthRepository.deleteAll(trainingMonths);
     }
 }

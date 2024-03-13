@@ -1,15 +1,14 @@
 package com.epam.taskgym.service;
 
-import com.epam.taskgym.models.RegisterResponse;
-import com.epam.taskgym.models.TraineeDTO;
-import com.epam.taskgym.models.TrainerListItem;
+import com.epam.taskgym.client.MicroserviceClient;
+import com.epam.taskgym.entity.Training;
+import com.epam.taskgym.models.*;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.exception.*;
 import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.helpers.Validations;
-import com.epam.taskgym.models.UserResponse;
 import com.epam.taskgym.repository.TraineeRepository;
 import com.epam.taskgym.repository.TrainerRepository;
 import com.epam.taskgym.repository.TrainingRepository;
@@ -33,6 +32,7 @@ public class TraineeService {
     private final UserService userService;
     private final TrainingRepository trainingRepository;
     private final TrainerRepository trainerRepository;
+    private final MicroserviceClient microserviceClient;
     private static final Logger LOGGER = LoggerFactory.getLogger(TraineeService.class);
 
     public Trainee getTraineeByUsername(String username) {
@@ -87,7 +87,20 @@ public class TraineeService {
                 trainer.getTrainees().remove(trainee);
                 trainerRepository.save(trainer);
             });
-            trainingRepository.deleteAllByTrainee_User_Username(username);
+            List<Training> trainings = trainingRepository.findAllByTrainee_User_Username(username);
+            trainings.forEach(training -> {
+                TrainingRequest trainingRequest = TrainingRequest.builder()
+                        .username(training.getTrainer().getUser().getUsername())
+                        .firstName(training.getTrainer().getUser().getFirstName())
+                        .lastName(training.getTrainer().getUser().getLastName())
+                        .isActive(training.getTrainer().getUser().getIsActive())
+                        .date(training.getDate())
+                        .duration(training.getDuration())
+                        .action("delete")
+                        .build();
+                microserviceClient.actionTraining(trainingRequest);
+            });
+            trainingRepository.deleteAll(trainings);
             LOGGER.info("Trainings deleted for trainee with username: {}", username);
             User user = trainee.getUser();
             traineeRepository.delete(trainee);
