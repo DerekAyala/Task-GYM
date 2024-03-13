@@ -14,5 +14,5 @@ public class TrainingRequest {
     private Boolean isActive;
     private Date date;
     private Integer duration;
-    private Action action;
+    private String action;
 }
