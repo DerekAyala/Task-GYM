@@ -18,5 +18,5 @@ public class TrainingWork {
     private String lastName;
     private Boolean status;
     @OneToMany
-    private List<TrainingYears> trainingSumary;
+    private List<TrainingYears> years;
 }

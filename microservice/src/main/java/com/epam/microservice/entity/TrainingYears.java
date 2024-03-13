@@ -15,5 +15,5 @@ public class TrainingYears {
     private Long id;
     private String year;
     @OneToMany
-    private List<TrainingMonth> trainingSumary;
+    private List<TrainingMonth> months;
 }
