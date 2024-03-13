@@ -1,4 +1,4 @@
-package com.epam.taskgym.controller;
+package com.epam.taskgym.client;
 
 import com.epam.taskgym.models.TrainingRequest;
 import org.springframework.cloud.openfeign.FeignClient;
