@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +29,7 @@ public class TrainingWorkService {
     private final Logger LOGGER = LoggerFactory.getLogger(TrainingWorkService.class);
 
     public void acceptTrainerWork(TrainingRequest trainingRequest) {
+        LOGGER.info("Accepting training work ADD or DELETE request");
         validateTrainingRequest(trainingRequest);
         validateAction(trainingRequest);
         if (trainingRequest.getAction().equalsIgnoreCase("add")) {
@@ -38,10 +40,14 @@ public class TrainingWorkService {
     }
 
     public void addTrainingWork(TrainingRequest trainingRequest) {
+        LOGGER.info("Adding training work");
         validateTrainingRequestForAdd(trainingRequest);
+        LOGGER.info("Finding training work by username: {}", trainingRequest.getUsername());
         if (trainingWorkRepository.findByUsername(trainingRequest.getUsername()).isEmpty()) {
+            LOGGER.info("Creating new training work");
             createTrainingWork(trainingRequest);
         } else {
+            LOGGER.info("Updating existing training work");
             updateTrainingWork(trainingRequest);
         }
     }
@@ -77,7 +83,9 @@ public class TrainingWorkService {
 
     private TrainingYears createTrainingYears(TrainingRequest trainingRequest) {
         TrainingYears trainingYears = new TrainingYears();
-        trainingYears.setYearNumber(String.valueOf(trainingRequest.getDate().getYear()));
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(trainingRequest.getDate());
+        trainingYears.setYearNumber(String.valueOf(calendar.get(Calendar.YEAR)));
         trainingYears.setMonths(List.of(createTrainingMonth(trainingRequest)));
         trainingYearsRepository.save(trainingYears);
         return trainingYears;
@@ -87,7 +95,9 @@ public class TrainingWorkService {
         List<TrainingYears> trainingYears = trainingWork.getYears();
         boolean present = false;
         for (TrainingYears year : trainingYears) {
-            if (year.getYearNumber().equals(String.valueOf(trainingRequest.getDate().getYear()))) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(trainingRequest.getDate());
+            if (year.getYearNumber().equals(String.valueOf(calendar.get(Calendar.YEAR)))) {
                 year.setMonths(updateTrainingMonth(year, trainingRequest));
                 trainingYearsRepository.save(year);
                 present = true;
@@ -109,7 +119,9 @@ public class TrainingWorkService {
 
     private TrainingMonth createTrainingMonth(TrainingRequest trainingRequest) {
         TrainingMonth trainingMonth = new TrainingMonth();
-        trainingMonth.setMonthName(String.valueOf(trainingRequest.getDate().getMonth()));
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(trainingRequest.getDate());
+        trainingMonth.setMonthName(String.valueOf(calendar.get(Calendar.MONTH)));
         trainingMonth.setHours(trainingRequest.getDuration());
         trainingMonthRepository.save(trainingMonth);
         return trainingMonth;
@@ -119,7 +131,9 @@ public class TrainingWorkService {
         List<TrainingMonth> trainingMonths = trainingYears.getMonths();
         boolean present = false;
         for (TrainingMonth month : trainingMonths) {
-            if (month.getMonthName().equals(String.valueOf(trainingRequest.getDate().getMonth()))) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(trainingRequest.getDate());
+            if (month.getMonthName().equals(String.valueOf(calendar.get(Calendar.MONTH)))) {
                 month.setHours(month.getHours() + trainingRequest.getDuration());
                 trainingMonthRepository.save(month);
                 present = true;
