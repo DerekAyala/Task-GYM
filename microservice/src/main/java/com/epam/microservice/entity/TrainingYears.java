@@ -13,7 +13,7 @@ public class TrainingYears {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String year;
+    private String yearNumber;
     @OneToMany
     private List<TrainingMonth> months;
 }

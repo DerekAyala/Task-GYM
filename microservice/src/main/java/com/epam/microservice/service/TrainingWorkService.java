@@ -71,7 +71,7 @@ public class TrainingWorkService {
 
     private TrainingYears createTrainingYears(TrainingRequest trainingRequest) {
         TrainingYears trainingYears = new TrainingYears();
-        trainingYears.setYear(String.valueOf(trainingRequest.getDate().getYear()));
+        trainingYears.setYearNumber(String.valueOf(trainingRequest.getDate().getYear()));
         trainingYears.setMonths(List.of(createTrainingMonth(trainingRequest)));
         trainingYearsRepository.save(trainingYears);
         return trainingYears;
@@ -81,7 +81,7 @@ public class TrainingWorkService {
         List<TrainingYears> trainingYears = trainingWork.getYears();
         boolean present = false;
         for (TrainingYears year : trainingYears) {
-            if (year.getYear().equals(String.valueOf(trainingRequest.getDate().getYear()))) {
+            if (year.getYearNumber().equals(String.valueOf(trainingRequest.getDate().getYear()))) {
                 year.setMonths(updateTrainingMonth(year, trainingRequest));
                 trainingYearsRepository.save(year);
                 present = true;
@@ -103,7 +103,7 @@ public class TrainingWorkService {
 
     private TrainingMonth createTrainingMonth(TrainingRequest trainingRequest) {
         TrainingMonth trainingMonth = new TrainingMonth();
-        trainingMonth.setMonth(String.valueOf(trainingRequest.getDate().getMonth()));
+        trainingMonth.setMonthName(String.valueOf(trainingRequest.getDate().getMonth()));
         trainingMonth.setHours(trainingRequest.getDuration());
         trainingMonthRepository.save(trainingMonth);
         return trainingMonth;
@@ -113,7 +113,7 @@ public class TrainingWorkService {
         List<TrainingMonth> trainingMonths = trainingYears.getMonths();
         boolean present = false;
         for (TrainingMonth month : trainingMonths) {
-            if (month.getMonth().equals(String.valueOf(trainingRequest.getDate().getMonth()))) {
+            if (month.getMonthName().equals(String.valueOf(trainingRequest.getDate().getMonth()))) {
                 month.setHours(month.getHours() + trainingRequest.getDuration());
                 trainingMonthRepository.save(month);
                 present = true;

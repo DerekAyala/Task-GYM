@@ -14,6 +14,6 @@ public class TrainingMonth {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String month;
+    private String monthName;
     private Integer hours;
 }
