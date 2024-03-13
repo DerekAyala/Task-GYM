@@ -1,7 +1,9 @@
 package com.epam.taskgym.service;
 
+import com.epam.taskgym.client.MicroserviceClient;
 import com.epam.taskgym.models.TrainingDTO;
 import com.epam.taskgym.models.TrainingFilteredDTO;
+import com.epam.taskgym.models.TrainingRequest;
 import com.epam.taskgym.models.TrainingResponse;
 import com.epam.taskgym.entity.Trainee;
 import com.epam.taskgym.entity.Trainer;
@@ -24,6 +26,7 @@ public class TrainingService {
     private final TraineeService traineeService;
     private final TrainerService trainerService;
     private final TrainingRepository trainingRepository;
+    private final MicroserviceClient microserviceClient;
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainingService.class);
 
     @Transactional
@@ -35,6 +38,16 @@ public class TrainingService {
         Training training = Builders.buildTraining(trainee, trainer, trainingDTO.getDate(), trainer.getSpecialization(), trainingDTO.getDuration(), trainingDTO.getName());
         trainingRepository.save(training);
         LOGGER.info("Successfully created training: {}", training);
+        TrainingRequest trainingRequest = TrainingRequest.builder()
+                .username(trainer.getUser().getUsername())
+                .firstName(trainee.getUser().getFirstName())
+                .lastName(trainee.getUser().getLastName())
+                .isActive(trainer.getUser().getIsActive())
+                .date(training.getDate())
+                .duration(training.getDuration())
+                .action("ADD")
+                .build();
+        microserviceClient.actionTraining(trainingRequest);
         return new TrainingDTO(trainee.getUser().getUsername(), trainer.getUser().getUsername(), training.getDate(), training.getDuration(), training.getName());
     }
 
