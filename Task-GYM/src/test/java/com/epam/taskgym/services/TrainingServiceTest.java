@@ -1,5 +1,6 @@
 package com.epam.taskgym.services;
 
+import com.epam.taskgym.client.MicroserviceClient;
 import com.epam.taskgym.models.TrainingDTO;
 import com.epam.taskgym.models.TrainingFilteredDTO;
 import com.epam.taskgym.models.TrainingResponse;
@@ -33,6 +34,8 @@ class TrainingServiceTest {
     private TraineeService traineeService;
     @Mock
     private TrainerService trainerService;
+    @Mock
+    private MicroserviceClient microserviceClient;
 
     Trainee trainee;
     Trainer trainer;

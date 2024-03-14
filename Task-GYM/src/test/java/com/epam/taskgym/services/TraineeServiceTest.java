@@ -148,7 +148,6 @@ class TraineeServiceTest {
         traineeService.deleteTrainee(username);
 
         // Then
-        verify(trainingRepository).deleteAllByTrainee_User_Username(username);
         verify(traineeRepository).delete(trainee);
         verify(userService).deleteUser(trainee.getUser());
     }
