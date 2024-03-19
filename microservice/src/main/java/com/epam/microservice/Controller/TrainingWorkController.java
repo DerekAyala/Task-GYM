@@ -5,10 +5,7 @@ import com.epam.microservice.service.TrainingWorkService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/Workloads")
@@ -17,7 +14,9 @@ public class TrainingWorkController {
     private final TrainingWorkService trainingWorkService;
 
     @PostMapping
-    public ResponseEntity<String> actionTraining(@RequestBody TrainingRequest trainingRequest) {
+    public ResponseEntity<String> actionTraining(@RequestBody TrainingRequest trainingRequest,
+                                                 @RequestHeader("Transaction-ID") String transactionId,
+                                                    @RequestHeader("Authorization") String jwtToken) {
         trainingWorkService.acceptTrainerWork(trainingRequest);
         return new ResponseEntity<>(trainingRequest.getAction() + "Action Completed successfully", HttpStatus.OK);
     }
