@@ -101,7 +101,7 @@ public class TraineeService {
                         .duration(training.getDuration())
                         .action("delete")
                         .build();
-                microserviceClient.actionTraining(trainingRequest);
+                microserviceClient.actionTraining(trainingRequest, MDC.get("transactionId"), MDC.get("jwtToken"));
             });
             trainingRepository.deleteAll(trainings);
             LOGGER.info("Transaction Id: {}, Trainings deleted for trainee: {}", MDC.get("transactionId"), username);

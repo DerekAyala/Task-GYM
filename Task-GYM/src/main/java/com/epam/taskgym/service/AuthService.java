@@ -4,6 +4,7 @@ import com.epam.taskgym.models.LoginResponse;
 import com.epam.taskgym.security.JwtIssuer;
 import com.epam.taskgym.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.MDC;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,6 +27,7 @@ public class AuthService {
                 .toList();
 
         var token = jwtIssuer.issue(principal.getUserId(), principal.getUsername(), roles);
+        MDC.put("jwtToken", token);
         return LoginResponse.builder()
                 .accessToken(token)
                 .build();

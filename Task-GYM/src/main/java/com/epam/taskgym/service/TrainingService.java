@@ -48,7 +48,7 @@ public class TrainingService {
                 .duration(training.getDuration())
                 .action("ADD")
                 .build();
-        microserviceClient.actionTraining(trainingRequest);
+        microserviceClient.actionTraining(trainingRequest, MDC.get("transactionId"), MDC.get("jwtToken"));
         TrainingDTO trainingDTOResponse = new TrainingDTO(trainee.getUser().getUsername(), trainer.getUser().getUsername(), training.getDate(), training.getDuration(), training.getName());
         LOGGER.info("Transaction Id: {}, Successfully created training: {}", MDC.get("transactionId"), trainingDTOResponse);
         return trainingDTOResponse;
