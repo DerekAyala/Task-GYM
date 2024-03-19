@@ -6,6 +6,7 @@ import com.epam.taskgym.repository.TrainingTypeRepository;
 import com.epam.taskgym.exception.NotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ public class TrainingTypeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainingTypeService.class);
 
     public List<TrainingType> getAllTrainingTypes() {
+        LOGGER.info("Transaction Id: {}, Method: {}, Finding all training types", MDC.get("transactionId"), MDC.get("MethodName"));
         return trainingTypeRepository.findAll();
     }
 
@@ -35,10 +37,10 @@ public class TrainingTypeService {
     }
 
     public TrainingType getTrainingTypeByName(String name) {
-        LOGGER.info("Finding training type by name: {}", name);
+        LOGGER.info("Transaction Id: {}, Method: {}, Finding training type by name: {}", MDC.get("transactionId"), MDC.get("MethodName"), name);
         Optional<TrainingType> trainingType = trainingTypeRepository.findByName(name);
         if (trainingType.isEmpty()) {
-            LOGGER.error("Training type with name {} not found", name);
+            LOGGER.error("Transaction Id: {}, Method: {}, Training type with name {} not found", MDC.get("transactionId"), MDC.get("MethodName"), name);
             throw new NotFoundException("Training type with name {" + name + "} not found");
         }
         return trainingType.get();
