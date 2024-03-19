@@ -13,6 +13,7 @@ import com.epam.taskgym.repository.TrainingRepository;
 import com.epam.taskgym.exception.NotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +34,10 @@ public class TrainerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainerService.class);
 
     public Trainer getTrainerByUsername(String username) {
-        LOGGER.info("Finding trainer by username: {}", username);
+        LOGGER.info("Transaction Id: {}, Method: {}, Finding trainer by username: {}", MDC.get("transactionId"), MDC.get("MethodName"), username);
         Optional<Trainer> trainer = trainerRepository.findByUserUsername(username);
         if (trainer.isEmpty()) {
-            LOGGER.error("Trainer with username {} not found", username);
+            LOGGER.error("Transaction Id: {}, Method: {}, Trainer with username {} not found", MDC.get("transactionId"), MDC.get("MethodName"), username);
             throw new NotFoundException("Trainer with username {" + username + "} not found");
         }
         return trainer.get();
@@ -45,6 +46,7 @@ public class TrainerService {
     @Transactional
     public RegisterResponse registerTrainer(TrainerDTO trainerDTO) {
         Validations.validateTrainerDetails(trainerDTO);
+        LOGGER.info("Transaction Id: {}, Method: {}, Registering trainer: {} {}", MDC.get("transactionId"), MDC.get("MethodName"), trainerDTO.getFirstName(), trainerDTO.getLastName());
         UserResponse user = userService.createUser(trainerDTO.getFirstName(), trainerDTO.getLastName(), "ROLE_TRAINER");
         Trainer trainer = new Trainer();
         trainer.setUser(user.getUser());
@@ -52,7 +54,7 @@ public class TrainerService {
         trainer.setSpecialization(trainingTypeService.getTrainingTypeByName(trainerDTO.getSpecialization()));
         trainer.setTrainees(new ArrayList<>());
         saveTrainer(trainer);
-        LOGGER.info("Successfully registered trainer: {}", trainer.getUser().getUsername());
+        LOGGER.info("Transaction Id: {}, Successfully registered trainer: {}", MDC.get("transactionId"), user.getUser().getUsername());
         return new RegisterResponse(user.getUser().getUsername(), user.getPassword());
     }
 
@@ -64,30 +66,30 @@ public class TrainerService {
     @Transactional
     public Trainer updateTrainer(TrainerDTO trainerDTO, String username) {
         Validations.validateTrainerDetails(trainerDTO);
+        LOGGER.info("Transaction Id: {}, Method: {}, Updating trainer: {}", MDC.get("transactionId"), MDC.get("MethodName"), username);
         Trainer trainer = getTrainerByUsername(username);
         System.out.println(trainer);
         User user = userService.updateUser(trainerDTO.getFirstName(), trainerDTO.getLastName(), trainer.getUser());
-        trainer.setUser(user);
         Validations.validateSpecialization(trainerDTO.getSpecialization());
         trainer.setSpecialization(trainingTypeService.getTrainingTypeByName(trainerDTO.getSpecialization()));
         saveTrainer(trainer);
-        LOGGER.info("Trainer updated: {}", trainer.getUser().getUsername());
+        LOGGER.info("Transaction Id: {}, Successfully updated trainer: {}", MDC.get("transactionId"), user.getUsername());
         return trainer;
     }
 
     @Transactional
     public TrainerDTO ActivateDeactivateTrainer(String username, boolean isActive) {
-        LOGGER.info("Activating/Deactivating trainer: {}", username);
+        LOGGER.info("Transaction Id: {}, Method: {}, Activating/Deactivating trainer: {}", MDC.get("transactionId"), MDC.get("MethodName"), username);
         Trainer trainer = getTrainerByUsername(username);
         User user = trainer.getUser();
         user.setIsActive(isActive);
         userService.saveUser(user);
-        trainer.setUser(user);
-        LOGGER.info("Trainer {} isActive: {}", username, user.getIsActive());
+        LOGGER.info("Transaction Id: {}, Successfully activated/deactivated trainer: {}", MDC.get("transactionId"), user.getUsername());
         return Builders.convertTrainerToTraineeDTO(trainer);
     }
 
     public List<TrainerListItem> getUnassignedTrainers(String traineeUsername) {
+        LOGGER.info("Transaction Id: {}, Method: {}, Finding unassigned trainers for trainee: {}", MDC.get("transactionId"), MDC.get("MethodName"), traineeUsername);
         List<Trainer> allTrainers = trainerRepository.findAll();
         List<Trainer> trainersAssignedToTrainee = trainingRepository.findAllTrainersByTraineeUsername(traineeUsername);
         allTrainers.removeAll(trainersAssignedToTrainee);
