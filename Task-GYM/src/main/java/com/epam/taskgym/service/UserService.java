@@ -48,7 +48,7 @@ public class UserService {
         user.setFirstName((firstName == null || firstName.isEmpty()) ? user.getFirstName() : firstName);
         user.setLastName((lastName == null || lastName.isEmpty()) ? user.getLastName() : lastName);
         saveUser(user);
-        LOGGER.info("Successfully updated user: {}", user.getUsername());
+        LOGGER.info("Transaction Id: {}, Successfully updated user: {}", MDC.get("transactionId"), user.getUsername());
         return user;
     }
 

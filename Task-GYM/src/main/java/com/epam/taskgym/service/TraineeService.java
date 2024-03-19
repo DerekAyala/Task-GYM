@@ -37,6 +37,7 @@ public class TraineeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TraineeService.class);
 
     public Trainee getTraineeByUsername(String username) {
+        Validations.validateUsername(username);
         LOGGER.info("Transaction Id: {}, Method: {}, Finding trainee by username: {}", MDC.get("transactionId"), MDC.get("MethodName"), username);
         Optional<Trainee> trainee = traineeRepository.findByUserUsername(username);
         if (trainee.isEmpty()) {
@@ -127,9 +128,8 @@ public class TraineeService {
 
     @Transactional
     public List<TrainerListItem> updateTrainersList(String username, List<String> trainersUsernames) {
-        LOGGER.info("Transaction Id: {}, Updating trainers list for trainee: {}", MDC.get("transactionId"), username);
+        LOGGER.info("Transaction Id: {}, Method: {}, Updating trainers list for trainee: {}", MDC.get("transactionId"), MDC.get("MethodName"), username);
         Validations.validateList(trainersUsernames);
-        LOGGER.info("Transaction Id: {}, Method: {}, Finding trainee by username: {}", MDC.get("transactionId"), MDC.get("MethodName"), username);
         Trainee trainee = getTraineeByUsername(username);
         List<Trainer> trainers = trainee.getTrainers();
         trainersUsernames.forEach(trainerUsername -> {
