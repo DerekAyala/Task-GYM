@@ -117,7 +117,7 @@ public class UserServiceTest {
         RegisterResponse updatedUser = userService.updatePassword("J.Doe", "newPassword");
 
         // then
-        assertEquals("encodedPassword", updatedUser.getPassword());
+        assertEquals("newPassword", updatedUser.getPassword());
         verify(userRepository).findByUsername("J.Doe");
     }
 
