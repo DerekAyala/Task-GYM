@@ -12,5 +12,5 @@ public interface MicroserviceClient {
     @PostMapping("/Workloads")
     void actionTraining(@RequestBody TrainingRequest trainingRequest,
                         @RequestHeader("Transaction-ID") String transactionId,
-                        @RequestHeader("Authorization") String jwtToken);
+                        @RequestHeader("Authorization") String Authorization);
 }
