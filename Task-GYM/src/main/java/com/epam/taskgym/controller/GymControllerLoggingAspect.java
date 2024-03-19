@@ -26,13 +26,14 @@ public class GymControllerLoggingAspect {
         String transactionId = UUID.randomUUID().toString();
         // Put transactionId into MDC
         MDC.put("transactionId", transactionId);
+        MDC.put("MethodName", joinPoint.getSignature().getName());
         try {
             String methodName = joinPoint.getSignature().getName();
             LOGGER.info("Starting method: {}", methodName);
             return joinPoint.proceed();
         } finally {
-            // At the end of the transaction, remove transactionId from MDC
             MDC.remove("transactionId");
+            MDC.remove("MethodName");
         }
     }
 
