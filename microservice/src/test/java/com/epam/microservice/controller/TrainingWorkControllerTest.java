@@ -39,7 +39,7 @@ public class TrainingWorkControllerTest {
                 .build();
 
         // Act
-        ResponseEntity<String> response = trainingWorkController.actionTraining(trainingRequest, "Transaction", "Token");
+        ResponseEntity<String> response = trainingWorkController.actionTraining(trainingRequest);
 
         // Assert
         verify(trainingWorkService, times(1)).acceptTrainerWork(any(TrainingRequest.class));

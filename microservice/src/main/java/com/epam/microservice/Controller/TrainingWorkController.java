@@ -15,10 +15,7 @@ public class TrainingWorkController {
     private final TrainingWorkService trainingWorkService;
 
     @PostMapping
-    public ResponseEntity<String> actionTraining(@RequestBody TrainingRequest trainingRequest,
-                                                 @RequestHeader("Transaction-ID") String transactionId,
-                                                    @RequestHeader("Authorization") String jwtToken) {
-        MDC.put("transactionId", transactionId);
+    public ResponseEntity<String> actionTraining(@RequestBody TrainingRequest trainingRequest) {
         trainingWorkService.acceptTrainerWork(trainingRequest);
         return new ResponseEntity<>(trainingRequest.getAction() + "Action Completed successfully", HttpStatus.OK);
     }
