@@ -44,7 +44,7 @@ public class GymController {
 
     // 4. Update Password
     @PutMapping(value = "/user/{username}/password")
-    public ResponseEntity<User> updatePassword(
+    public ResponseEntity<RegisterResponse> updatePassword(
             @PathVariable String username,
             @RequestParam String newPassword) {
         return new ResponseEntity<>(userService.updatePassword(username, newPassword), HttpStatus.OK);

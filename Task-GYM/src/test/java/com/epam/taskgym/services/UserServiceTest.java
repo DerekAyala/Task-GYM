@@ -3,6 +3,7 @@ package com.epam.taskgym.services;
 import com.epam.taskgym.entity.User;
 import com.epam.taskgym.exception.MissingAttributes;
 import com.epam.taskgym.exception.NotFoundException;
+import com.epam.taskgym.models.RegisterResponse;
 import com.epam.taskgym.models.UserResponse;
 import com.epam.taskgym.repository.UserRepository;
 import com.epam.taskgym.service.UserService;
@@ -113,12 +114,11 @@ public class UserServiceTest {
         given(passwordEncoder.encode(anyString())).willReturn("encodedPassword");
 
         // when
-        User updatedUser = userService.updatePassword("J.Doe", "newPassword");
+        RegisterResponse updatedUser = userService.updatePassword("J.Doe", "newPassword");
 
         // then
         assertEquals("encodedPassword", updatedUser.getPassword());
         verify(userRepository).findByUsername("J.Doe");
-        verify(userRepository).save(updatedUser);
     }
 
     @Test

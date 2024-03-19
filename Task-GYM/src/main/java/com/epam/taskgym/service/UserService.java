@@ -4,6 +4,7 @@ import com.epam.taskgym.entity.User;
 import com.epam.taskgym.exception.NotFoundException;
 import com.epam.taskgym.helpers.Builders;
 import com.epam.taskgym.helpers.Validations;
+import com.epam.taskgym.models.RegisterResponse;
 import com.epam.taskgym.models.UserResponse;
 import com.epam.taskgym.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -65,12 +66,13 @@ public class UserService {
     }
 
     @Transactional
-    public User updatePassword(String username, String newPassword) {
+    public RegisterResponse updatePassword(String username, String newPassword) {
         LOGGER.info("Updating password for user with username: {}", username);
         User user = findByUsername(username).orElseThrow(() -> new NotFoundException("User not found"));
         Validations.validatePassword(newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
-        return saveUser(user);
+        saveUser(user);
+        return new RegisterResponse(user.getUsername(), newPassword);
     }
 
     private String generateUniqueUsername(String firstName, String lastName) {
