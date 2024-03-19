@@ -27,7 +27,6 @@ public class AuthService {
                 .toList();
 
         var token = jwtIssuer.issue(principal.getUserId(), principal.getUsername(), roles);
-        MDC.put("jwtToken", token);
         return LoginResponse.builder()
                 .accessToken(token)
                 .build();
