@@ -13,6 +13,7 @@ import com.epam.taskgym.helpers.Validations;
 import com.epam.taskgym.repository.TrainingRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +33,12 @@ public class TrainingService {
     @Transactional
     public TrainingDTO createTraining(TrainingDTO trainingDTO) {
         Validations.validateTrainingDetails(trainingDTO);
+        LOGGER.info("Training Id: {}, Method: {}, Creating training: {}", MDC.get("transactionId"), MDC.get("MethodName"), trainingDTO);
         Trainee trainee = traineeService.getTraineeByUsername(trainingDTO.getTraineeUsername());
         Trainer trainer = trainerService.getTrainerByUsername(trainingDTO.getTrainerUsername());
         manyToManyTrainerAndTrainee(trainee, trainer);
         Training training = Builders.buildTraining(trainee, trainer, trainingDTO.getDate(), trainer.getSpecialization(), trainingDTO.getDuration(), trainingDTO.getName());
         trainingRepository.save(training);
-        LOGGER.info("Successfully created training: {}", training);
         TrainingRequest trainingRequest = TrainingRequest.builder()
                 .username(trainer.getUser().getUsername())
                 .firstName(trainer.getUser().getFirstName())
@@ -48,35 +49,39 @@ public class TrainingService {
                 .action("ADD")
                 .build();
         microserviceClient.actionTraining(trainingRequest);
-        return new TrainingDTO(trainee.getUser().getUsername(), trainer.getUser().getUsername(), training.getDate(), training.getDuration(), training.getName());
+        TrainingDTO trainingDTOResponse = new TrainingDTO(trainee.getUser().getUsername(), trainer.getUser().getUsername(), training.getDate(), training.getDuration(), training.getName());
+        LOGGER.info("Transaction Id: {}, Successfully created training: {}", MDC.get("transactionId"), trainingDTOResponse);
+        return trainingDTOResponse;
     }
 
     @Transactional
     public void manyToManyTrainerAndTrainee(Trainee trainee, Trainer trainer) {
-        LOGGER.info("Creating many to many relationship between trainee: {} and trainer: {}", trainee.getUser().getUsername(), trainer.getUser().getUsername());
+        LOGGER.info("Transaction Id: {}, Method: {}, Creating many to many relationship between trainee: {} and trainer: {}", MDC.get("transactionId"), MDC.get("MethodName"), trainee.getUser().getUsername(), trainer.getUser().getUsername());
         List<Trainer> trainers = trainee.getTrainers();
         List<Trainee> trainees = trainer.getTrainees();
         if (!trainers.contains(trainer)) {
             trainers.add(trainer);
             trainerService.saveTrainer(trainer);
+            LOGGER.info("Transaction Id: {}, Saving trainer: {}", MDC.get("transactionId"), trainer.getUser().getUsername());
         }
         if (!trainees.contains(trainee)) {
-            trainees.add(trainee);
             traineeService.saveTrainee(trainee);
+            LOGGER.info("Transaction Id: {}, Saving trainee: {}", MDC.get("transactionId"), trainee.getUser().getUsername());
+            trainees.add(trainee);
         }
     }
 
     public List<TrainingResponse> getTraineeTrainingsFiltered(TrainingFilteredDTO trainingFilteredDTO) {
-        LOGGER.info("Getting trainee trainings filtered by: {}", trainingFilteredDTO);
         Validations.validateUsername(trainingFilteredDTO.getUsername());
+        LOGGER.info("Transaction Id: {}, Method: {}, Getting trainee trainings filtered by: {}", MDC.get("transactionId"), MDC.get("MethodName"), trainingFilteredDTO);
         List<Training> trainings = trainingRepository.getTraineeFilteredTrainings(trainingFilteredDTO.getUsername(), trainingFilteredDTO.getDateFrom(), trainingFilteredDTO.getDateTo(), trainingFilteredDTO.getTrainingTypeName(), trainingFilteredDTO.getTrainerOrTraineeName());
         return Builders.convertTrainingsToTrainingResponse(trainings, true);
 
     }
 
     public List<TrainingResponse> getTrainerTrainingsFiltered(TrainingFilteredDTO trainingFilteredDTO) {
-        LOGGER.info("Getting trainer trainings filtered by: {}", trainingFilteredDTO);
         Validations.validateUsername(trainingFilteredDTO.getUsername());
+        LOGGER.info("Transaction Id: {}, Method: {}, Getting trainer trainings filtered by: {}", MDC.get("transactionId"), MDC.get("MethodName"), trainingFilteredDTO);
         List<Training> trainings = trainingRepository.getTrainerFilteredTrainings(trainingFilteredDTO.getUsername(), trainingFilteredDTO.getDateFrom(), trainingFilteredDTO.getDateTo(), trainingFilteredDTO.getTrainerOrTraineeName());
         return Builders.convertTrainingsToTrainingResponse(trainings, false);
     }
