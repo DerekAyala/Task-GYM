@@ -34,6 +34,7 @@ public class TrainerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainerService.class);
 
     public Trainer getTrainerByUsername(String username) {
+        Validations.validateUsername(username);
         LOGGER.info("Transaction Id: {}, Method: {}, Finding trainer by username: {}", MDC.get("transactionId"), MDC.get("MethodName"), username);
         Optional<Trainer> trainer = trainerRepository.findByUserUsername(username);
         if (trainer.isEmpty()) {
@@ -90,6 +91,7 @@ public class TrainerService {
 
     public List<TrainerListItem> getUnassignedTrainers(String traineeUsername) {
         LOGGER.info("Transaction Id: {}, Method: {}, Finding unassigned trainers for trainee: {}", MDC.get("transactionId"), MDC.get("MethodName"), traineeUsername);
+        Validations.validateUsername(traineeUsername);
         List<Trainer> allTrainers = trainerRepository.findAll();
         List<Trainer> trainersAssignedToTrainee = trainingRepository.findAllTrainersByTraineeUsername(traineeUsername);
         allTrainers.removeAll(trainersAssignedToTrainee);
