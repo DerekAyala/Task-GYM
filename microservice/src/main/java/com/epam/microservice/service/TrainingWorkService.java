@@ -103,14 +103,16 @@ public class TrainingWorkService {
         trainingWork.setLastName(trainingRequest.getLastName());
         trainingWork.setStatus(trainingRequest.getIsActive());
         trainingWork.setUsername(trainingRequest.getUsername());
-        trainingWork.setYears(List.of(createTrainingYears(trainingRequest)));
+        List<TrainingYears> years = List.of(createTrainingYears(trainingRequest));
+        trainingWork.setYears(years);
         trainingWorkRepository.save(trainingWork);
         LOGGER.info("Successfully created training work: {}", trainingWork);
     }
 
     private void updateTrainingWork(TrainingRequest trainingRequest) {
         TrainingWork trainingWork = trainingWorkRepository.findByUsername(trainingRequest.getUsername()).get();
-        trainingWork.setYears(updateTrainingYears(trainingWork, trainingRequest));
+        List<TrainingYears> years = updateTrainingYears(trainingWork, trainingRequest);
+        trainingWork.setYears(years);
         trainingWorkRepository.save(trainingWork);
         LOGGER.info("Successfully updated training work: {}", trainingWork);
     }
@@ -120,7 +122,8 @@ public class TrainingWorkService {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(trainingRequest.getDate());
         trainingYears.setYearNumber(String.valueOf(calendar.get(Calendar.YEAR)));
-        trainingYears.setMonths(List.of(createTrainingMonth(trainingRequest)));
+        List<TrainingMonth> months = List.of(createTrainingMonth(trainingRequest));
+        trainingYears.setMonths(months);
         trainingYearsRepository.save(trainingYears);
         return trainingYears;
     }
@@ -132,14 +135,16 @@ public class TrainingWorkService {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(trainingRequest.getDate());
             if (year.getYearNumber().equals(String.valueOf(calendar.get(Calendar.YEAR)))) {
-                year.setMonths(updateTrainingMonth(year, trainingRequest));
+                List<TrainingMonth> months = updateTrainingMonth(year, trainingRequest);
+                year.setMonths(months);
                 trainingYearsRepository.save(year);
                 present = true;
                 break;
             }
         }
         if (!present) {
-            trainingYears.add(createTrainingYears(trainingRequest));
+            TrainingYears ty = createTrainingYears(trainingRequest);
+            trainingYears.add(ty);
         }
         return trainingYears;
     }
@@ -161,14 +166,16 @@ public class TrainingWorkService {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(trainingRequest.getDate());
             if (month.getMonthName().equals(String.valueOf(calendar.get(Calendar.MONTH)))) {
-                month.setHours(month.getHours() + trainingRequest.getDuration());
+                int hours = month.getHours() + trainingRequest.getDuration();
+                month.setHours(hours);
                 trainingMonthRepository.save(month);
                 present = true;
                 break;
             }
         }
         if (!present) {
-            trainingMonths.add(createTrainingMonth(trainingRequest));
+            TrainingMonth trainingMonth = createTrainingMonth(trainingRequest);
+            trainingMonths.add(trainingMonth);
         }
         return trainingMonths;
     }
