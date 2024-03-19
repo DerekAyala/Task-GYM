@@ -25,6 +25,7 @@ public class UserService {
     private final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     private Optional<User> findByUsername(String username) {
+        Validations.validateUsername(username);
         LOGGER.info("Transaction Id: {}, Finding user by username: {}", MDC.get("transactionId"),username);
         return userRepository.findByUsername(username);
     }
