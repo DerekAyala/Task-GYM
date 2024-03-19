@@ -1,6 +1,5 @@
 package com.epam.taskgym.service;
 
-import com.epam.taskgym.client.MicroserviceClient;
 import com.epam.taskgym.entity.Training;
 import com.epam.taskgym.models.*;
 import com.epam.taskgym.entity.Trainee;
@@ -33,7 +32,6 @@ public class TraineeService {
     private final UserService userService;
     private final TrainingRepository trainingRepository;
     private final TrainerRepository trainerRepository;
-    private final MicroserviceClient microserviceClient;
     private static final Logger LOGGER = LoggerFactory.getLogger(TraineeService.class);
 
     public Trainee getTraineeByUsername(String username) {
@@ -101,7 +99,7 @@ public class TraineeService {
                         .duration(training.getDuration())
                         .action("delete")
                         .build();
-                microserviceClient.actionTraining(trainingRequest, MDC.get("transactionId"), MDC.get("Authorization"));
+                //microserviceClient.actionTraining(trainingRequest, MDC.get("transactionId"), MDC.get("Authorization"));
             });
             trainingRepository.deleteAll(trainings);
             LOGGER.info("Transaction Id: {}, Trainings deleted for trainee: {}", MDC.get("transactionId"), username);

@@ -1,6 +1,5 @@
 package com.epam.taskgym.service;
 
-import com.epam.taskgym.client.MicroserviceClient;
 import com.epam.taskgym.models.TrainingDTO;
 import com.epam.taskgym.models.TrainingFilteredDTO;
 import com.epam.taskgym.models.TrainingRequest;
@@ -27,7 +26,6 @@ public class TrainingService {
     private final TraineeService traineeService;
     private final TrainerService trainerService;
     private final TrainingRepository trainingRepository;
-    private final MicroserviceClient microserviceClient;
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainingService.class);
 
     @Transactional
@@ -49,7 +47,7 @@ public class TrainingService {
                 .action("ADD")
                 .build();
         LOGGER.info("Authorization: {}", MDC.get("Authorization"));
-        microserviceClient.actionTraining(trainingRequest, MDC.get("transactionId"), MDC.get("Authorization"));
+        //microserviceClient.actionTraining(trainingRequest, MDC.get("transactionId"), MDC.get("Authorization"));
         TrainingDTO trainingDTOResponse = new TrainingDTO(trainee.getUser().getUsername(), trainer.getUser().getUsername(), training.getDate(), training.getDuration(), training.getName());
         LOGGER.info("Transaction Id: {}, Successfully created training: {}", MDC.get("transactionId"), trainingDTOResponse);
         return trainingDTOResponse;
