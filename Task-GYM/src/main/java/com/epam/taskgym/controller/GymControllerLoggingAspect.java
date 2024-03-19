@@ -29,7 +29,7 @@ public class GymControllerLoggingAspect {
         MDC.put("MethodName", joinPoint.getSignature().getName());
         try {
             String methodName = joinPoint.getSignature().getName();
-            LOGGER.info("Starting method: {}", methodName);
+            LOGGER.info("Starting method: {}, Transaction Id: {}", methodName, transactionId);
             return joinPoint.proceed();
         } finally {
             MDC.remove("transactionId");
