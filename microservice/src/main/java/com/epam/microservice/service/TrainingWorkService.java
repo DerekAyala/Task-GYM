@@ -57,6 +57,7 @@ public class TrainingWorkService {
         validateTrainingRequestForDelete(trainingRequest);
         Optional<TrainingWork> OptionalTrainingWork = trainingWorkRepository.findByUsername(trainingRequest.getUsername());
         if(OptionalTrainingWork.isEmpty()) {
+            LOGGER.error("Training work not found");
             throw new NotFoundException("Training work not found");
         }
         TrainingWork trainingWork = OptionalTrainingWork.get();
@@ -65,14 +66,18 @@ public class TrainingWorkService {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(trainingRequest.getDate());
             if (year.getYearNumber().equals(String.valueOf(calendar.get(Calendar.YEAR)))) {
+                LOGGER.info("Year found: {}", year);
                 List<TrainingMonth> trainingMonths = year.getMonths();
                 for (TrainingMonth month : trainingMonths) {
                     if (month.getMonthName().equals(String.valueOf(calendar.get(Calendar.MONTH)))) {
+                        LOGGER.info("Month found: {}", month);
                         int result = month.getHours() - trainingRequest.getDuration();
                         if (result == 0){
+                            LOGGER.info("Deleting month: {}", month);
                             trainingMonths.remove(month);
                             trainingMonthRepository.delete(month);
                         } else {
+                            LOGGER.info("Updating month: {}", month);
                             month.setHours(result);
                             trainingMonthRepository.save(month);
                         }
@@ -80,9 +85,11 @@ public class TrainingWorkService {
                     }
                 }
                 if (trainingMonths.isEmpty()) {
+                    LOGGER.info("Deleting year: {}", year);
                     trainingYears.remove(year);
                     trainingYearsRepository.delete(year);
                 } else {
+                    LOGGER.info("Updating year: {}", year);
                     year.setMonths(trainingMonths);
                     trainingYearsRepository.save(year);
                 }
@@ -90,8 +97,10 @@ public class TrainingWorkService {
             }
         }
         if (trainingYears.isEmpty()) {
+            LOGGER.info("Deleting training work: {}", trainingWork);
             trainingWorkRepository.delete(trainingWork);
         } else {
+            LOGGER.info("Updating training work: {}", trainingWork);
             trainingWork.setYears(trainingYears);
             trainingWorkRepository.save(trainingWork);
         }
@@ -118,6 +127,7 @@ public class TrainingWorkService {
     }
 
     private TrainingYears createTrainingYears(TrainingRequest trainingRequest) {
+        LOGGER.info("Creating new training years");
         TrainingYears trainingYears = new TrainingYears();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(trainingRequest.getDate());
@@ -125,6 +135,7 @@ public class TrainingWorkService {
         List<TrainingMonth> months = List.of(createTrainingMonth(trainingRequest));
         trainingYears.setMonths(months);
         trainingYearsRepository.save(trainingYears);
+        LOGGER.info("Successfully created training years: {}", trainingYears);
         return trainingYears;
     }
 
@@ -135,14 +146,17 @@ public class TrainingWorkService {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(trainingRequest.getDate());
             if (year.getYearNumber().equals(String.valueOf(calendar.get(Calendar.YEAR)))) {
+                LOGGER.info("Year found: {}", year);
                 List<TrainingMonth> months = updateTrainingMonth(year, trainingRequest);
                 year.setMonths(months);
                 trainingYearsRepository.save(year);
+                LOGGER.info("Successfully updated training years: {}", year);
                 present = true;
                 break;
             }
         }
         if (!present) {
+            LOGGER.info("Creating new training years");
             TrainingYears ty = createTrainingYears(trainingRequest);
             trainingYears.add(ty);
         }
@@ -150,6 +164,7 @@ public class TrainingWorkService {
     }
 
     private TrainingMonth createTrainingMonth(TrainingRequest trainingRequest) {
+        LOGGER.info("Creating new training month");
         TrainingMonth trainingMonth = new TrainingMonth();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(trainingRequest.getDate());
@@ -166,9 +181,11 @@ public class TrainingWorkService {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(trainingRequest.getDate());
             if (month.getMonthName().equals(String.valueOf(calendar.get(Calendar.MONTH)))) {
+                LOGGER.info("Month found: {}", month);
                 int hours = month.getHours() + trainingRequest.getDuration();
                 month.setHours(hours);
                 trainingMonthRepository.save(month);
+                LOGGER.info("Successfully updated training month: {}", month);
                 present = true;
                 break;
             }
