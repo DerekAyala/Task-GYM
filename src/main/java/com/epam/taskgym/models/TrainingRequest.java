@@ -17,4 +17,5 @@ public class TrainingRequest {
     private Date date;
     private Integer duration;
     private String action;
+    private String transactionId;
 }
