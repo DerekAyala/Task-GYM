@@ -13,6 +13,7 @@ import com.epam.taskgym.repository.TrainingRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.MDC;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ public class TrainingService {
     private final TraineeService traineeService;
     private final TrainerService trainerService;
     private final TrainingRepository trainingRepository;
+    private final JmsTemplate jmsTemplate;
     private static final Logger LOGGER = LoggerFactory.getLogger(TrainingService.class);
 
     @Transactional
@@ -45,8 +47,9 @@ public class TrainingService {
                 .date(training.getDate())
                 .duration(training.getDuration())
                 .action("ADD")
+                .transactionId(MDC.get("transactionId"))
                 .build();
-        LOGGER.info("Authorization: {}", MDC.get("Authorization"));
+        jmsTemplate.convertAndSend("training", trainingRequest);
         //microserviceClient.actionTraining(trainingRequest, MDC.get("transactionId"), MDC.get("Authorization"));
         TrainingDTO trainingDTOResponse = new TrainingDTO(trainee.getUser().getUsername(), trainer.getUser().getUsername(), training.getDate(), training.getDuration(), training.getName());
         LOGGER.info("Transaction Id: {}, Successfully created training: {}", MDC.get("transactionId"), trainingDTOResponse);
