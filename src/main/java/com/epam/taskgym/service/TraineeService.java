@@ -90,15 +90,7 @@ public class TraineeService {
             });
             List<Training> trainings = trainingRepository.findAllByTrainee_User_Username(username);
             trainings.forEach(training -> {
-                TrainingRequest trainingRequest = TrainingRequest.builder()
-                        .username(training.getTrainer().getUser().getUsername())
-                        .firstName(training.getTrainer().getUser().getFirstName())
-                        .lastName(training.getTrainer().getUser().getLastName())
-                        .isActive(training.getTrainer().getUser().getIsActive())
-                        .date(training.getDate())
-                        .duration(training.getDuration())
-                        .action("delete")
-                        .build();
+                TrainingRequest trainingRequest = new TrainingRequest(training.getTrainer().getUser().getUsername(), training.getTrainer().getUser().getFirstName(), training.getTrainer().getUser().getLastName(), training.getTrainer().getUser().getIsActive(), training.getDate(), training.getDuration(), "DELETE", MDC.get("transactionId"));
                 //microserviceClient.actionTraining(trainingRequest, MDC.get("transactionId"), MDC.get("Authorization"));
             });
             trainingRepository.deleteAll(trainings);

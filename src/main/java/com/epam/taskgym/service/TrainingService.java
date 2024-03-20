@@ -39,17 +39,8 @@ public class TrainingService {
         manyToManyTrainerAndTrainee(trainee, trainer);
         Training training = Builders.buildTraining(trainee, trainer, trainingDTO.getDate(), trainer.getSpecialization(), trainingDTO.getDuration(), trainingDTO.getName());
         trainingRepository.save(training);
-        TrainingRequest trainingRequest = TrainingRequest.builder()
-                .username(trainer.getUser().getUsername())
-                .firstName(trainer.getUser().getFirstName())
-                .lastName(trainer.getUser().getLastName())
-                .isActive(trainer.getUser().getIsActive())
-                .date(training.getDate())
-                .duration(training.getDuration())
-                .action("ADD")
-                .transactionId(MDC.get("transactionId"))
-                .build();
-        jmsTemplate.convertAndSend("training", trainingRequest);
+        TrainingRequest trainingRequest = new TrainingRequest(trainer.getUser().getUsername(), trainer.getUser().getFirstName(), trainer.getUser().getLastName(), trainer.getUser().getIsActive(), training.getDate(), training.getDuration(), "add", MDC.get("transactionId"));
+        jmsTemplate.convertAndSend("trainingQueue", trainingRequest);
         //microserviceClient.actionTraining(trainingRequest, MDC.get("transactionId"), MDC.get("Authorization"));
         TrainingDTO trainingDTOResponse = new TrainingDTO(trainee.getUser().getUsername(), trainer.getUser().getUsername(), training.getDate(), training.getDuration(), training.getName());
         LOGGER.info("Transaction Id: {}, Successfully created training: {}", MDC.get("transactionId"), trainingDTOResponse);
