@@ -1,6 +1,5 @@
 package com.epam.taskgym.security;
 
-import com.epam.taskgym.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
